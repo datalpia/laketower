@@ -1,6 +1,6 @@
 # Laketower
 
-> Navigate your data lake
+> Oversee your lakehouse
 
 ## License
 

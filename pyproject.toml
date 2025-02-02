@@ -1,0 +1,32 @@
+[project]
+name = "laketower"
+version = "0.0.0"
+description = "Oversee your lakehouse"
+readme = "README.md"
+authors = [
+    { name = "Romain Clement", email = "git@romain-clement.net" }
+]
+requires-python = ">=3.9,<3.14"
+dependencies = [
+    "deltalake",
+    "pydantic",
+    "pyyaml",
+    "rich",
+]
+
+[project.scripts]
+laketower = "laketower:cli"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "mypy",
+    "pytest",
+    "pytest-cov",
+    "ruff",
+    "types-pyyaml",
+    "watchdog",
+]
