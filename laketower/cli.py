@@ -1,5 +1,6 @@
 import argparse
 import enum
+from datetime import datetime, timezone
 from pathlib import Path
 
 import deltalake
@@ -9,7 +10,7 @@ import rich.tree
 import yaml
 
 
-class TableFormats(enum.StrEnum):
+class TableFormats(str, enum.Enum):
     delta = "delta"
 
 
@@ -48,6 +49,40 @@ def load_yaml_config(config_path: Path) -> Config:
     return Config.model_validate(config_dict)
 
 
+class TableMetadata(pydantic.BaseModel):
+    table_format: TableFormats
+    name: str
+    description: str
+    uri: str
+    id: str
+    version: int
+    created_at: datetime
+    partitions: list[str]
+    configuration: dict[str, str]
+
+
+def load_table_metadata(table_config: ConfigTable) -> TableMetadata:
+    def load_delta_table_metadata(table_config: ConfigTable) -> TableMetadata:
+        delta_table = deltalake.DeltaTable(table_config.uri)
+        metadata = delta_table.metadata()
+        return TableMetadata(
+            table_format=table_config.table_format,
+            name=metadata.name,
+            description=metadata.description,
+            uri=delta_table.table_uri,
+            id=str(metadata.id),
+            version=delta_table.version(),
+            created_at=datetime.fromtimestamp(
+                metadata.created_time / 1000, tz=timezone.utc
+            ),
+            partitions=metadata.partition_columns,
+            configuration=metadata.configuration,
+        )
+
+    format_handler = {TableFormats.delta: load_delta_table_metadata}
+    return format_handler[table_config.table_format](table_config)
+
+
 def validate_config(config_path: Path) -> None:
     console = rich.get_console()
     try:
@@ -64,8 +99,27 @@ def list_tables(config_path: Path) -> None:
     tree = rich.tree.Tree("tables")
     for table in config.tables:
         table_tree = tree.add(table.name)
-        table_tree.add(f"format: {table.table_format}")
+        table_tree.add(f"format: {table.table_format.value}")
         table_tree.add(f"uri: {table.uri}")
+    console = rich.get_console()
+    console.print(tree)
+
+
+def inspect_table(config_path: Path, table_name: str) -> None:
+    config = load_yaml_config(config_path)
+    table_config = next(filter(lambda x: x.name, config.tables))
+    metadata = load_table_metadata(table_config)
+
+    tree = rich.tree.Tree(table_name)
+    tree.add(f"name: {metadata.name}")
+    tree.add(f"description: {metadata.description}")
+    tree.add(f"format: {metadata.table_format.value}")
+    tree.add(f"uri: {metadata.uri}")
+    tree.add(f"id: {metadata.id}")
+    tree.add(f"version: {metadata.version}")
+    tree.add(f"created at: {metadata.created_at}")
+    tree.add(f"partitions: {', '.join(metadata.partitions)}")
+    tree.add(f"configuration: {metadata.configuration}")
     console = rich.get_console()
     console.print(tree)
 
@@ -96,6 +150,12 @@ def cli() -> None:
         "list", help="List all registered tables"
     )
     parser_tables_list.set_defaults(func=lambda x: list_tables(x.config))
+
+    parser_tables_inspect = subsparsers_tables.add_parser(
+        "inspect", help="Inspect a given table"
+    )
+    parser_tables_inspect.add_argument("table", help="Name of the table")
+    parser_tables_inspect.set_defaults(func=lambda x: inspect_table(x.config, x.table))
 
     args = parser.parse_args()
     args.func(args)
