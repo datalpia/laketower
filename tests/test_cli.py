@@ -1,4 +1,5 @@
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -137,4 +138,44 @@ def test_tables_list(
     for table in sample_config["tables"]:
         assert table["name"] in output
         assert Path(table["uri"]).name in output
-        assert table["format"] in output
+        assert f"format: {table['format']}" in output
+
+
+def test_tables_inspect(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    sample_config: dict[str, Any],
+    sample_config_path: Path,
+    delta_table: deltalake.DeltaTable,
+) -> None:
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "laketower",
+            "--config",
+            str(sample_config_path),
+            "tables",
+            "inspect",
+            sample_config["tables"][0]["name"],
+        ],
+    )
+
+    cli.cli()
+
+    captured = capsys.readouterr()
+    output = captured.out
+    assert "format: delta" in output
+    assert f"name: {delta_table.metadata().name}" in output
+    assert f"description: {delta_table.metadata().description}" in output
+    assert "uri:" in output
+    assert f"id: {delta_table.metadata().id}" in output
+    assert f"version: {delta_table.version()}" in output
+    assert (
+        f"created at: {datetime.fromtimestamp(delta_table.metadata().created_time / 1000, tz=timezone.utc)}"
+        in output
+    )
+    assert (
+        f"partitions: {', '.join(delta_table.metadata().partition_columns)}" in output
+    )
+    assert f"configuration: {delta_table.metadata().configuration}" in output
