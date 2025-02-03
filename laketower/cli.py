@@ -45,7 +45,7 @@ class Config(pydantic.BaseModel):
 
 
 def load_yaml_config(config_path: Path) -> Config:
-    config_dict = yaml.load(config_path.read_text(), Loader=yaml.Loader)
+    config_dict = yaml.safe_load(config_path.read_text())
     return Config.model_validate(config_dict)
 
 

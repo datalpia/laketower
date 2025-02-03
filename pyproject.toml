@@ -23,7 +23,10 @@ build-backend = "hatchling.build"
 
 [dependency-groups]
 dev = [
+    "bandit",
+    "invoke",
     "mypy",
+    "pip-audit",
     "pytest",
     "pytest-cov",
     "ruff",
