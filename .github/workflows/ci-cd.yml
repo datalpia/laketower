@@ -1,0 +1,106 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+      - name: Run QA
+        run: uv run inv qa
+      - name: Upload coverage artifacts
+        if: ${{ matrix.python-version == 3.13 }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: .coverage
+          include-hidden-files: true
+
+  coverage:
+    runs-on: ubuntu-latest
+    needs: ci
+    if: ${{ !cancelled() }}
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    env:
+      CODECOV_MD_FILE: "coverage.md"
+      CODECOV_REPORT_TITLE: "Code coverage report"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.13"
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+      - uses: actions/download-artifact@v4
+        with:
+          name: coverage
+      - name: Generate Markdown code coverage report
+        run: |
+          echo "## ${CODECOV_REPORT_TITLE}" >> "${CODECOV_MD_FILE}"
+          uv run coverage report --show-missing --format=markdown >> "${CODECOV_MD_FILE}"
+      - name: Export code coverage report to job summary
+        run: cat "${CODECOV_MD_FILE}" >> "${GITHUB_STEP_SUMMARY}"
+      - name: Add or update code coverage comment to pull request
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs')
+
+            const body = fs.readFileSync(`${process.env.CODECOV_MD_FILE}`, 'utf-8')
+
+            const comments = await github.paginate(
+              github.rest.issues.listComments,
+              {
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+              }
+            )
+            const matches = comments.filter(
+              comment => comment.body && comment.body.includes(`${process.env.CODECOV_REPORT_TITLE}`)
+            )
+            const comment = matches[0]
+
+            if (comment) {
+              const commentId = comment.id.toString()
+              console.log(`updating existing comment comment_id=${commentId}`)
+              github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: commentId,
+                body: body,
+              })
+            } else {
+              console.log('adding new comment')
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body,
+              })
+            }
+      - name: Check code coverage constraint
+        run: uv run coverage report --fail-under=100
