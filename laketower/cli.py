@@ -1,10 +1,17 @@
+from __future__ import annotations
+
 import argparse
 import enum
 from datetime import datetime, timezone
 from pathlib import Path
 
 import deltalake
+import duckdb
+import pandas as pd
+import pyarrow as pa
 import pydantic
+import rich.panel
+import rich.table
 import rich.text
 import rich.tree
 import yaml
@@ -83,6 +90,32 @@ def load_table_metadata(table_config: ConfigTable) -> TableMetadata:
     return format_handler[table_config.table_format](table_config)
 
 
+def load_table_schema(table_config: ConfigTable) -> pa.Schema:
+    def load_delta_table_schema(table_config: ConfigTable) -> pa.Schema:
+        delta_table = deltalake.DeltaTable(table_config.uri)
+        return delta_table.schema().to_pyarrow()
+
+    schema_handler = {TableFormats.delta: load_delta_table_schema}
+    return schema_handler[table_config.table_format](table_config)
+
+
+def execute_query_table(table_config: ConfigTable, sql_query: str) -> pd.DataFrame:
+    def execute_delta_table_query(table_config: ConfigTable) -> pd.DataFrame:
+        delta_table = deltalake.DeltaTable(table_config.uri)
+        table_name = table_config.name
+        view_name = f"{table_name}_view"
+        try:
+            conn = duckdb.connect()
+            conn.register(view_name, delta_table.to_pyarrow_dataset())
+            conn.execute(f"create table {table_name} as select * from {view_name}")  # nosec B608
+            return conn.execute(sql_query).df()
+        except duckdb.Error as e:
+            raise ValueError(str(e)) from e
+
+    query_handler = {TableFormats.delta: execute_delta_table_query}
+    return query_handler[table_config.table_format](table_config)
+
+
 def validate_config(config_path: Path) -> None:
     console = rich.get_console()
     try:
@@ -107,7 +140,7 @@ def list_tables(config_path: Path) -> None:
 
 def inspect_table(config_path: Path, table_name: str) -> None:
     config = load_yaml_config(config_path)
-    table_config = next(filter(lambda x: x.name, config.tables))
+    table_config = next(filter(lambda x: x.name == table_name, config.tables))
     metadata = load_table_metadata(table_config)
 
     tree = rich.tree.Tree(table_name)
@@ -122,6 +155,30 @@ def inspect_table(config_path: Path, table_name: str) -> None:
     tree.add(f"configuration: {metadata.configuration}")
     console = rich.get_console()
     console.print(tree)
+
+
+def query_table(config_path: Path, table_name: str, sql_query: str | None) -> None:
+    if not sql_query:
+        sql_query = f"select * from {table_name} limit 10"  # nosec B608
+
+    config = load_yaml_config(config_path)
+    table_config = next(filter(lambda x: x.name == table_name, config.tables))
+    _ = load_table_schema(table_config)
+
+    out: rich.jupyter.JupyterMixin
+    try:
+        results = execute_query_table(table_config, sql_query)
+        out = rich.table.Table()
+        for column in results.columns:
+            out.add_column(column)
+        for value_list in results.values.tolist():
+            row = [str(x) for x in value_list]
+            out.add_row(*row)
+    except ValueError as e:
+        out = rich.panel.Panel.fit(f"[red]{e}")
+
+    console = rich.get_console()
+    console.print(out)
 
 
 def cli() -> None:
@@ -156,6 +213,15 @@ def cli() -> None:
     )
     parser_tables_inspect.add_argument("table", help="Name of the table")
     parser_tables_inspect.set_defaults(func=lambda x: inspect_table(x.config, x.table))
+
+    parser_tables_query = subsparsers_tables.add_parser(
+        "query", help="Query a given table"
+    )
+    parser_tables_query.add_argument("table", help="Name of the table")
+    parser_tables_query.add_argument("--sql", help="SQL query to execute")
+    parser_tables_query.set_defaults(
+        func=lambda x: query_table(x.config, x.table, x.sql)
+    )
 
     args = parser.parse_args()
     args.func(args)

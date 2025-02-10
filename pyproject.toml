@@ -9,6 +9,9 @@ authors = [
 requires-python = ">=3.9,<3.14"
 dependencies = [
     "deltalake",
+    "duckdb",
+    "pandas",
+    "pyarrow<19",  # see: https://github.com/apache/arrow/issues/45283
     "pydantic",
     "pyyaml",
     "rich",
@@ -26,7 +29,9 @@ dev = [
     "bandit",
     "invoke",
     "mypy",
+    "pandas-stubs",
     "pip-audit",
+    "pyarrow-stubs",
     "pytest",
     "pytest-cov",
     "ruff",

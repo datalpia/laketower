@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any
 
 import deltalake
+import pandas as pd
 import pytest
 import yaml
 
@@ -11,18 +12,53 @@ from laketower import cli
 
 
 @pytest.fixture()
-def delta_table(tmp_path: Path) -> deltalake.DeltaTable:
+def delta_table_data() -> pd.DataFrame:
+    return pd.DataFrame(
+        [
+            {
+                "time": "2025-01-01T00:00:00+00:00",
+                "city": "Grenoble",
+                "temperature": "-2",
+            },
+            {
+                "time": "2025-01-01T01:00:00+00:00",
+                "city": "Grenoble",
+                "temperature": "-3",
+            },
+            {
+                "time": "2025-01-01T02:00:00+00:00",
+                "city": "Grenoble",
+                "temperature": "-4",
+            },
+            {
+                "time": "2025-01-01T03:00:00+00:00",
+                "city": "Grenoble",
+                "temperature": "-1",
+            },
+            {
+                "time": "2025-01-01T04:00:00+00:00",
+                "city": "Grenoble",
+                "temperature": "0",
+            },
+        ]
+    )
+
+
+@pytest.fixture()
+def delta_table(tmp_path: Path, delta_table_data: pd.DataFrame) -> deltalake.DeltaTable:
     table_path = tmp_path / "delta_table"
     schema = deltalake.Schema(
         [
-            deltalake.Field("time", "timestamp", nullable=False),  # type: ignore[arg-type]
+            deltalake.Field("time", "timestamp_ntz", nullable=False),  # type: ignore[arg-type]
             deltalake.Field("city", "string", nullable=False),  # type: ignore[arg-type]
             deltalake.Field("temperature", "float", nullable=False),  # type: ignore[arg-type]
         ]
     )
-    return deltalake.DeltaTable.create(
+    dt = deltalake.DeltaTable.create(
         table_path, schema, name="delta_table", description="Sample Delta Table"
     )
+    deltalake.write_deltalake(dt, delta_table_data, mode="append")
+    return dt
 
 
 @pytest.fixture()
@@ -179,3 +215,106 @@ def test_tables_inspect(
         f"partitions: {', '.join(delta_table.metadata().partition_columns)}" in output
     )
     assert f"configuration: {delta_table.metadata().configuration}" in output
+
+
+def test_tables_query(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    sample_config: dict[str, Any],
+    sample_config_path: Path,
+    delta_table: deltalake.DeltaTable,
+) -> None:
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "laketower",
+            "--config",
+            str(sample_config_path),
+            "tables",
+            "query",
+            sample_config["tables"][0]["name"],
+        ],
+    )
+
+    cli.cli()
+
+    captured = capsys.readouterr()
+    output = captured.out
+    assert all(field.name in output for field in delta_table.schema().fields)
+
+    df = delta_table.to_pandas()
+    assert all(str(row[col]) in output for _, row in df.iterrows() for col in row.index)
+
+
+def test_tables_query_sql(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    sample_config: dict[str, Any],
+    sample_config_path: Path,
+    delta_table: deltalake.DeltaTable,
+) -> None:
+    selected_column = delta_table.schema().fields[0].name
+    filtered_columns = [field.name for field in delta_table.schema().fields[1:]]
+    selected_limit = 1
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "laketower",
+            "--config",
+            str(sample_config_path),
+            "tables",
+            "query",
+            sample_config["tables"][0]["name"],
+            "--sql",
+            f"select {selected_column} from {sample_config['tables'][0]['name']} limit {selected_limit}",
+        ],
+    )
+
+    cli.cli()
+
+    captured = capsys.readouterr()
+    output = captured.out
+    assert selected_column in output
+    assert not all(col in output for col in filtered_columns)
+
+    df = delta_table.to_pandas()
+    assert all(str(row) in output for row in df[selected_column][0:selected_limit])
+    assert not all(str(row) in output for row in df[selected_column][selected_limit:])
+
+
+def test_tables_query_sql_invalid(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    sample_config: dict[str, Any],
+    sample_config_path: Path,
+    delta_table: deltalake.DeltaTable,
+) -> None:
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "laketower",
+            "--config",
+            str(sample_config_path),
+            "tables",
+            "query",
+            sample_config["tables"][0]["name"],
+            "--sql",
+            "select * from unknown_table",
+        ],
+    )
+
+    cli.cli()
+
+    captured = capsys.readouterr()
+    output = captured.out
+    assert "Error" in output
+    assert not all(field.name in output for field in delta_table.schema().fields)
+
+    df = delta_table.to_pandas()
+    assert not all(
+        str(row[col]) in output for _, row in df.iterrows() for col in row.index
+    )
