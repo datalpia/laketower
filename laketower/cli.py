@@ -124,10 +124,10 @@ def validate_config(config_path: Path) -> None:
     console = rich.get_console()
     try:
         config = load_yaml_config(config_path)
-        console.print(rich.text.Text("Configuration is valid"))
+        console.print(rich.panel.Panel.fit("[green]Configuration is valid"))
         console.print(config)
     except Exception as e:
-        console.print(rich.text.Text("Configuration is invalid"))
+        console.print(rich.panel.Panel.fit("[red]Configuration is invalid"))
         console.print(e)
 
 
