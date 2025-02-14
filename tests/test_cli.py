@@ -398,36 +398,6 @@ def test_tables_query(
     sample_config_path: Path,
     delta_table: deltalake.DeltaTable,
 ) -> None:
-    monkeypatch.setattr(
-        sys,
-        "argv",
-        [
-            "laketower",
-            "--config",
-            str(sample_config_path),
-            "tables",
-            "query",
-            sample_config["tables"][0]["name"],
-        ],
-    )
-
-    cli.cli()
-
-    captured = capsys.readouterr()
-    output = captured.out
-    assert all(field.name in output for field in delta_table.schema().fields)
-
-    df = delta_table.to_pandas()
-    assert all(str(row[col]) in output for _, row in df.iterrows() for col in row.index)
-
-
-def test_tables_query_sql(
-    monkeypatch: pytest.MonkeyPatch,
-    capsys: pytest.CaptureFixture[str],
-    sample_config: dict[str, Any],
-    sample_config_path: Path,
-    delta_table: deltalake.DeltaTable,
-) -> None:
     selected_column = delta_table.schema().fields[0].name
     filtered_columns = [field.name for field in delta_table.schema().fields[1:]]
     selected_limit = 1
@@ -441,8 +411,6 @@ def test_tables_query_sql(
             str(sample_config_path),
             "tables",
             "query",
-            sample_config["tables"][0]["name"],
-            "--sql",
             f"select {selected_column} from {sample_config['tables'][0]['name']} limit {selected_limit}",
         ],
     )
@@ -459,10 +427,9 @@ def test_tables_query_sql(
     assert not all(str(row) in output for row in df[selected_column][selected_limit:])
 
 
-def test_tables_query_sql_invalid(
+def test_tables_query_invalid(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
-    sample_config: dict[str, Any],
     sample_config_path: Path,
     delta_table: deltalake.DeltaTable,
 ) -> None:
@@ -475,8 +442,6 @@ def test_tables_query_sql_invalid(
             str(sample_config_path),
             "tables",
             "query",
-            sample_config["tables"][0]["name"],
-            "--sql",
             "select * from unknown_table",
         ],
     )
