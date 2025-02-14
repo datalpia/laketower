@@ -14,6 +14,10 @@ import rich.panel
 import rich.table
 import rich.text
 import rich.tree
+import sqlglot
+import sqlglot.dialects
+import sqlglot.dialects.duckdb
+import sqlglot.generator
 import yaml
 
 
@@ -157,6 +161,36 @@ def inspect_table(config_path: Path, table_name: str) -> None:
     console.print(tree)
 
 
+def view_table(
+    config_path: Path,
+    table_name: str,
+    limit: int | None = None,
+    cols: list[str] | None = None,
+    sort_asc: str | None = None,
+    sort_desc: str | None = None,
+) -> None:
+    config = load_yaml_config(config_path)
+    table_config = next(filter(lambda x: x.name == table_name, config.tables))
+
+    query_expr = sqlglot.select(*(cols or ["*"])).from_(table_name).limit(limit or 10)
+    if sort_asc:
+        query_expr = query_expr.order_by(f"{sort_asc} asc")
+    elif sort_desc:
+        query_expr = query_expr.order_by(f"{sort_desc} desc")
+    sql_query = sqlglot.Generator(dialect=sqlglot.dialects.DuckDB).generate(query_expr)
+
+    results = execute_query_table(table_config, sql_query)
+    out = rich.table.Table()
+    for column in results.columns:
+        out.add_column(column)
+    for value_list in results.values.tolist():
+        row = [str(x) for x in value_list]
+        out.add_row(*row)
+
+    console = rich.get_console()
+    console.print(out)
+
+
 def query_table(config_path: Path, table_name: str, sql_query: str | None) -> None:
     if not sql_query:
         sql_query = f"select * from {table_name} limit 10"  # nosec B608
@@ -213,6 +247,27 @@ def cli() -> None:
     )
     parser_tables_inspect.add_argument("table", help="Name of the table")
     parser_tables_inspect.set_defaults(func=lambda x: inspect_table(x.config, x.table))
+
+    parser_tables_view = subsparsers_tables.add_parser(
+        "view", help="View a given table"
+    )
+    parser_tables_view.add_argument("table", help="Name of the table")
+    parser_tables_view.add_argument(
+        "--limit", type=int, help="Maximum number of rows to display"
+    )
+    parser_tables_view.add_argument("--cols", nargs="*", help="Columns to display")
+    parser_tables_view_sort_group = parser_tables_view.add_mutually_exclusive_group()
+    parser_tables_view_sort_group.add_argument(
+        "--sort-asc", help="Sort by given column in ascending order"
+    )
+    parser_tables_view_sort_group.add_argument(
+        "--sort-desc", help="Sort by given column in descending order"
+    )
+    parser_tables_view.set_defaults(
+        func=lambda x: view_table(
+            x.config, x.table, x.limit, x.cols, x.sort_asc, x.sort_desc
+        )
+    )
 
     parser_tables_query = subsparsers_tables.add_parser(
         "query", help="Query a given table"
