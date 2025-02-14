@@ -217,6 +217,38 @@ def test_tables_metadata(
     assert f"configuration: {delta_table.metadata().configuration}" in output
 
 
+def test_tables_schema(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    sample_config: dict[str, Any],
+    sample_config_path: Path,
+    delta_table: deltalake.DeltaTable,
+) -> None:
+    table_name = sample_config["tables"][0]["name"]
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "laketower",
+            "--config",
+            str(sample_config_path),
+            "tables",
+            "schema",
+            table_name,
+        ],
+    )
+
+    cli.cli()
+
+    captured = capsys.readouterr()
+    output = captured.out
+    assert output.startswith(table_name)
+    for field in delta_table.schema().to_pyarrow():
+        nullable = "" if field.nullable else " not null"
+        assert f"{field.name}: {field.type}{nullable}" in output
+
+
 def test_tables_view(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],

@@ -94,6 +94,15 @@ def load_table_metadata(table_config: ConfigTable) -> TableMetadata:
     return format_handler[table_config.table_format](table_config)
 
 
+def load_table_schema(table_config: ConfigTable) -> pa.Schema:
+    def load_delta_table_schema(table_config: ConfigTable) -> pa.Schema:
+        delta_table = deltalake.DeltaTable(table_config.uri)
+        return delta_table.schema().to_pyarrow()
+
+    format_handler = {TableFormats.delta: load_delta_table_schema}
+    return format_handler[table_config.table_format](table_config)
+
+
 def load_table_dataset(table_config: ConfigTable) -> pa.dataset.Dataset:
     def load_delta_table_metadata(table_config: ConfigTable) -> pa.dataset.Dataset:
         delta_table = deltalake.DeltaTable(table_config.uri)
@@ -168,6 +177,19 @@ def table_metadata(config_path: Path, table_name: str) -> None:
     console.print(tree)
 
 
+def table_schema(config_path: Path, table_name: str) -> None:
+    config = load_yaml_config(config_path)
+    table_config = next(filter(lambda x: x.name == table_name, config.tables))
+    schema = load_table_schema(table_config)
+
+    tree = rich.tree.Tree(table_name)
+    for field in schema:
+        nullable = "" if field.nullable else " not null"
+        tree.add(f"{field.name}: {field.type}{nullable}")
+    console = rich.get_console()
+    console.print(tree, markup=False)  # disable markup to allow bracket characters
+
+
 def view_table(
     config_path: Path,
     table_name: str,
@@ -233,7 +255,9 @@ def cli() -> None:
     )
     subsparsers_config = parser_config.add_subparsers(required=True)
 
-    parser_config_validate = subsparsers_config.add_parser("validate")
+    parser_config_validate = subsparsers_config.add_parser(
+        "validate", help="Validate YAML configuration"
+    )
     parser_config_validate.set_defaults(func=lambda x: validate_config(x.config))
 
     parser_tables = subparsers.add_parser("tables", help="Work with tables")
@@ -248,7 +272,15 @@ def cli() -> None:
         "metadata", help="Display a given table metadata"
     )
     parser_tables_metadata.add_argument("table", help="Name of the table")
-    parser_tables_metadata.set_defaults(func=lambda x: table_metadata(x.config, x.table))
+    parser_tables_metadata.set_defaults(
+        func=lambda x: table_metadata(x.config, x.table)
+    )
+
+    parser_tables_schema = subsparsers_tables.add_parser(
+        "schema", help="Display a given table schema"
+    )
+    parser_tables_schema.add_argument("table", help="Name of the table")
+    parser_tables_schema.set_defaults(func=lambda x: table_schema(x.config, x.table))
 
     parser_tables_view = subsparsers_tables.add_parser(
         "view", help="View a given table"
