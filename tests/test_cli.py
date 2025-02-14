@@ -177,7 +177,7 @@ def test_tables_list(
         assert f"format: {table['format']}" in output
 
 
-def test_tables_inspect(
+def test_tables_metadata(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
     sample_config: dict[str, Any],
@@ -192,7 +192,7 @@ def test_tables_inspect(
             "--config",
             str(sample_config_path),
             "tables",
-            "inspect",
+            "metadata",
             sample_config["tables"][0]["name"],
         ],
     )
