@@ -1,0 +1,7 @@
+tables:
+  - name: sample_table
+    uri: demo/sample_table
+    format: delta
+  - name: weather
+    uri: demo/weather
+    format: delta
