@@ -94,30 +94,37 @@ def load_table_metadata(table_config: ConfigTable) -> TableMetadata:
     return format_handler[table_config.table_format](table_config)
 
 
-def load_table_schema(table_config: ConfigTable) -> pa.Schema:
-    def load_delta_table_schema(table_config: ConfigTable) -> pa.Schema:
+def load_table_dataset(table_config: ConfigTable) -> pa.dataset.Dataset:
+    def load_delta_table_metadata(table_config: ConfigTable) -> pa.dataset.Dataset:
         delta_table = deltalake.DeltaTable(table_config.uri)
-        return delta_table.schema().to_pyarrow()
+        return delta_table.to_pyarrow_dataset()
 
-    schema_handler = {TableFormats.delta: load_delta_table_schema}
-    return schema_handler[table_config.table_format](table_config)
+    format_handler = {TableFormats.delta: load_delta_table_metadata}
+    return format_handler[table_config.table_format](table_config)
 
 
 def execute_query_table(table_config: ConfigTable, sql_query: str) -> pd.DataFrame:
-    def execute_delta_table_query(table_config: ConfigTable) -> pd.DataFrame:
-        delta_table = deltalake.DeltaTable(table_config.uri)
-        table_name = table_config.name
-        view_name = f"{table_name}_view"
-        try:
-            conn = duckdb.connect()
-            conn.register(view_name, delta_table.to_pyarrow_dataset())
-            conn.execute(f"create table {table_name} as select * from {view_name}")  # nosec B608
-            return conn.execute(sql_query).df()
-        except duckdb.Error as e:
-            raise ValueError(str(e)) from e
+    table_dataset = load_table_dataset(table_config)
+    table_name = table_config.name
+    view_name = f"{table_name}_view"
+    conn = duckdb.connect()
+    conn.register(view_name, table_dataset)
+    conn.execute(f"create table {table_name} as select * from {view_name}")  # nosec B608
+    return conn.execute(sql_query).df()
 
-    query_handler = {TableFormats.delta: execute_delta_table_query}
-    return query_handler[table_config.table_format](table_config)
+
+def execute_query(tables_config: list[ConfigTable], sql_query: str) -> pd.DataFrame:
+    try:
+        conn = duckdb.connect()
+        for table_config in tables_config:
+            table_dataset = load_table_dataset(table_config)
+            table_name = table_config.name
+            view_name = f"{table_name}_view"
+            conn.register(view_name, table_dataset)
+            conn.execute(f"create table {table_name} as select * from {view_name}")  # nosec B608
+        return conn.execute(sql_query).df()
+    except duckdb.Error as e:
+        raise ValueError(str(e)) from e
 
 
 def validate_config(config_path: Path) -> None:
@@ -191,17 +198,12 @@ def view_table(
     console.print(out)
 
 
-def query_table(config_path: Path, table_name: str, sql_query: str | None) -> None:
-    if not sql_query:
-        sql_query = f"select * from {table_name} limit 10"  # nosec B608
-
+def query_table(config_path: Path, sql_query: str) -> None:
     config = load_yaml_config(config_path)
-    table_config = next(filter(lambda x: x.name == table_name, config.tables))
-    _ = load_table_schema(table_config)
 
     out: rich.jupyter.JupyterMixin
     try:
-        results = execute_query_table(table_config, sql_query)
+        results = execute_query(config.tables, sql_query)
         out = rich.table.Table()
         for column in results.columns:
             out.add_column(column)
@@ -270,13 +272,10 @@ def cli() -> None:
     )
 
     parser_tables_query = subsparsers_tables.add_parser(
-        "query", help="Query a given table"
+        "query", help="Query registered tables"
     )
-    parser_tables_query.add_argument("table", help="Name of the table")
-    parser_tables_query.add_argument("--sql", help="SQL query to execute")
-    parser_tables_query.set_defaults(
-        func=lambda x: query_table(x.config, x.table, x.sql)
-    )
+    parser_tables_query.add_argument("sql", help="SQL query to execute")
+    parser_tables_query.set_defaults(func=lambda x: query_table(x.config, x.sql))
 
     args = parser.parse_args()
     args.func(args)
