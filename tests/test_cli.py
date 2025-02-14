@@ -217,6 +217,180 @@ def test_tables_inspect(
     assert f"configuration: {delta_table.metadata().configuration}" in output
 
 
+def test_tables_view(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    sample_config: dict[str, Any],
+    sample_config_path: Path,
+    delta_table: deltalake.DeltaTable,
+) -> None:
+    default_limit = 10
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "laketower",
+            "--config",
+            str(sample_config_path),
+            "tables",
+            "view",
+            sample_config["tables"][0]["name"],
+        ],
+    )
+
+    cli.cli()
+
+    captured = capsys.readouterr()
+    output = captured.out
+    assert all(field.name in output for field in delta_table.schema().fields)
+
+    df = delta_table.to_pandas()[0:default_limit]
+    assert all(str(row[col]) in output for _, row in df.iterrows() for col in row.index)
+
+
+def test_tables_view_limit(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    sample_config: dict[str, Any],
+    sample_config_path: Path,
+    delta_table: deltalake.DeltaTable,
+) -> None:
+    selected_limit = 1
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "laketower",
+            "--config",
+            str(sample_config_path),
+            "tables",
+            "view",
+            sample_config["tables"][0]["name"],
+            "--limit",
+            str(selected_limit),
+        ],
+    )
+
+    cli.cli()
+
+    captured = capsys.readouterr()
+    output = captured.out
+    assert all(field.name in output for field in delta_table.schema().fields)
+
+    df = delta_table.to_pandas()[0:selected_limit]
+    assert all(str(row[col]) in output for _, row in df.iterrows() for col in row.index)
+
+
+def test_tables_view_cols(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    sample_config: dict[str, Any],
+    sample_config_path: Path,
+    delta_table: deltalake.DeltaTable,
+) -> None:
+    num_fields = len(delta_table.schema().fields)
+    selected_columns = [
+        delta_table.schema().fields[i].name for i in range(num_fields - 1)
+    ]
+    filtered_columns = [delta_table.schema().fields[num_fields - 1].name]
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "laketower",
+            "--config",
+            str(sample_config_path),
+            "tables",
+            "view",
+            sample_config["tables"][0]["name"],
+            "--cols",
+            *selected_columns,
+        ],
+    )
+
+    cli.cli()
+
+    captured = capsys.readouterr()
+    output = captured.out
+    assert all(col in output for col in selected_columns)
+    assert not all(col in output for col in filtered_columns)
+
+    df = delta_table.to_pandas()
+    assert all(str(row) in output for row in df[selected_columns])
+    assert not all(str(row) in output for row in df[filtered_columns])
+
+
+def test_tables_view_sort_asc(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    sample_config: dict[str, Any],
+    sample_config_path: Path,
+    delta_table: deltalake.DeltaTable,
+) -> None:
+    sort_column = delta_table.schema().fields[0].name
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "laketower",
+            "--config",
+            str(sample_config_path),
+            "tables",
+            "view",
+            sample_config["tables"][0]["name"],
+            "--sort-asc",
+            sort_column,
+        ],
+    )
+
+    cli.cli()
+
+    captured = capsys.readouterr()
+    output = captured.out
+    assert all(field.name in output for field in delta_table.schema().fields)
+
+    df = delta_table.to_pandas().sort_values(by=sort_column, ascending=True)
+    assert all(str(row[col]) in output for _, row in df.iterrows() for col in row.index)
+
+
+def test_tables_view_sort_desc(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    sample_config: dict[str, Any],
+    sample_config_path: Path,
+    delta_table: deltalake.DeltaTable,
+) -> None:
+    sort_column = delta_table.schema().fields[0].name
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "laketower",
+            "--config",
+            str(sample_config_path),
+            "tables",
+            "view",
+            sample_config["tables"][0]["name"],
+            "--sort-desc",
+            sort_column,
+        ],
+    )
+
+    cli.cli()
+
+    captured = capsys.readouterr()
+    output = captured.out
+    assert all(field.name in output for field in delta_table.schema().fields)
+
+    df = delta_table.to_pandas().sort_values(by=sort_column, ascending=False)
+    assert all(str(row[col]) in output for _, row in df.iterrows() for col in row.index)
+
+
 def test_tables_query(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],

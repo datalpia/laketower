@@ -11,14 +11,15 @@ dependencies = [
     "deltalake",
     "duckdb",
     "pandas",
-    "pyarrow<19",  # see: https://github.com/apache/arrow/issues/45283
+    "pyarrow<19", # see: https://github.com/apache/arrow/issues/45283
     "pydantic",
     "pyyaml",
     "rich",
+    "sqlglot",
 ]
 
 [project.scripts]
-laketower = "laketower:cli"
+laketower = "laketower:cli.cli"
 
 [build-system]
 requires = ["hatchling"]
