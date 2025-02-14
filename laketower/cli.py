@@ -149,7 +149,7 @@ def list_tables(config_path: Path) -> None:
     console.print(tree)
 
 
-def inspect_table(config_path: Path, table_name: str) -> None:
+def table_metadata(config_path: Path, table_name: str) -> None:
     config = load_yaml_config(config_path)
     table_config = next(filter(lambda x: x.name == table_name, config.tables))
     metadata = load_table_metadata(table_config)
@@ -244,11 +244,11 @@ def cli() -> None:
     )
     parser_tables_list.set_defaults(func=lambda x: list_tables(x.config))
 
-    parser_tables_inspect = subsparsers_tables.add_parser(
-        "inspect", help="Inspect a given table"
+    parser_tables_metadata = subsparsers_tables.add_parser(
+        "metadata", help="Display a given table metadata"
     )
-    parser_tables_inspect.add_argument("table", help="Name of the table")
-    parser_tables_inspect.set_defaults(func=lambda x: inspect_table(x.config, x.table))
+    parser_tables_metadata.add_argument("table", help="Name of the table")
+    parser_tables_metadata.set_defaults(func=lambda x: table_metadata(x.config, x.table))
 
     parser_tables_view = subsparsers_tables.add_parser(
         "view", help="View a given table"
