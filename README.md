@@ -6,6 +6,17 @@
 [![CI/CD](https://github.com/datalpia/laketower/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/datalpia/laketower/actions/workflows/ci-cd.yml)
 [![License](https://img.shields.io/github/license/datalpia/laketower)](https://github.com/datalpia/laketower/blob/main/LICENSE)
 
+## Features
+
+- Delta Lake table format support
+- Inspect table metadata
+- Inspect table schema
+- Inspect table history
+- View table content with a simple query builder
+- Query all registered tables with DuckDB SQL dialect
+- Static and versionable YAML configuration
+- CLI application
+
 ## Usage
 
 ### Configuration
@@ -96,7 +107,54 @@ weather
 └── wind_speed_10m: float
 ```
 
-#### View a given table schema
+#### Display a given table history
+
+```bash
+$ uv run laketower -c demo/laketower.yml tables history weather
+
+weather
+├── version: 2
+│   ├── timestamp: 2025-02-05 22:27:46.425000+00:00
+│   ├── client version: delta-rs.0.23.1
+│   ├── operation: WRITE
+│   ├── operation parameters
+│   │   └── mode: Append
+│   └── operation metrics
+│       ├── execution_time_ms: 4
+│       ├── num_added_files: 1
+│       ├── num_added_rows: 168
+│       ├── num_partitions: 0
+│       └── num_removed_files: 0
+├── version: 1
+│   ├── timestamp: 2025-02-05 22:27:45.666000+00:00
+│   ├── client version: delta-rs.0.23.1
+│   ├── operation: WRITE
+│   ├── operation parameters
+│   │   └── mode: Append
+│   └── operation metrics
+│       ├── execution_time_ms: 4
+│       ├── num_added_files: 1
+│       ├── num_added_rows: 408
+│       ├── num_partitions: 0
+│       └── num_removed_files: 0
+└── version: 0
+    ├── timestamp: 2025-02-05 22:27:39.722000+00:00
+    ├── client version: delta-rs.0.23.1
+    ├── operation: CREATE TABLE
+    ├── operation parameters
+    │   ├── metadata: {"configuration":{},"createdTime":1738794459722,"description":"Historical and forecast weather data from
+    │   │   open-meteo.com","format":{"options":{},"provider":"parquet"},"id":"a9615fb1-25cc-4546-a0fe-1cb534c514b2","name":"Weather","partitionCol
+    │   │   umns":[],"schemaString":"{\"type\":\"struct\",\"fields\":[{\"name\":\"time\",\"type\":\"timestamp\",\"nullable\":true,\"metadata\":{}},
+    │   │   {\"name\":\"city\",\"type\":\"string\",\"nullable\":true,\"metadata\":{}},{\"name\":\"temperature_2m\",\"type\":\"float\",\"nullable\":
+    │   │   true,\"metadata\":{}},{\"name\":\"relative_humidity_2m\",\"type\":\"float\",\"nullable\":true,\"metadata\":{}},{\"name\":\"wind_speed_1
+    │   │   0m\",\"type\":\"float\",\"nullable\":true,\"metadata\":{}}]}"}
+    │   ├── protocol: {"minReaderVersion":1,"minWriterVersion":2}
+    │   ├── mode: ErrorIfExists
+    │   └── location: file:///Users/romain/Documents/dev/datalpia/laketower/demo/weather
+    └── operation metrics
+```
+
+#### View a given table
 
 ```bash
 $ laketower -c demo/laketower.yml tables view weather
