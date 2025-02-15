@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    tags:
+      - "*"
   pull_request:
   workflow_dispatch:
 
@@ -132,7 +134,7 @@ jobs:
     name: Upload release to Test PyPI
     runs-on: ubuntu-latest
     needs: build
-    if: ${{ contains(github.ref, 'main') }}
+    if: ${{ contains(github.ref, 'main') || startsWith(github.head_ref, 'release/') }}
     environment:
       name: test-pypi
       url: https://test.pypi.org/project/laketower/
@@ -149,6 +151,10 @@ jobs:
         with:
           repository-url: https://test.pypi.org/legacy/
           skip-existing: true
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+      - name: Validate package is available with uvx
+        run: uvx --index https://test.pypi.org/simple/ --index-strategy unsafe-best-match laketower --version
 
   pypi-publish:
     name: Upload release to PyPI
@@ -168,3 +174,7 @@ jobs:
           path: dist/
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+      - name: Validate package is available with uvx
+        run: uvx laketower --version
