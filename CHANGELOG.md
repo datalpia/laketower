@@ -7,5 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+Initial release of `laketower`.
+
 ### Added
-- add `cli` module
+- `cli` module
+    - Validate YAML configuration
+    - List all registered tables
+    - Display a given table metadata
+    - Display a given table schema
+    - Display a given table history
+    - View a given table with simple query builder
+    - Query all registered tables with DuckDB SQL dialect
