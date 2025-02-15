@@ -249,6 +249,52 @@ def test_tables_schema(
         assert f"{field.name}: {field.type}{nullable}" in output
 
 
+def test_tables_history(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    sample_config: dict[str, Any],
+    sample_config_path: Path,
+    delta_table: deltalake.DeltaTable,
+) -> None:
+    table_name = sample_config["tables"][0]["name"]
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "laketower",
+            "--config",
+            str(sample_config_path),
+            "tables",
+            "history",
+            table_name,
+        ],
+    )
+
+    cli.cli()
+
+    captured = capsys.readouterr()
+    output = captured.out
+    assert output.startswith(table_name)
+    for rev in delta_table.history():
+        assert f"version: {rev['version']}" in output
+        assert (
+            f"timestamp: {datetime.fromtimestamp(rev['timestamp'] / 1000, tz=timezone.utc)}"
+            in output
+        )
+        assert f"client version: {rev['clientVersion']}" in output
+        assert f"operation: {rev['operation']}" in output
+        assert "operation parameters" in output
+        operation_parameters = rev["operationParameters"]
+        for param_key in operation_parameters.keys():
+            assert f"{param_key}: " in output
+        assert "operation metrics" in output
+        operation_metrics = rev.get("operationMetrics")
+        if operation_metrics:
+            for metric_key, metric_val in operation_metrics.items():
+                assert f"{metric_key}: {metric_val}" in output
+
+
 def test_tables_view(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
