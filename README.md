@@ -6,6 +6,8 @@
 [![CI/CD](https://github.com/datalpia/laketower/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/datalpia/laketower/actions/workflows/ci-cd.yml)
 [![License](https://img.shields.io/github/license/datalpia/laketower)](https://github.com/datalpia/laketower/blob/main/LICENSE)
 
+Utility application to explore and manage tables in your data lakehouse, especially tailored for data pipelines local development.
+
 ## Features
 
 - Delta Lake table format support
@@ -17,9 +19,43 @@
 - Static and versionable YAML configuration
 - CLI application
 
+## Installation
+
+Using `pip` (or any other Python package manager):
+
+```bash
+pip install laketower
+```
+
+Using `uvx`:
+
+```bash
+uvx laketower
+```
+
 ## Usage
 
 ### Configuration
+
+Laketower configuration is based on a static YAML configuration file allowing to:
+
+- List all tables to be registered
+
+Format:
+
+```yaml
+tables:
+  - name: <table_name>
+    uri: <local path to table>
+    format: {delta}
+```
+
+Current limitations:
+
+- `tables.uri`: only local paths are allowed
+- `tables.format`: only `delta` is allowed
+
+Example from the provided demo:
 
 ```yaml
 tables:
@@ -32,6 +68,8 @@ tables:
 ```
 
 ### CLI
+
+Laketower provides a CLI interface:
 
 ```bash
 $ laketower --help
@@ -46,6 +84,9 @@ commands:
     config             Work with configuration
     tables             Work with tables
 ```
+
+By default, a YAML configuration file named `laketower.yml` will be looked for.
+A custom path can be specified with the `-c` / `--config` argument.
 
 #### Validate YAML configuration
 
@@ -156,6 +197,14 @@ weather
 
 #### View a given table
 
+Using a simple query builder, the content of a table can be displayed.
+Optional arguments:
+
+- `--cols <col1> <col2>`: select which columns to display
+- `--sort-asc <col>`: sort by a column name in ascending order
+- `--sort-desc <col>`: sort by a column name in descending order
+- `--limit <num>` (default 10): limit the number of rows
+
 ```bash
 $ laketower -c demo/laketower.yml tables view weather
 
@@ -191,6 +240,8 @@ $ laketower -c demo/laketower.yml tables view weather --cols time city temperatu
 
 #### Query all registered tables
 
+Query any registered tables using DuckDB SQL dialect!
+
 ```bash
 $ laketower -c demo/laketower.yml tables query "select date_trunc('day', time) as day, avg(temperature_2m) as mean_temperature from weather group by day order by day desc limit 3"
 
@@ -205,6 +256,6 @@ $ laketower -c demo/laketower.yml tables query "select date_trunc('day', time) a
 
 ## License
 
-Licensed under GNU Affero General Public License v3.0 (AGPLv3)
+Licensed under [GNU Affero General Public License v3.0 (AGPLv3)](LICENSE.md)
 
 Copyright (c) 2025 - present Romain Clement
