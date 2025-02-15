@@ -77,6 +77,25 @@ def sample_config_path(tmp_path: Path, sample_config: dict[str, Any]) -> Path:
     return config_path
 
 
+def test_version(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from laketower.__about__ import __version__
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["laketower", "--version"],
+    )
+
+    with pytest.raises(SystemExit):
+        cli.cli()
+
+    captured = capsys.readouterr()
+    output = captured.out
+    assert __version__ in output
+
+
 def test_config_validate(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],

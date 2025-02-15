@@ -1,6 +1,5 @@
 [project]
 name = "laketower"
-version = "0.0.0"
 description = "Oversee your lakehouse"
 readme = "README.md"
 license = { text = "AGPL-3.0-or-later" }
@@ -25,6 +24,7 @@ classifiers = [
     "Topic :: Software Development",
     "Topic :: Utilities",
 ]
+dynamic = ["version"]
 
 [project.scripts]
 laketower = "laketower:cli.cli"
@@ -47,3 +47,6 @@ dev = [
     "types-pyyaml",
     "watchdog",
 ]
+
+[tool.hatch.version]
+path = "laketower/__about__.py"
