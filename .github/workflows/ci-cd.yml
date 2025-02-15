@@ -105,3 +105,66 @@ jobs:
             }
       - name: Check code coverage constraint
         run: uv run coverage report --fail-under=100
+
+  build:
+    runs-on: ubuntu-latest
+    needs: ci
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: '3.13'
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+      - name: Build package
+        run: uv build
+      - name: Upload package build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: dist
+          include-hidden-files: true
+
+  test-pypi-publish:
+    name: Upload release to Test PyPI
+    runs-on: ubuntu-latest
+    needs: build
+    if: ${{ contains(github.ref, 'main') }}
+    environment:
+      name: test-pypi
+      url: https://test.pypi.org/project/laketower/
+    permissions:
+      id-token: write
+    steps:
+      - name: Download package build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: dist/
+      - name: Publish package distributions to Test PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          skip-existing: true
+
+  pypi-publish:
+    name: Upload release to PyPI
+    runs-on: ubuntu-latest
+    needs: build
+    if: ${{ contains(github.ref, 'tags') }}
+    environment:
+      name: pypi
+      url: https://pypi.org/project/laketower/
+    permissions:
+      id-token: write
+    steps:
+      - name: Download package build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: dist/
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
