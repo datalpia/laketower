@@ -3,6 +3,7 @@ name = "laketower"
 version = "0.0.0"
 description = "Oversee your lakehouse"
 readme = "README.md"
+license = { text = "AGPL-3.0-or-later" }
 authors = [
     { name = "Romain Clement", email = "git@romain-clement.net" }
 ]
@@ -16,6 +17,13 @@ dependencies = [
     "pyyaml",
     "rich",
     "sqlglot",
+]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "Topic :: Software Development",
+    "Topic :: Utilities",
 ]
 
 [project.scripts]
