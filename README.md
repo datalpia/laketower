@@ -73,10 +73,11 @@ Laketower provides a CLI interface:
 
 ```bash
 $ laketower --help
-usage: laketower [-h] [--config CONFIG] {config,tables} ...
+usage: laketower [-h] [--version] [--config CONFIG] {config,tables} ...
 
 options:
   -h, --help           show this help message and exit
+  --version            show program's version number and exit
   --config, -c CONFIG  Path to the Laketower YAML configuration file
 
 commands:
