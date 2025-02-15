@@ -4,6 +4,7 @@ import argparse
 import enum
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 import deltalake
 import duckdb
@@ -72,6 +73,19 @@ class TableMetadata(pydantic.BaseModel):
     configuration: dict[str, str]
 
 
+class TableRevision(pydantic.BaseModel):
+    version: int
+    timestamp: datetime
+    client_version: str
+    operation: str
+    operation_parameters: dict[str, Any]
+    operation_metrics: dict[str, Any]
+
+
+class TableHistory(pydantic.BaseModel):
+    revisions: list[TableRevision]
+
+
 def load_table_metadata(table_config: ConfigTable) -> TableMetadata:
     def load_delta_table_metadata(table_config: ConfigTable) -> TableMetadata:
         delta_table = deltalake.DeltaTable(table_config.uri)
@@ -100,6 +114,29 @@ def load_table_schema(table_config: ConfigTable) -> pa.Schema:
         return delta_table.schema().to_pyarrow()
 
     format_handler = {TableFormats.delta: load_delta_table_schema}
+    return format_handler[table_config.table_format](table_config)
+
+
+def load_table_history(table_config: ConfigTable) -> TableHistory:
+    def load_delta_table_history(table_config: ConfigTable) -> TableHistory:
+        delta_table = deltalake.DeltaTable(table_config.uri)
+        delta_history = delta_table.history()
+        revisions = [
+            TableRevision(
+                version=event["version"],
+                timestamp=datetime.fromtimestamp(
+                    event["timestamp"] / 1000, tz=timezone.utc
+                ),
+                client_version=event["clientVersion"],
+                operation=event["operation"],
+                operation_parameters=event["operationParameters"],
+                operation_metrics=event.get("operationMetrics") or {},
+            )
+            for event in delta_history
+        ]
+        return TableHistory(revisions=revisions)
+
+    format_handler = {TableFormats.delta: load_delta_table_history}
     return format_handler[table_config.table_format](table_config)
 
 
@@ -188,6 +225,27 @@ def table_schema(config_path: Path, table_name: str) -> None:
         tree.add(f"{field.name}: {field.type}{nullable}")
     console = rich.get_console()
     console.print(tree, markup=False)  # disable markup to allow bracket characters
+
+
+def table_history(config_path: Path, table_name: str) -> None:
+    config = load_yaml_config(config_path)
+    table_config = next(filter(lambda x: x.name == table_name, config.tables))
+    history = load_table_history(table_config)
+
+    tree = rich.tree.Tree(table_name)
+    for rev in history.revisions:
+        tree_version = tree.add(f"version: {rev.version}")
+        tree_version.add(f"timestamp: {rev.timestamp}")
+        tree_version.add(f"client version: {rev.client_version}")
+        tree_version.add(f"operation: {rev.operation}")
+        tree_op_params = tree_version.add("operation parameters")
+        for param_key, param_val in rev.operation_parameters.items():
+            tree_op_params.add(f"{param_key}: {param_val}")
+        tree_op_metrics = tree_version.add("operation metrics")
+        for metric_key, metric_val in rev.operation_metrics.items():
+            tree_op_metrics.add(f"{metric_key}: {metric_val}")
+    console = rich.get_console()
+    console.print(tree, markup=False)
 
 
 def view_table(
@@ -281,6 +339,12 @@ def cli() -> None:
     )
     parser_tables_schema.add_argument("table", help="Name of the table")
     parser_tables_schema.set_defaults(func=lambda x: table_schema(x.config, x.table))
+
+    parser_tables_history = subsparsers_tables.add_parser(
+        "history", help="Display the history of a given table schema"
+    )
+    parser_tables_history.add_argument("table", help="Name of the table")
+    parser_tables_history.set_defaults(func=lambda x: table_history(x.config, x.table))
 
     parser_tables_view = subsparsers_tables.add_parser(
         "view", help="View a given table"
