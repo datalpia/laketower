@@ -178,3 +178,41 @@ jobs:
         uses: astral-sh/setup-uv@v5
       - name: Validate package is available with uvx
         run: uvx laketower --version
+
+  release-publish:
+    name: Publish release as GitHub Release
+    runs-on: ubuntu-latest
+    needs: build
+    if: ${{ contains(github.ref, 'tags') }}
+    env:
+      TAG_NAME: "${{ github.ref_name }}"
+      RELEASE_NOTES_MD_FILE: "release_notes.md"
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download package build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: dist/
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: '3.13'
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+      - name: Extract changelog notes
+        run: |
+          uvx keepachangelog show ${TAG_NAME} >> "${RELEASE_NOTES_MD_FILE}"
+          cat "${RELEASE_NOTES_MD_FILE}" >> "${GITHUB_STEP_SUMMARY}"
+      - name: Create GitHub Release from changelog
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${TAG_NAME}" \
+            --repo "${GITHUB_REPOSITORY}" \
+            --title "${TAG_NAME}" \
+            --notes-file "${RELEASE_NOTES_MD_FILE}" \
+            --verify-tag \
+            dist/*
