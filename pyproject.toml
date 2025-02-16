@@ -10,12 +10,16 @@ requires-python = ">=3.9,<3.14"
 dependencies = [
     "deltalake",
     "duckdb",
+    "fastapi",
+    "jinja2>=3",
     "pandas",
     "pyarrow<19", # see: https://github.com/apache/arrow/issues/45283
-    "pydantic",
+    "pydantic>=2",
+    "pydantic-settings>=2",
     "pyyaml",
     "rich",
     "sqlglot",
+    "uvicorn",
 ]
 keywords = ["data", "lakehouse", "sql", "delta-lake"]
 classifiers = [
@@ -43,6 +47,7 @@ build-backend = "hatchling.build"
 [dependency-groups]
 dev = [
     "bandit",
+    "httpx",
     "invoke",
     "mypy",
     "pandas-stubs",
