@@ -13,7 +13,7 @@ dependencies = [
     "fastapi",
     "jinja2>=3",
     "pandas",
-    "pyarrow<19", # see: https://github.com/apache/arrow/issues/45283
+    "pyarrow!=19.0.0",
     "pydantic>=2",
     "pydantic-settings>=2",
     "pyyaml",

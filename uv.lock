@@ -503,7 +503,7 @@ requires-dist = [
     { name = "fastapi" },
     { name = "jinja2", specifier = ">=3" },
     { name = "pandas" },
-    { name = "pyarrow", specifier = "<19" },
+    { name = "pyarrow", specifier = "!=19.0.0" },
     { name = "pydantic", specifier = ">=2" },
     { name = "pydantic-settings", specifier = ">=2" },
     { name = "pyyaml" },
