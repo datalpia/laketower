@@ -17,14 +17,21 @@ dependencies = [
     "rich",
     "sqlglot",
 ]
+keywords = ["data", "lakehouse", "sql", "delta-lake"]
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
+    "Programming Language :: Python",
     "Intended Audience :: Developers",
     "Intended Audience :: Information Technology",
     "Topic :: Software Development",
     "Topic :: Utilities",
 ]
 dynamic = ["version"]
+
+[project.urls]
+Repository = "https://github.com/datalpia/laketower"
+Issues = "https://github.com/datalpia/laketower/issues"
+Changelog = "https://github.com/datalpia/laketower/blob/master/CHANGELOG.md"
 
 [project.scripts]
 laketower = "laketower:cli.cli"
