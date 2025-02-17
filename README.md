@@ -4,7 +4,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/laketower.svg)](https://pypi.org/project/laketower/)
 [![CI/CD](https://github.com/datalpia/laketower/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/datalpia/laketower/actions/workflows/ci-cd.yml)
-[![License](https://img.shields.io/github/license/datalpia/laketower)](https://github.com/datalpia/laketower/blob/main/LICENSE)
+[![License](https://img.shields.io/github/license/datalpia/laketower)](https://github.com/datalpia/laketower/blob/main/LICENSE.md)
 
 Utility application to explore and manage tables in your data lakehouse, especially tailored for data pipelines local development.
 
