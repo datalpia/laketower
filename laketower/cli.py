@@ -23,18 +23,7 @@ import uvicorn
 
 from laketower.__about__ import __version__
 from laketower.config import ConfigTable, TableFormats, load_yaml_config
-
-
-class TableMetadata(pydantic.BaseModel):
-    table_format: TableFormats
-    name: str
-    description: str
-    uri: str
-    id: str
-    version: int
-    created_at: datetime
-    partitions: list[str]
-    configuration: dict[str, str]
+from laketower.tables import load_table
 
 
 class TableRevision(pydantic.BaseModel):
@@ -48,37 +37,6 @@ class TableRevision(pydantic.BaseModel):
 
 class TableHistory(pydantic.BaseModel):
     revisions: list[TableRevision]
-
-
-def load_table_metadata(table_config: ConfigTable) -> TableMetadata:
-    def load_delta_table_metadata(table_config: ConfigTable) -> TableMetadata:
-        delta_table = deltalake.DeltaTable(table_config.uri)
-        metadata = delta_table.metadata()
-        return TableMetadata(
-            table_format=table_config.table_format,
-            name=metadata.name,
-            description=metadata.description,
-            uri=delta_table.table_uri,
-            id=str(metadata.id),
-            version=delta_table.version(),
-            created_at=datetime.fromtimestamp(
-                metadata.created_time / 1000, tz=timezone.utc
-            ),
-            partitions=metadata.partition_columns,
-            configuration=metadata.configuration,
-        )
-
-    format_handler = {TableFormats.delta: load_delta_table_metadata}
-    return format_handler[table_config.table_format](table_config)
-
-
-def load_table_schema(table_config: ConfigTable) -> pa.Schema:
-    def load_delta_table_schema(table_config: ConfigTable) -> pa.Schema:
-        delta_table = deltalake.DeltaTable(table_config.uri)
-        return delta_table.schema().to_pyarrow()
-
-    format_handler = {TableFormats.delta: load_delta_table_schema}
-    return format_handler[table_config.table_format](table_config)
 
 
 def load_table_history(table_config: ConfigTable) -> TableHistory:
@@ -105,11 +63,11 @@ def load_table_history(table_config: ConfigTable) -> TableHistory:
 
 
 def load_table_dataset(table_config: ConfigTable) -> pa.dataset.Dataset:
-    def load_delta_table_metadata(table_config: ConfigTable) -> pa.dataset.Dataset:
+    def load_delta_table_dataset(table_config: ConfigTable) -> pa.dataset.Dataset:
         delta_table = deltalake.DeltaTable(table_config.uri)
         return delta_table.to_pyarrow_dataset()
 
-    format_handler = {TableFormats.delta: load_delta_table_metadata}
+    format_handler = {TableFormats.delta: load_delta_table_dataset}
     return format_handler[table_config.table_format](table_config)
 
 
@@ -167,7 +125,8 @@ def list_tables(config_path: Path) -> None:
 def table_metadata(config_path: Path, table_name: str) -> None:
     config = load_yaml_config(config_path)
     table_config = next(filter(lambda x: x.name == table_name, config.tables))
-    metadata = load_table_metadata(table_config)
+    table = load_table(table_config)
+    metadata = table.metadata()
 
     tree = rich.tree.Tree(table_name)
     tree.add(f"name: {metadata.name}")
@@ -186,7 +145,8 @@ def table_metadata(config_path: Path, table_name: str) -> None:
 def table_schema(config_path: Path, table_name: str) -> None:
     config = load_yaml_config(config_path)
     table_config = next(filter(lambda x: x.name == table_name, config.tables))
-    schema = load_table_schema(table_config)
+    table = load_table(table_config)
+    schema = table.schema()
 
     tree = rich.tree.Tree(table_name)
     for field in schema:

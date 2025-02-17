@@ -12,11 +12,11 @@
     integrity="sha256-DD6elX+jPmbFYPsGvzodUv2+9FHkxHlVtQi0/RJVULs=" crossorigin="anonymous">
 </head>
 
-<body>
+<body class="ps-md-sbwidth">
   <header>
     <nav class="sidebar offcanvas-start offcanvas-md" tabindex="-1" id="sidebar">
-      <div class="offcanvas-header border-bottom border-secondary border-opacity-25">
-        <a class="sidebar-brand" href="#">
+      <div class="offcanvas-header border-bottom">
+        <a class="sidebar-brand" href="/">
           Laketower
         </a>
         <button type="button" class="btn-close d-md-none" data-bs-dismiss="offcanvas" aria-label="Close" data-bs-target="#sidebar"></button>
@@ -28,7 +28,7 @@
           </li>
           <li><hr class="sidebar-divider"></li>
           {% for table in tables %}
-          {% set table_url = '/table/' + loop.index0|string %}
+          {% set table_url = '/tables/' + table.name %}
           <li class="nav-item">
             <a class="nav-link{% if request.url.path.startswith(table_url) %} active{% endif %}" href="{{ table_url }}" aria-current="page">
               <i class="bi-table" aria-hidden="true"></i>
@@ -40,13 +40,23 @@
       </div>
     </nav>
 
-    <button type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar" class="btn btn-secondary d-md-none">
-      <i class="bi-table" aria-hidden="true"></i> Sidebar
-    </button>
+    <nav class="navbar navbar-expand-md sticky-top" style="border-bottom: var(--bs-border-width) solid var(--bs-content-border-color); min-height: 60px;">
+      <div class="container-md justify-content-start">
+        <button type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar" class="btn btn-secondary d-md-none">
+          <i class="bi-layout-sidebar" aria-hidden="true"></i>
+        </button>
+
+        <a href="/" class="navbar-brand d-flex align-items-center d-md-none ms-auto ms-md-0">
+					Laketower
+				</a>
+      </div>
+    </nav>
   </header>
 
   <main>
-    {% block body %}{% endblock %}
+    <div class="container py-3 py-sm-4 px-3 px-sm-4">
+      {% block body %}{% endblock %}
+    </div>
   </main>
 
   <footer></footer>
