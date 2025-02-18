@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import argparse
-import enum
+import os
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -19,60 +19,11 @@ import sqlglot
 import sqlglot.dialects
 import sqlglot.dialects.duckdb
 import sqlglot.generator
-import yaml
+import uvicorn
 
 from laketower.__about__ import __version__
-
-
-class TableFormats(str, enum.Enum):
-    delta = "delta"
-
-
-class ConfigTable(pydantic.BaseModel):
-    name: str
-    uri: str
-    table_format: TableFormats = pydantic.Field(alias="format")
-
-    @pydantic.model_validator(mode="after")
-    def check_table(self) -> "ConfigTable":
-        def check_delta_table(table_uri: str) -> None:
-            if not deltalake.DeltaTable.is_deltatable(table_uri):
-                raise ValueError(f"{table_uri} is not a valid Delta table")
-
-        format_check = {TableFormats.delta: check_delta_table}
-        format_check[self.table_format](self.uri)
-
-        return self
-
-
-class ConfigQuery(pydantic.BaseModel):
-    name: str
-    sql: str
-
-
-class ConfigDashboard(pydantic.BaseModel):
-    name: str
-
-
-class Config(pydantic.BaseModel):
-    tables: list[ConfigTable] = []
-
-
-def load_yaml_config(config_path: Path) -> Config:
-    config_dict = yaml.safe_load(config_path.read_text())
-    return Config.model_validate(config_dict)
-
-
-class TableMetadata(pydantic.BaseModel):
-    table_format: TableFormats
-    name: str
-    description: str
-    uri: str
-    id: str
-    version: int
-    created_at: datetime
-    partitions: list[str]
-    configuration: dict[str, str]
+from laketower.config import ConfigTable, TableFormats, load_yaml_config
+from laketower.tables import load_table
 
 
 class TableRevision(pydantic.BaseModel):
@@ -86,37 +37,6 @@ class TableRevision(pydantic.BaseModel):
 
 class TableHistory(pydantic.BaseModel):
     revisions: list[TableRevision]
-
-
-def load_table_metadata(table_config: ConfigTable) -> TableMetadata:
-    def load_delta_table_metadata(table_config: ConfigTable) -> TableMetadata:
-        delta_table = deltalake.DeltaTable(table_config.uri)
-        metadata = delta_table.metadata()
-        return TableMetadata(
-            table_format=table_config.table_format,
-            name=metadata.name,
-            description=metadata.description,
-            uri=delta_table.table_uri,
-            id=str(metadata.id),
-            version=delta_table.version(),
-            created_at=datetime.fromtimestamp(
-                metadata.created_time / 1000, tz=timezone.utc
-            ),
-            partitions=metadata.partition_columns,
-            configuration=metadata.configuration,
-        )
-
-    format_handler = {TableFormats.delta: load_delta_table_metadata}
-    return format_handler[table_config.table_format](table_config)
-
-
-def load_table_schema(table_config: ConfigTable) -> pa.Schema:
-    def load_delta_table_schema(table_config: ConfigTable) -> pa.Schema:
-        delta_table = deltalake.DeltaTable(table_config.uri)
-        return delta_table.schema().to_pyarrow()
-
-    format_handler = {TableFormats.delta: load_delta_table_schema}
-    return format_handler[table_config.table_format](table_config)
 
 
 def load_table_history(table_config: ConfigTable) -> TableHistory:
@@ -143,11 +63,11 @@ def load_table_history(table_config: ConfigTable) -> TableHistory:
 
 
 def load_table_dataset(table_config: ConfigTable) -> pa.dataset.Dataset:
-    def load_delta_table_metadata(table_config: ConfigTable) -> pa.dataset.Dataset:
+    def load_delta_table_dataset(table_config: ConfigTable) -> pa.dataset.Dataset:
         delta_table = deltalake.DeltaTable(table_config.uri)
         return delta_table.to_pyarrow_dataset()
 
-    format_handler = {TableFormats.delta: load_delta_table_metadata}
+    format_handler = {TableFormats.delta: load_delta_table_dataset}
     return format_handler[table_config.table_format](table_config)
 
 
@@ -175,6 +95,11 @@ def execute_query(tables_config: list[ConfigTable], sql_query: str) -> pd.DataFr
         raise ValueError(str(e)) from e
 
 
+def run_web(config_path: Path, reload: bool) -> None:  # pragma: no cover
+    os.environ["LAKETOWER_CONFIG_PATH"] = str(config_path.absolute())
+    uvicorn.run("laketower.web:create_app", factory=True, reload=reload)
+
+
 def validate_config(config_path: Path) -> None:
     console = rich.get_console()
     try:
@@ -200,7 +125,8 @@ def list_tables(config_path: Path) -> None:
 def table_metadata(config_path: Path, table_name: str) -> None:
     config = load_yaml_config(config_path)
     table_config = next(filter(lambda x: x.name == table_name, config.tables))
-    metadata = load_table_metadata(table_config)
+    table = load_table(table_config)
+    metadata = table.metadata()
 
     tree = rich.tree.Tree(table_name)
     tree.add(f"name: {metadata.name}")
@@ -219,7 +145,8 @@ def table_metadata(config_path: Path, table_name: str) -> None:
 def table_schema(config_path: Path, table_name: str) -> None:
     config = load_yaml_config(config_path)
     table_config = next(filter(lambda x: x.name == table_name, config.tables))
-    schema = load_table_schema(table_config)
+    table = load_table(table_config)
+    schema = table.schema()
 
     tree = rich.tree.Tree(table_name)
     for field in schema:
@@ -310,6 +237,17 @@ def cli() -> None:
         help="Path to the Laketower YAML configuration file",
     )
     subparsers = parser.add_subparsers(title="commands", required=True)
+
+    parser_web = subparsers.add_parser(
+        "web", help="Launch the web application", add_help=True
+    )
+    parser_web.add_argument(
+        "--reload",
+        help="Reload the web server on changes",
+        action="store_true",
+        required=False,
+    )
+    parser_web.set_defaults(func=lambda x: run_web(x.config, x.reload))
 
     parser_config = subparsers.add_parser(
         "config", help="Work with configuration", add_help=True

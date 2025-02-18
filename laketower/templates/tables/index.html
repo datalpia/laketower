@@ -1,0 +1,93 @@
+{% extends "_base.html" %}
+
+{% block body %}
+<ul class="nav nav-pills justify-content-center mb-3">
+  <li class="nav-item">
+    <a class="nav-link active" aria-current="true" href="#">Overview</a>
+  </li>
+  <!-- <li class="nav-item">
+    <a class="nav-link" href="#">Data</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="#">History</a>
+  </li> -->
+</ul>
+
+<div class="row row-cols-1 row-cols-md-2 g-4">
+  <div class="col">
+    <div class="card h-100">
+      <div class="card-header">Schema</div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <th>Column</th>
+              <th>Type</th>
+              <th>Nullable</th>
+            </thead>
+            <tbody>
+              {% for field in table_schema %}
+              <tr>
+                <td>{{ field.name }}</td>
+                <td><code>{{ field.type }}</code></td>
+                <td>{% if field.nullable %}True{% else %}False{% endif %}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="card h-100">
+      <div class="card-header">Metadata</div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table">
+            <tbody>
+              <tr>
+                <th>URI</th>
+                <td>{{ table_metadata.uri }}</td>
+              </tr>
+              <tr>
+                <th>Format</th>
+                <td>{{ table_metadata.table_format.value }}</td>
+              </tr>
+              <tr>
+                <th>ID</th>
+                <td>{{ table_metadata.id }}</td>
+              </tr>
+              <tr>
+                <th>Version</th>
+                <td>{{ table_metadata.version }}</td>
+              </tr>
+              <tr>
+                <th>Name</th>
+                <td>{{ table_metadata.name }}</td>
+              </tr>
+              <tr>
+                <th>Description</th>
+                <td>{{ table_metadata.description }}</td>
+              </tr>
+              <tr>
+                <th>Created at</th>
+                <td>{{ table_metadata.created_at }}</td>
+              </tr>
+              <tr>
+                <th>Partitions</th>
+                <td>{{ table_metadata.partitions }}</td>
+              </tr>
+              <tr>
+                <th>Configuration</th>
+                <td>{{ table_metadata.configuration }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
