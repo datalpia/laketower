@@ -50,6 +50,25 @@ def get_table_index(request: Request, table_id: str) -> HTMLResponse:
     )
 
 
+@router.get("/tables/{table_id}/history", response_class=HTMLResponse)
+def get_table_history(request: Request, table_id: str) -> HTMLResponse:
+    config: Config = request.app.state.config
+    table_config = next(
+        filter(lambda table_config: table_config.name == table_id, config.tables)
+    )
+    table = load_table(table_config)
+
+    return templates.TemplateResponse(
+        request=request,
+        name="tables/history.html",
+        context={
+            "tables": config.tables,
+            "table_id": table_id,
+            "table_history": table.history(),
+        },
+    )
+
+
 def create_app() -> FastAPI:
     settings = Settings()  # type: ignore[call-arg]
     config = load_yaml_config(settings.laketower_config_path)

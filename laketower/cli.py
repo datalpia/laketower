@@ -2,15 +2,12 @@ from __future__ import annotations
 
 import argparse
 import os
-from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
 
 import deltalake
 import duckdb
 import pandas as pd
 import pyarrow as pa
-import pydantic
 import rich.panel
 import rich.table
 import rich.text
@@ -24,42 +21,6 @@ import uvicorn
 from laketower.__about__ import __version__
 from laketower.config import ConfigTable, TableFormats, load_yaml_config
 from laketower.tables import load_table
-
-
-class TableRevision(pydantic.BaseModel):
-    version: int
-    timestamp: datetime
-    client_version: str
-    operation: str
-    operation_parameters: dict[str, Any]
-    operation_metrics: dict[str, Any]
-
-
-class TableHistory(pydantic.BaseModel):
-    revisions: list[TableRevision]
-
-
-def load_table_history(table_config: ConfigTable) -> TableHistory:
-    def load_delta_table_history(table_config: ConfigTable) -> TableHistory:
-        delta_table = deltalake.DeltaTable(table_config.uri)
-        delta_history = delta_table.history()
-        revisions = [
-            TableRevision(
-                version=event["version"],
-                timestamp=datetime.fromtimestamp(
-                    event["timestamp"] / 1000, tz=timezone.utc
-                ),
-                client_version=event["clientVersion"],
-                operation=event["operation"],
-                operation_parameters=event["operationParameters"],
-                operation_metrics=event.get("operationMetrics") or {},
-            )
-            for event in delta_history
-        ]
-        return TableHistory(revisions=revisions)
-
-    format_handler = {TableFormats.delta: load_delta_table_history}
-    return format_handler[table_config.table_format](table_config)
 
 
 def load_table_dataset(table_config: ConfigTable) -> pa.dataset.Dataset:
@@ -159,7 +120,8 @@ def table_schema(config_path: Path, table_name: str) -> None:
 def table_history(config_path: Path, table_name: str) -> None:
     config = load_yaml_config(config_path)
     table_config = next(filter(lambda x: x.name == table_name, config.tables))
-    history = load_table_history(table_config)
+    table = load_table(table_config)
+    history = table.history()
 
     tree = rich.tree.Tree(table_name)
     for rev in history.revisions:

@@ -3,14 +3,14 @@
 {% block body %}
 <ul class="nav nav-pills justify-content-center mb-3">
   <li class="nav-item">
-    <a class="nav-link active" aria-current="true" href="#">Overview</a>
+    <a class="nav-link active" aria-current="true" href="/tables/{{ table_id }}">Overview</a>
   </li>
   <!-- <li class="nav-item">
     <a class="nav-link" href="#">Data</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" href="#">History</a>
   </li> -->
+  <li class="nav-item">
+    <a class="nav-link" href="/tables/{{ table_id }}/history">History</a>
+  </li>
 </ul>
 
 <div class="row row-cols-1 row-cols-md-2 g-4">

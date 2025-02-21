@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from typing import Protocol
+from typing import Any, Protocol
 
 import deltalake
 import pyarrow as pa
@@ -20,9 +20,23 @@ class TableMetadata(pydantic.BaseModel):
     configuration: dict[str, str]
 
 
+class TableRevision(pydantic.BaseModel):
+    version: int
+    timestamp: datetime
+    client_version: str
+    operation: str
+    operation_parameters: dict[str, Any]
+    operation_metrics: dict[str, Any]
+
+
+class TableHistory(pydantic.BaseModel):
+    revisions: list[TableRevision]
+
+
 class TableProtocol(Protocol):  # pragma: no cover
     def metadata(self) -> TableMetadata: ...
     def schema(self) -> pa.Schema: ...
+    def history(self) -> TableHistory: ...
 
 
 class DeltaTable:
@@ -49,6 +63,23 @@ class DeltaTable:
 
     def schema(self) -> pa.Schema:
         return self._impl.schema().to_pyarrow()
+
+    def history(self) -> TableHistory:
+        delta_history = self._impl.history()
+        revisions = [
+            TableRevision(
+                version=event["version"],
+                timestamp=datetime.fromtimestamp(
+                    event["timestamp"] / 1000, tz=timezone.utc
+                ),
+                client_version=event["clientVersion"],
+                operation=event["operation"],
+                operation_parameters=event["operationParameters"],
+                operation_metrics=event.get("operationMetrics") or {},
+            )
+            for event in delta_history
+        ]
+        return TableHistory(revisions=revisions)
 
 
 def load_table(table_config: ConfigTable) -> TableProtocol:

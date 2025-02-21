@@ -79,3 +79,31 @@ def test_table_index(
     assert ", ".join(delta_table.metadata().partition_columns) in html
     assert "Configuration" in html
     assert str(delta_table.metadata().configuration) in html
+
+
+def test_table_history(
+    client: TestClient, sample_config: dict[str, Any], delta_table: deltalake.DeltaTable
+) -> None:
+    table = sample_config["tables"][0]
+
+    response = client.get(f"/tables/{table['name']}/history")
+    assert response.status_code == HTTPStatus.OK
+
+    html = response.content.decode()
+    for rev in delta_table.history():
+        assert f"version: {rev['version']}" in html
+        assert (
+            f"timestamp: {datetime.fromtimestamp(rev['timestamp'] / 1000, tz=timezone.utc)}"
+            in html
+        )
+        assert f"client version: {rev['clientVersion']}" in html
+        assert f"operation: {rev['operation']}" in html
+        assert "operation parameters" in html
+        operation_parameters = rev["operationParameters"]
+        for param_key in operation_parameters.keys():
+            assert f"{param_key}: " in html
+        assert "operation metrics" in html
+        operation_metrics = rev.get("operationMetrics")
+        if operation_metrics:
+            for metric_key, metric_val in operation_metrics.items():
+                assert f"{metric_key}: {metric_val}" in html
