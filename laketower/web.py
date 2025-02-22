@@ -7,7 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from laketower.config import Config, load_yaml_config
-from laketower.tables import load_table
+from laketower.tables import execute_query, generate_table_query, load_table
 
 
 class Settings(pydantic_settings.BaseSettings):
@@ -65,6 +65,29 @@ def get_table_history(request: Request, table_id: str) -> HTMLResponse:
             "tables": config.tables,
             "table_id": table_id,
             "table_history": table.history(),
+        },
+    )
+
+
+@router.get("/tables/{table_id}/view", response_class=HTMLResponse)
+def get_table_view(request: Request, table_id: str) -> HTMLResponse:
+    config: Config = request.app.state.config
+    table_config = next(
+        filter(lambda table_config: table_config.name == table_id, config.tables)
+    )
+    table = load_table(table_config)
+    table_name = table_config.name
+    table_dataset = table.dataset()
+    sql_query = generate_table_query(table_name)
+    results = execute_query({table_name: table_dataset}, sql_query)
+
+    return templates.TemplateResponse(
+        request=request,
+        name="tables/view.html",
+        context={
+            "tables": config.tables,
+            "table_id": table_id,
+            "table_results": results,
         },
     )
 

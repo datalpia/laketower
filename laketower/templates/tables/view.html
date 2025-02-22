@@ -1,0 +1,40 @@
+{% extends "_base.html" %}
+
+{% block body %}
+<ul class="nav nav-pills justify-content-center mb-3">
+  <li class="nav-item">
+    <a class="nav-link" aria-current="true" href="/tables/{{ table_id }}">Overview</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link active" href="/tables/{{ table_id }}/view">Data</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/tables/{{ table_id }}/history">History</a>
+  </li>
+</ul>
+
+<div class="row">
+  <div class="col">
+    <div class="table-responsive">
+      <table class="table table-sm table-striped table-hover">
+        <thead>
+          <tr>
+            {% for column in table_results.columns %}
+            <th>{{ column }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody class="table-group-divider">
+          {% for row in table_results.to_numpy().tolist() %}
+          <tr>
+            {% for col in row %}
+            <td>{{ col }}</td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

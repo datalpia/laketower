@@ -107,3 +107,19 @@ def test_table_history(
         if operation_metrics:
             for metric_key, metric_val in operation_metrics.items():
                 assert f"{metric_key}: {metric_val}" in html
+
+
+def test_table_view(
+    client: TestClient, sample_config: dict[str, Any], delta_table: deltalake.DeltaTable
+) -> None:
+    table = sample_config["tables"][0]
+    default_limit = 10
+
+    response = client.get(f"/tables/{table['name']}/view")
+    assert response.status_code == HTTPStatus.OK
+
+    html = response.content.decode()
+    assert all(field.name in html for field in delta_table.schema().fields)
+
+    df = delta_table.to_pandas()[0:default_limit]
+    assert all(str(row[col]) in html for _, row in df.iterrows() for col in row.index)

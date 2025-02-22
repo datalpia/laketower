@@ -4,56 +4,16 @@ import argparse
 import os
 from pathlib import Path
 
-import deltalake
-import duckdb
-import pandas as pd
-import pyarrow as pa
+import rich.jupyter
 import rich.panel
 import rich.table
 import rich.text
 import rich.tree
-import sqlglot
-import sqlglot.dialects
-import sqlglot.dialects.duckdb
-import sqlglot.generator
 import uvicorn
 
 from laketower.__about__ import __version__
-from laketower.config import ConfigTable, TableFormats, load_yaml_config
-from laketower.tables import load_table
-
-
-def load_table_dataset(table_config: ConfigTable) -> pa.dataset.Dataset:
-    def load_delta_table_dataset(table_config: ConfigTable) -> pa.dataset.Dataset:
-        delta_table = deltalake.DeltaTable(table_config.uri)
-        return delta_table.to_pyarrow_dataset()
-
-    format_handler = {TableFormats.delta: load_delta_table_dataset}
-    return format_handler[table_config.table_format](table_config)
-
-
-def execute_query_table(table_config: ConfigTable, sql_query: str) -> pd.DataFrame:
-    table_dataset = load_table_dataset(table_config)
-    table_name = table_config.name
-    view_name = f"{table_name}_view"
-    conn = duckdb.connect()
-    conn.register(view_name, table_dataset)
-    conn.execute(f"create table {table_name} as select * from {view_name}")  # nosec B608
-    return conn.execute(sql_query).df()
-
-
-def execute_query(tables_config: list[ConfigTable], sql_query: str) -> pd.DataFrame:
-    try:
-        conn = duckdb.connect()
-        for table_config in tables_config:
-            table_dataset = load_table_dataset(table_config)
-            table_name = table_config.name
-            view_name = f"{table_name}_view"
-            conn.register(view_name, table_dataset)
-            conn.execute(f"create table {table_name} as select * from {view_name}")  # nosec B608
-        return conn.execute(sql_query).df()
-    except duckdb.Error as e:
-        raise ValueError(str(e)) from e
+from laketower.config import load_yaml_config
+from laketower.tables import execute_query, generate_table_query, load_table
 
 
 def run_web(config_path: Path, reload: bool) -> None:  # pragma: no cover
@@ -149,19 +109,17 @@ def view_table(
 ) -> None:
     config = load_yaml_config(config_path)
     table_config = next(filter(lambda x: x.name == table_name, config.tables))
+    table = load_table(table_config)
+    table_dataset = table.dataset()
+    sql_query = generate_table_query(
+        table_name, limit=limit, cols=cols, sort_asc=sort_asc, sort_desc=sort_desc
+    )
+    results = execute_query({table_name: table_dataset}, sql_query)
 
-    query_expr = sqlglot.select(*(cols or ["*"])).from_(table_name).limit(limit or 10)
-    if sort_asc:
-        query_expr = query_expr.order_by(f"{sort_asc} asc")
-    elif sort_desc:
-        query_expr = query_expr.order_by(f"{sort_desc} desc")
-    sql_query = sqlglot.Generator(dialect=sqlglot.dialects.DuckDB).generate(query_expr)
-
-    results = execute_query_table(table_config, sql_query)
     out = rich.table.Table()
     for column in results.columns:
         out.add_column(column)
-    for value_list in results.values.tolist():
+    for value_list in results.to_numpy().tolist():
         row = [str(x) for x in value_list]
         out.add_row(*row)
 
@@ -171,10 +129,14 @@ def view_table(
 
 def query_table(config_path: Path, sql_query: str) -> None:
     config = load_yaml_config(config_path)
+    tables_dataset = {
+        table_config.name: load_table(table_config).dataset()
+        for table_config in config.tables
+    }
 
     out: rich.jupyter.JupyterMixin
     try:
-        results = execute_query(config.tables, sql_query)
+        results = execute_query(tables_dataset, sql_query)
         out = rich.table.Table()
         for column in results.columns:
             out.add_column(column)
