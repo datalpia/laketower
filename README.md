@@ -17,6 +17,7 @@ Utility application to explore and manage tables in your data lakehouse, especia
 - View table content with a simple query builder
 - Query all registered tables with DuckDB SQL dialect
 - Static and versionable YAML configuration
+- Web application
 - CLI application
 
 ## Installation
@@ -65,6 +66,14 @@ tables:
   - name: weather
     uri: demo/weather
     format: delta
+```
+
+### Web Application
+
+The easiest way to get started is to launch the Laketower web application:
+
+```bash
+$ laketower -c demo/laketower.yml web
 ```
 
 ### CLI
