@@ -360,7 +360,8 @@ def test_tables_view_sort_asc(
     sample_config_path: Path,
     delta_table: deltalake.DeltaTable,
 ) -> None:
-    sort_column = delta_table.schema().fields[0].name
+    default_limit = 10
+    sort_column = "temperature"
 
     monkeypatch.setattr(
         sys,
@@ -383,7 +384,9 @@ def test_tables_view_sort_asc(
     output = captured.out
     assert all(field.name in output for field in delta_table.schema().fields)
 
-    df = delta_table.to_pandas().sort_values(by=sort_column, ascending=True)
+    df = delta_table.to_pandas().sort_values(by=sort_column, ascending=True)[
+        :default_limit
+    ]
     assert all(str(row[col]) in output for _, row in df.iterrows() for col in row.index)
 
 
@@ -394,7 +397,8 @@ def test_tables_view_sort_desc(
     sample_config_path: Path,
     delta_table: deltalake.DeltaTable,
 ) -> None:
-    sort_column = delta_table.schema().fields[0].name
+    default_limit = 10
+    sort_column = "temperature"
 
     monkeypatch.setattr(
         sys,
@@ -417,7 +421,9 @@ def test_tables_view_sort_desc(
     output = captured.out
     assert all(field.name in output for field in delta_table.schema().fields)
 
-    df = delta_table.to_pandas().sort_values(by=sort_column, ascending=False)
+    df = delta_table.to_pandas().sort_values(by=sort_column, ascending=False)[
+        :default_limit
+    ]
     assert all(str(row[col]) in output for _, row in df.iterrows() for col in row.index)
 
 

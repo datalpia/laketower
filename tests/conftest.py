@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import Any
 
 import deltalake
+import numpy as np
 import pandas as pd
 import pytest
 import yaml
@@ -9,34 +10,13 @@ import yaml
 
 @pytest.fixture()
 def delta_table_data() -> pd.DataFrame:
+    periods = 24
+    daterange = pd.date_range(
+        start="2025-01-01T00:00:00+00:00", periods=periods, freq="1h"
+    )
+    temperature = np.round(np.linspace(-5, -5 + periods, num=periods))
     return pd.DataFrame(
-        [
-            {
-                "time": "2025-01-01T00:00:00+00:00",
-                "city": "Grenoble",
-                "temperature": "-2",
-            },
-            {
-                "time": "2025-01-01T01:00:00+00:00",
-                "city": "Grenoble",
-                "temperature": "-3",
-            },
-            {
-                "time": "2025-01-01T02:00:00+00:00",
-                "city": "Grenoble",
-                "temperature": "-4",
-            },
-            {
-                "time": "2025-01-01T03:00:00+00:00",
-                "city": "Grenoble",
-                "temperature": "-1",
-            },
-            {
-                "time": "2025-01-01T04:00:00+00:00",
-                "city": "Grenoble",
-                "temperature": "0",
-            },
-        ]
+        {"time": daterange, "city": "Grenoble", "temperature": temperature}
     )
 
 

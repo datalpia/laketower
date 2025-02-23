@@ -1,7 +1,8 @@
 from pathlib import Path
+from typing import Annotated, Optional
 
 import pydantic_settings
-from fastapi import APIRouter, FastAPI, Request
+from fastapi import APIRouter, FastAPI, Query, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -70,7 +71,14 @@ def get_table_history(request: Request, table_id: str) -> HTMLResponse:
 
 
 @router.get("/tables/{table_id}/view", response_class=HTMLResponse)
-def get_table_view(request: Request, table_id: str) -> HTMLResponse:
+def get_table_view(
+    request: Request,
+    table_id: str,
+    limit: Optional[int] = None,
+    cols: Annotated[Optional[list[str]], Query()] = None,
+    sort_asc: Optional[str] = None,
+    sort_desc: Optional[str] = None,
+) -> HTMLResponse:
     config: Config = request.app.state.config
     table_config = next(
         filter(lambda table_config: table_config.name == table_id, config.tables)
@@ -78,7 +86,9 @@ def get_table_view(request: Request, table_id: str) -> HTMLResponse:
     table = load_table(table_config)
     table_name = table_config.name
     table_dataset = table.dataset()
-    sql_query = generate_table_query(table_name)
+    sql_query = generate_table_query(
+        table_name, limit=limit, cols=cols, sort_asc=sort_asc, sort_desc=sort_desc
+    )
     results = execute_query({table_name: table_dataset}, sql_query)
 
     return templates.TemplateResponse(
