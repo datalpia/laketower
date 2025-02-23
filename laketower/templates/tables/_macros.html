@@ -1,0 +1,13 @@
+{% macro table_nav(table_id, current) -%}
+<ul class="nav nav-pills justify-content-center mb-3">
+  <li class="nav-item">
+    <a class="nav-link{% if current == 'overview' %} active{% endif %}"{% if current == 'overview' %} aria-current="true"{% endif %} href="/tables/{{ table_id }}">Overview</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link{% if current == 'view' %} active{% endif %}"{% if current == 'view' %} aria-current="true"{% endif %} href="/tables/{{ table_id }}/view">Data</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link{% if current == 'history' %} active{% endif %}"{% if current == 'history' %} aria-current="true"{% endif %} href="/tables/{{ table_id }}/history">History</a>
+  </li>
+</ul>
+{%- endmacro %}
