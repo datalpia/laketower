@@ -1,17 +1,8 @@
 {% extends "_base.html" %}
+{% import 'tables/_macros.html' as table_macros %}
 
 {% block body %}
-<ul class="nav nav-pills justify-content-center mb-3">
-  <li class="nav-item">
-    <a class="nav-link active" aria-current="true" href="/tables/{{ table_id }}">Overview</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" href="/tables/{{ table_id }}/view">Data</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" href="/tables/{{ table_id }}/history">History</a>
-  </li>
-</ul>
+{{ table_macros.table_nav(table_id, 'overview') }}
 
 <div class="row row-cols-1 row-cols-md-2 g-4">
   <div class="col">

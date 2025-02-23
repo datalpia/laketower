@@ -1,7 +1,9 @@
+import urllib.parse
 from datetime import datetime, timezone
 from http import HTTPStatus
 from pathlib import Path
 from typing import Any
+from unittest.mock import patch
 
 import deltalake
 import pytest
@@ -20,6 +22,37 @@ def app(monkeypatch: pytest.MonkeyPatch, sample_config_path: Path) -> FastAPI:
 @pytest.fixture()
 def client(app: FastAPI) -> TestClient:
     return TestClient(app)
+
+
+@pytest.mark.parametrize(
+    ("path", "args", "expected"),
+    [
+        (
+            "/tables/table_name/view",
+            {"sort_asc": "col1", "sort_desc": None},
+            "/tables/table_name/view?sort_asc=col1",
+        ),
+        (
+            "/tables/table_name/view?sort_asc=col1",
+            {"sort_asc": None, "sort_desc": "col1"},
+            "/tables/table_name/view?sort_desc=col1",
+        ),
+        (
+            "/tables/table_name/view?limit=1&cols=col2&cols=col3",
+            {"sort_asc": "col1", "sort_desc": None},
+            "/tables/table_name/view?limit=1&cols=col2&cols=col3&sort_asc=col1",
+        ),
+    ],
+)
+def test_current_path_with_args(path: str, args: dict[str, str], expected: str) -> None:
+    parsed = urllib.parse.urlparse(path)
+    with patch("laketower.web.Request") as request_mock:
+        request = request_mock.return_value
+        request.query_params.multi_items.return_value = urllib.parse.parse_qsl(
+            parsed.query
+        )
+        request.url.path = parsed.path
+        assert web.current_path_with_args(request, args) == expected
 
 
 def test_index(client: TestClient, sample_config: dict[str, Any]) -> None:
@@ -120,6 +153,10 @@ def test_table_view(
 
     html = response.content.decode()
     assert all(field.name in html for field in delta_table.schema().fields)
+    assert all(
+        f"/tables/{table['name']}/view?sort_asc={field.name}" in html
+        for field in delta_table.schema().fields
+    )
 
     df = delta_table.to_pandas()[0:default_limit]
     assert all(str(row[col]) in html for _, row in df.iterrows() for col in row.index)
@@ -176,6 +213,12 @@ def test_table_view_sort_asc(
 
     html = response.content.decode()
     assert all(field.name in html for field in delta_table.schema().fields)
+    assert f"/tables/{table['name']}/view?sort_desc={sort_column}" in html
+    assert all(
+        f"/tables/{table['name']}/view?sort_asc={field.name}" in html
+        for field in delta_table.schema().fields
+        if field.name != sort_column
+    )
 
     df = delta_table.to_pandas().sort_values(by=sort_column, ascending=True)[
         :default_limit
@@ -195,6 +238,10 @@ def test_table_view_sort_desc(
 
     html = response.content.decode()
     assert all(field.name in html for field in delta_table.schema().fields)
+    assert all(
+        f"/tables/{table['name']}/view?sort_asc={field.name}" in html
+        for field in delta_table.schema().fields
+    )
 
     df = delta_table.to_pandas().sort_values(by=sort_column, ascending=False)[
         :default_limit
