@@ -123,3 +123,80 @@ def test_table_view(
 
     df = delta_table.to_pandas()[0:default_limit]
     assert all(str(row[col]) in html for _, row in df.iterrows() for col in row.index)
+
+
+def test_tables_view_limit(
+    client: TestClient, sample_config: dict[str, Any], delta_table: deltalake.DeltaTable
+) -> None:
+    table = sample_config["tables"][0]
+    selected_limit = 1
+
+    response = client.get(f"/tables/{table['name']}/view?limit={selected_limit}")
+    assert response.status_code == HTTPStatus.OK
+
+    html = response.content.decode()
+    assert all(field.name in html for field in delta_table.schema().fields)
+
+    df = delta_table.to_pandas()[0:selected_limit]
+    assert all(str(row[col]) in html for _, row in df.iterrows() for col in row.index)
+
+
+def test_tables_view_cols(
+    client: TestClient, sample_config: dict[str, Any], delta_table: deltalake.DeltaTable
+) -> None:
+    table = sample_config["tables"][0]
+    num_fields = len(delta_table.schema().fields)
+    selected_columns = [
+        delta_table.schema().fields[i].name for i in range(num_fields - 1)
+    ]
+    filtered_columns = [delta_table.schema().fields[num_fields - 1].name]
+    qs = "&".join(f"cols={col}" for col in selected_columns)
+
+    response = client.get(f"/tables/{table['name']}/view?{qs}")
+    assert response.status_code == HTTPStatus.OK
+
+    html = response.content.decode()
+    assert all(col in html for col in selected_columns)
+    assert not all(col in html for col in filtered_columns)
+
+    df = delta_table.to_pandas()
+    assert all(str(row) in html for row in df[selected_columns])
+    assert not all(str(row) in html for row in df[filtered_columns])
+
+
+def test_table_view_sort_asc(
+    client: TestClient, sample_config: dict[str, Any], delta_table: deltalake.DeltaTable
+) -> None:
+    table = sample_config["tables"][0]
+    default_limit = 10
+    sort_column = "temperature"
+
+    response = client.get(f"/tables/{table['name']}/view?sort_asc={sort_column}")
+    assert response.status_code == HTTPStatus.OK
+
+    html = response.content.decode()
+    assert all(field.name in html for field in delta_table.schema().fields)
+
+    df = delta_table.to_pandas().sort_values(by=sort_column, ascending=True)[
+        :default_limit
+    ]
+    assert all(str(row[col]) in html for _, row in df.iterrows() for col in row.index)
+
+
+def test_table_view_sort_desc(
+    client: TestClient, sample_config: dict[str, Any], delta_table: deltalake.DeltaTable
+) -> None:
+    table = sample_config["tables"][0]
+    default_limit = 10
+    sort_column = "temperature"
+
+    response = client.get(f"/tables/{table['name']}/view?sort_desc={sort_column}")
+    assert response.status_code == HTTPStatus.OK
+
+    html = response.content.decode()
+    assert all(field.name in html for field in delta_table.schema().fields)
+
+    df = delta_table.to_pandas().sort_values(by=sort_column, ascending=False)[
+        :default_limit
+    ]
+    assert all(str(row[col]) in html for _, row in df.iterrows() for col in row.index)
