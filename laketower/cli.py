@@ -151,7 +151,9 @@ def query_table(config_path: Path, sql_query: str) -> None:
 
 
 def cli() -> None:
-    parser = argparse.ArgumentParser("laketower")
+    parser = argparse.ArgumentParser(
+        "laketower", formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
     parser.add_argument("--version", action="version", version=__version__)
     parser.add_argument(
         "--config",
