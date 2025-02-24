@@ -1,0 +1,41 @@
+{% extends "_base.html" %}
+{% import 'tables/_macros.html' as table_macros %}
+
+{% block body %}
+<div class="row">
+  <div class="col">
+    <form>
+      <div class="mb-3">
+        <textarea name="sql" rows="5" class="form-control">{{ sql_query }}</textarea>
+      </div>
+
+      <div class="mb-3">
+        <div class="d-flex justify-content-end">
+          <button type="submit" class="btn btn-primary">Execute</button>
+        </div>
+      </div>
+    </form>
+
+    <div class="table-responsive">
+      <table class="table table-sm table-bordered table-striped table-hover">
+        <thead>
+          <tr>
+            {% for column in table_results.columns %}
+            <th>{{ column }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody class="table-group-divider">
+          {% for row in table_results.to_numpy().tolist() %}
+          <tr>
+            {% for col in row %}
+            <td>{{ col }}</td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

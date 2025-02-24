@@ -49,20 +49,22 @@
         </tbody>
       </table>
 
-      <form action="{{ request.url.path }}" method="get" class="row row-cols-sm-auto g-3">
-        {% for param_name, param_val in request.query_params.multi_items() %}
-        <input type="hidden" name="{{ param_name }}" value="{{ param_val }}">
-        {% endfor %}
+      <div class="d-flex justify-content-between">
+        <form action="{{ request.url.path }}" method="get">
+          {% for param_name, param_val in request.query_params.multi_items() %}
+          <input type="hidden" name="{{ param_name }}" value="{{ param_val }}">
+          {% endfor %}
 
-        <div class="col-12">
-          <label class="visually-hidden" for="limit-input">Limit</label>
-          <input id="limit-input" name="limit" type="number" class="form-control" min="1" max="10000" value="{{ table_results | length }}">
-        </div>
+          <div class="input-group">
+            <input id="limit-input" name="limit" type="number" class="form-control" min="1" max="10000" value="{{ table_results | length }}">
+            <button type="submit" class="btn btn-primary">Limit</button>
+          </div>
+        </form>
 
-        <div class="col-12">
-          <button type="submit" class="btn btn-primary">Limit</button>
-        </div>
-      </form>
+        <a class="btn btn-primary" href="/tables/query?sql={{ sql_query }}" role="button">
+          <i class="bi-code" aria-hidden="true"></i> SQL Query
+        </a>
+      </div>
     </div>
   </div>
 </div>

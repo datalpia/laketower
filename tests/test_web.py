@@ -249,3 +249,24 @@ def test_table_view_sort_desc(
         :default_limit
     ]
     assert all(str(row[col]) in html for _, row in df.iterrows() for col in row.index)
+
+
+def test_table_query(
+    client: TestClient, sample_config: dict[str, Any], delta_table: deltalake.DeltaTable
+) -> None:
+    selected_column = delta_table.schema().fields[0].name
+    filtered_columns = [field.name for field in delta_table.schema().fields[1:]]
+    selected_limit = 1
+    sql_query = f"select {selected_column} from {sample_config['tables'][0]['name']} limit {selected_limit}"
+
+    response = client.get(f"/tables/query?sql={sql_query}")
+    assert response.status_code == HTTPStatus.OK
+
+    html = response.content.decode()
+    assert sql_query in html
+    assert selected_column in html
+    assert not all(col in html for col in filtered_columns)
+
+    df = delta_table.to_pandas()
+    assert all(str(row) in html for row in df[selected_column][0:selected_limit])
+    assert not all(str(row) in html for row in df[selected_column][selected_limit:])

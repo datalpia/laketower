@@ -43,6 +43,26 @@ def index(request: Request) -> HTMLResponse:
     )
 
 
+@router.get("/tables/query", response_class=HTMLResponse)
+def get_tables_query(request: Request, sql: str) -> HTMLResponse:
+    config: Config = request.app.state.config
+    tables_dataset = {
+        table_config.name: load_table(table_config).dataset()
+        for table_config in config.tables
+    }
+    results = execute_query(tables_dataset, sql)
+
+    return templates.TemplateResponse(
+        request=request,
+        name="tables/query.html",
+        context={
+            "tables": config.tables,
+            "table_results": results,
+            "sql_query": sql,
+        },
+    )
+
+
 @router.get("/tables/{table_id}", response_class=HTMLResponse)
 def get_table_index(request: Request, table_id: str) -> HTMLResponse:
     config: Config = request.app.state.config
@@ -110,6 +130,7 @@ def get_table_view(
             "tables": config.tables,
             "table_id": table_id,
             "table_results": results,
+            "sql_query": sql_query,
         },
     )
 
