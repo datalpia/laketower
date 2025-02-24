@@ -3,6 +3,7 @@
 > Oversee your lakehouse
 
 [![PyPI](https://img.shields.io/pypi/v/laketower.svg)](https://pypi.org/project/laketower/)
+[![Python Versions](https://img.shields.io/pypi/pyversions/laketower?logo=python&logoColor=white)](https://pypi.org/project/laketower/)
 [![CI/CD](https://github.com/datalpia/laketower/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/datalpia/laketower/actions/workflows/ci-cd.yml)
 [![License](https://img.shields.io/github/license/datalpia/laketower)](https://github.com/datalpia/laketower/blob/main/LICENSE.md)
 
