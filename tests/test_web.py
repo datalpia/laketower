@@ -29,22 +29,24 @@ def client(app: FastAPI) -> TestClient:
     [
         (
             "/tables/table_name/view",
-            {"sort_asc": "col1", "sort_desc": None},
+            [("sort_asc", "col1"), ("sort_desc", None)],
             "/tables/table_name/view?sort_asc=col1",
         ),
         (
             "/tables/table_name/view?sort_asc=col1",
-            {"sort_asc": None, "sort_desc": "col1"},
+            [("sort_asc", None), ("sort_desc", "col1")],
             "/tables/table_name/view?sort_desc=col1",
         ),
         (
             "/tables/table_name/view?limit=1&cols=col2&cols=col3",
-            {"sort_asc": "col1", "sort_desc": None},
+            [("sort_asc", "col1"), ("sort_desc", None)],
             "/tables/table_name/view?limit=1&cols=col2&cols=col3&sort_asc=col1",
         ),
     ],
 )
-def test_current_path_with_args(path: str, args: dict[str, str], expected: str) -> None:
+def test_current_path_with_args(
+    path: str, args: list[tuple[str, str]], expected: str
+) -> None:
     parsed = urllib.parse.urlparse(path)
     with patch("laketower.web.Request") as request_mock:
         request = request_mock.return_value

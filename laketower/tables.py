@@ -7,6 +7,7 @@ import deltalake
 import duckdb
 import pandas as pd
 import pyarrow as pa
+import pyarrow.dataset as padataset
 import pydantic
 import sqlglot
 import sqlglot.dialects.duckdb
@@ -43,7 +44,7 @@ class TableProtocol(Protocol):  # pragma: no cover
     def metadata(self) -> TableMetadata: ...
     def schema(self) -> pa.Schema: ...
     def history(self) -> TableHistory: ...
-    def dataset(self) -> pa.dataset.Dataset: ...
+    def dataset(self) -> padataset.Dataset: ...
 
 
 class DeltaTable:
@@ -88,7 +89,7 @@ class DeltaTable:
         ]
         return TableHistory(revisions=revisions)
 
-    def dataset(self) -> pa.dataset.Dataset:
+    def dataset(self) -> padataset.Dataset:
         return self._impl.to_pyarrow_dataset()
 
 
@@ -115,7 +116,7 @@ def generate_table_query(
 
 
 def execute_query(
-    tables_datasets: dict[str, pa.dataset.Dataset], sql_query: str
+    tables_datasets: dict[str, padataset.Dataset], sql_query: str
 ) -> pd.DataFrame:
     try:
         conn = duckdb.connect()
