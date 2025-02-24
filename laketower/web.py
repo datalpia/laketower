@@ -16,13 +16,13 @@ class Settings(pydantic_settings.BaseSettings):
     laketower_config_path: Path
 
 
-def current_path_with_args(request: Request, args: dict[str, str]) -> str:
-    keys_to_update = set(args.keys())
+def current_path_with_args(request: Request, args: list[tuple[str, str]]) -> str:
+    keys_to_update = set(arg[0] for arg in args)
     query_params = request.query_params.multi_items()
     new_query_params = list(
         filter(lambda param: param[0] not in keys_to_update, query_params)
     )
-    new_query_params.extend((k, v) for k, v in args.items() if v is not None)
+    new_query_params.extend((k, v) for k, v in args if v is not None)
     query_string = urllib.parse.urlencode(new_query_params)
     return f"{request.url.path}?{query_string}"
 

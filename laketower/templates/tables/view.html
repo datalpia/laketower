@@ -7,26 +7,33 @@
 <div class="row">
   <div class="col">
     <div class="table-responsive">
-      <table class="table table-sm table-striped table-hover">
+      <table class="table table-sm table-bordered table-striped table-hover">
         <thead>
           <tr>
             {% for column in table_results.columns %}
             <th>
+              {{ column }}
               {% if column == request.query_params.sort_asc %}
-              <a href="{{ request | current_path_with_args({'sort_asc': None, 'sort_desc': column}) }}" style="text-decoration: none;">
-                {{ column }}
+              <a href="{{ request | current_path_with_args([('sort_asc', None), ('sort_desc', column)]) }}" style="text-decoration: none;">
                 <i class="bi-sort-up" aria-hidden="true"></i>
               </a>
               {% elif column == request.query_params.sort_desc %}
-              <a href="{{ request | current_path_with_args({'sort_asc': column, 'sort_desc': None}) }}" style="text-decoration: none;">
-                {{ column }}
+              <a href="{{ request | current_path_with_args([('sort_asc', column), ('sort_desc', None)]) }}" style="text-decoration: none;">
                 <i class="bi-sort-down" aria-hidden="true"></i>
               </a>
               {% else %}
-              <a href="{{ request | current_path_with_args({'sort_asc': column, 'sort_desc': None}) }}" style="text-decoration: none;">
-                {{ column }}
+              <a href="{{ request | current_path_with_args([('sort_asc', column), ('sort_desc', None)]) }}" class="text-decoration-none">
+                <i class="bi-arrow-down-up" aria-hidden="true"></i>
               </a>
               {% endif %}
+              {% set other_cols = table_results.columns | list | reject('equalto', column) | list %}
+              {% set cols_args = [] %}
+              {% for col in other_cols %}
+                {% set tmp = cols_args.append(('cols', col)) %}
+              {% endfor %}
+              <a href='{{ request | current_path_with_args(cols_args) }}' class='text-decoration-none'>
+                <i class='bi-eye-slash' aria-hidden='true'></i>
+              </a>
             </th>
             {% endfor %}
           </tr>
