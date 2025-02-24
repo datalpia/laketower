@@ -7,7 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Web application
+- `web` module
+    - List all registered tables
+    - Display table overview (metadata and schema)
+    - Display table history
+    - View a given table with simple query builder
+    - Query all registered tables with DuckDB SQL dialect
 
 ## [0.1.0] - 2025-02-15
 Initial release of `laketower`.
