@@ -48,6 +48,21 @@
           {% endfor %}
         </tbody>
       </table>
+
+      <form action="{{ request.url.path }}" method="get" class="row row-cols-sm-auto g-3">
+        {% for param_name, param_val in request.query_params.multi_items() %}
+        <input type="hidden" name="{{ param_name }}" value="{{ param_val }}">
+        {% endfor %}
+
+        <div class="col-12">
+          <label class="visually-hidden" for="limit-input">Limit</label>
+          <input id="limit-input" name="limit" type="number" class="form-control" min="1" max="10000" value="{{ table_results | length }}">
+        </div>
+
+        <div class="col-12">
+          <button type="submit" class="btn btn-primary">Limit</button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
