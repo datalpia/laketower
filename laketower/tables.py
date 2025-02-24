@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Any, Protocol
+from typing import Any, Optional, Protocol
 
 import deltalake
 import duckdb
@@ -17,8 +17,8 @@ from laketower.config import ConfigTable, TableFormats
 
 class TableMetadata(pydantic.BaseModel):
     table_format: TableFormats
-    name: str
-    description: str
+    name: Optional[str] = None
+    description: Optional[str] = None
     uri: str
     id: str
     version: int

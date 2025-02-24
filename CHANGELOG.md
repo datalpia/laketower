@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - View a given table with simple query builder
     - Query all registered tables with DuckDB SQL dialect
 
+### Fixed
+- Delta tables metadata compatibility when name and/or description is missing
+
 ## [0.1.0] - 2025-02-15
 Initial release of `laketower`.
 
