@@ -30,7 +30,7 @@ class TableMetadata(pydantic.BaseModel):
 class TableRevision(pydantic.BaseModel):
     version: int
     timestamp: datetime
-    client_version: str
+    client_version: Optional[str] = None
     operation: str
     operation_parameters: dict[str, Any]
     operation_metrics: dict[str, Any]
@@ -80,7 +80,7 @@ class DeltaTable:
                 timestamp=datetime.fromtimestamp(
                     event["timestamp"] / 1000, tz=timezone.utc
                 ),
-                client_version=event["clientVersion"],
+                client_version=event.get("clientVersion") or event.get("engineInfo"),
                 operation=event["operation"],
                 operation_parameters=event["operationParameters"],
                 operation_metrics=event.get("operationMetrics") or {},
