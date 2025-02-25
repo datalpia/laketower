@@ -251,6 +251,24 @@ def test_table_view_sort_desc(
     assert all(str(row[col]) in html for _, row in df.iterrows() for col in row.index)
 
 
+def test_tables_view_version(
+    client: TestClient, sample_config: dict[str, Any], delta_table: deltalake.DeltaTable
+) -> None:
+    table = sample_config["tables"][0]
+    default_limit = 10
+
+    response = client.get(f"/tables/{table['name']}/view?version=0")
+    assert response.status_code == HTTPStatus.OK
+
+    html = response.content.decode()
+    assert all(field.name in html for field in delta_table.schema().fields)
+
+    df = delta_table.to_pandas()[0:default_limit]
+    assert not all(
+        str(row[col]) in html for _, row in df.iterrows() for col in row.index
+    )
+
+
 def test_table_query(
     client: TestClient, sample_config: dict[str, Any], delta_table: deltalake.DeltaTable
 ) -> None:

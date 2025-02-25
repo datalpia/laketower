@@ -9,7 +9,12 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from laketower.config import Config, load_yaml_config
-from laketower.tables import execute_query, generate_table_query, load_table
+from laketower.tables import (
+    DEFAULT_LIMIT,
+    execute_query,
+    generate_table_query,
+    load_table,
+)
 
 
 class Settings(pydantic_settings.BaseSettings):
@@ -110,6 +115,7 @@ def get_table_view(
     cols: Annotated[Optional[list[str]], Query()] = None,
     sort_asc: Optional[str] = None,
     sort_desc: Optional[str] = None,
+    version: Optional[int] = None,
 ) -> HTMLResponse:
     config: Config = request.app.state.config
     table_config = next(
@@ -117,7 +123,8 @@ def get_table_view(
     )
     table = load_table(table_config)
     table_name = table_config.name
-    table_dataset = table.dataset()
+    table_metadata = table.metadata()
+    table_dataset = table.dataset(version=version)
     sql_query = generate_table_query(
         table_name, limit=limit, cols=cols, sort_asc=sort_asc, sort_desc=sort_desc
     )
@@ -129,8 +136,10 @@ def get_table_view(
         context={
             "tables": config.tables,
             "table_id": table_id,
+            "table_metadata": table_metadata,
             "table_results": results,
             "sql_query": sql_query,
+            "default_limit": DEFAULT_LIMIT,
         },
     )
 
