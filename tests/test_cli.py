@@ -427,6 +427,42 @@ def test_tables_view_sort_desc(
     assert all(str(row[col]) in output for _, row in df.iterrows() for col in row.index)
 
 
+def test_tables_view_version(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    sample_config: dict[str, Any],
+    sample_config_path: Path,
+    delta_table: deltalake.DeltaTable,
+) -> None:
+    default_limit = 10
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "laketower",
+            "--config",
+            str(sample_config_path),
+            "tables",
+            "view",
+            "--version",
+            "0",
+            sample_config["tables"][0]["name"],
+        ],
+    )
+
+    cli.cli()
+
+    captured = capsys.readouterr()
+    output = captured.out
+    assert all(field.name in output for field in delta_table.schema().fields)
+
+    df = delta_table.to_pandas()[0:default_limit]
+    assert not all(
+        str(row[col]) in output for _, row in df.iterrows() for col in row.index
+    )
+
+
 def test_tables_query(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],

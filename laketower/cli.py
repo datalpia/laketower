@@ -106,11 +106,12 @@ def view_table(
     cols: list[str] | None = None,
     sort_asc: str | None = None,
     sort_desc: str | None = None,
+    version: int | None = None,
 ) -> None:
     config = load_yaml_config(config_path)
     table_config = next(filter(lambda x: x.name == table_name, config.tables))
     table = load_table(table_config)
-    table_dataset = table.dataset()
+    table_dataset = table.dataset(version=version)
     sql_query = generate_table_query(
         table_name, limit=limit, cols=cols, sort_asc=sort_asc, sort_desc=sort_desc
     )
@@ -228,9 +229,12 @@ def cli() -> None:
     parser_tables_view_sort_group.add_argument(
         "--sort-desc", help="Sort by given column in descending order"
     )
+    parser_tables_view.add_argument(
+        "--version", type=int, help="Time-travel to table revision number"
+    )
     parser_tables_view.set_defaults(
         func=lambda x: view_table(
-            x.config, x.table, x.limit, x.cols, x.sort_asc, x.sort_desc
+            x.config, x.table, x.limit, x.cols, x.sort_asc, x.sort_desc, x.version
         )
     )
 

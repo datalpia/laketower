@@ -15,6 +15,9 @@ import sqlglot.dialects.duckdb
 from laketower.config import ConfigTable, TableFormats
 
 
+DEFAULT_LIMIT = 10
+
+
 class TableMetadata(pydantic.BaseModel):
     table_format: TableFormats
     name: Optional[str] = None
@@ -44,7 +47,7 @@ class TableProtocol(Protocol):  # pragma: no cover
     def metadata(self) -> TableMetadata: ...
     def schema(self) -> pa.Schema: ...
     def history(self) -> TableHistory: ...
-    def dataset(self) -> padataset.Dataset: ...
+    def dataset(self, version: int | str | None = None) -> padataset.Dataset: ...
 
 
 class DeltaTable:
@@ -89,7 +92,9 @@ class DeltaTable:
         ]
         return TableHistory(revisions=revisions)
 
-    def dataset(self) -> padataset.Dataset:
+    def dataset(self, version: int | str | None = None) -> padataset.Dataset:
+        if version is not None:
+            self._impl.load_as_version(version)
         return self._impl.to_pyarrow_dataset()
 
 
@@ -105,7 +110,9 @@ def generate_table_query(
     sort_asc: str | None = None,
     sort_desc: str | None = None,
 ) -> str:
-    query_expr = sqlglot.select(*(cols or ["*"])).from_(table_name).limit(limit or 10)
+    query_expr = (
+        sqlglot.select(*(cols or ["*"])).from_(table_name).limit(limit or DEFAULT_LIMIT)
+    )
     if sort_asc:
         query_expr = query_expr.order_by(f"{sort_asc} asc")
     elif sort_desc:

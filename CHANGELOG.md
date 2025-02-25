@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Display table history
     - View a given table with simple query builder
     - Query all registered tables with DuckDB SQL dialect
+- CLI: add `tables view --version` argument to time-travel table version
 
 ### Fixed
 - Delta tables metadata compatibility when name and/or description is missing

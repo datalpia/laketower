@@ -83,15 +83,16 @@ Laketower provides a CLI interface:
 
 ```bash
 $ laketower --help
-usage: laketower [-h] [--version] [--config CONFIG] {config,tables} ...
+usage: laketower [-h] [--version] [--config CONFIG] {web,config,tables} ...
 
 options:
   -h, --help           show this help message and exit
   --version            show program's version number and exit
-  --config, -c CONFIG  Path to the Laketower YAML configuration file
+  --config, -c CONFIG  Path to the Laketower YAML configuration file (default: laketower.yml)
 
 commands:
-  {config,tables}
+  {web,config,tables}
+    web                Launch the web application
     config             Work with configuration
     tables             Work with tables
 ```
@@ -215,6 +216,7 @@ Optional arguments:
 - `--sort-asc <col>`: sort by a column name in ascending order
 - `--sort-desc <col>`: sort by a column name in descending order
 - `--limit <num>` (default 10): limit the number of rows
+- `--version`: time-travel to table revision number
 
 ```bash
 $ laketower -c demo/laketower.yml tables view weather
@@ -248,6 +250,26 @@ $ laketower -c demo/laketower.yml tables view weather --cols time city temperatu
 │ 2025-02-11 22:00:00+01:00 │ Grenoble │ 4.900000095367432 │
 └───────────────────────────┴──────────┴───────────────────┘
 ```
+
+```bash
+$ laketower -c demo/laketower.yml tables view weather --version 1
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━┓
+┃ time                      ┃ city     ┃ temperature_2m    ┃ relative_humidity_2m ┃ wind_speed_10m     ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━┩
+│ 2025-01-26 01:00:00+01:00 │ Grenoble │ 7.0               │ 87.0                 │ 8.899999618530273  │
+│ 2025-01-26 02:00:00+01:00 │ Grenoble │ 6.099999904632568 │ 87.0                 │ 6.199999809265137  │
+│ 2025-01-26 03:00:00+01:00 │ Grenoble │ 6.0               │ 86.0                 │ 2.700000047683716  │
+│ 2025-01-26 04:00:00+01:00 │ Grenoble │ 6.099999904632568 │ 82.0                 │ 3.0999999046325684 │
+│ 2025-01-26 05:00:00+01:00 │ Grenoble │ 5.5               │ 87.0                 │ 3.299999952316284  │
+│ 2025-01-26 06:00:00+01:00 │ Grenoble │ 5.199999809265137 │ 91.0                 │ 2.200000047683716  │
+│ 2025-01-26 07:00:00+01:00 │ Grenoble │ 4.800000190734863 │ 86.0                 │ 3.0                │
+│ 2025-01-26 08:00:00+01:00 │ Grenoble │ 4.900000095367432 │ 83.0                 │ 1.100000023841858  │
+│ 2025-01-26 09:00:00+01:00 │ Grenoble │ 4.0               │ 92.0                 │ 3.0999999046325684 │
+│ 2025-01-26 10:00:00+01:00 │ Grenoble │ 5.0               │ 86.0                 │ 6.400000095367432  │
+└───────────────────────────┴──────────┴───────────────────┴──────────────────────┴────────────────────┘
+```
+
 
 #### Query all registered tables
 
