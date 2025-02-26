@@ -55,7 +55,13 @@ def get_tables_query(request: Request, sql: str) -> HTMLResponse:
         table_config.name: load_table(table_config).dataset()
         for table_config in config.tables
     }
-    results = execute_query(tables_dataset, sql)
+
+    try:
+        results = execute_query(tables_dataset, sql)
+        error = None
+    except ValueError as e:
+        error = {"message": str(e)}
+        results = None
 
     return templates.TemplateResponse(
         request=request,
@@ -64,6 +70,7 @@ def get_tables_query(request: Request, sql: str) -> HTMLResponse:
             "tables": config.tables,
             "table_results": results,
             "sql_query": sql,
+            "error": error,
         },
     )
 
