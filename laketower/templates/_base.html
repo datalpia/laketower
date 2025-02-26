@@ -30,7 +30,7 @@
           {% for table in tables %}
           {% set table_url = '/tables/' + table.name %}
           <li class="nav-item">
-            <a class="nav-link{% if request.url.path.startswith(table_url) %} active{% endif %}" href="{{ table_url }}" aria-current="page">
+            <a class="text-truncate nav-link{% if request.url.path.startswith(table_url) %} active{% endif %}" href="{{ table_url }}" aria-current="page">
               <i class="bi-table" aria-hidden="true"></i>
               {{ table.name }}
             </a>
