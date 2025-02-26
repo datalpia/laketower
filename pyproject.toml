@@ -6,7 +6,7 @@ license = { text = "AGPL-3.0-or-later" }
 authors = [
     { name = "Romain Clement", email = "git@romain-clement.net" }
 ]
-requires-python = ">=3.9,<3.14"
+requires-python = ">=3.10,<3.14"
 dependencies = [
     "deltalake",
     "duckdb",
@@ -24,7 +24,6 @@ dependencies = [
 keywords = ["data", "lakehouse", "sql", "delta-lake"]
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -53,18 +52,18 @@ build-backend = "hatchling.build"
 
 [dependency-groups]
 dev = [
-    "bandit",
-    "httpx",
-    "invoke",
-    "mypy",
-    "pandas-stubs",
-    "pip-audit",
-    "pyarrow-stubs",
-    "pytest",
-    "pytest-cov",
-    "ruff",
-    "types-pyyaml",
-    "watchdog",
+    "bandit==1.8.3",
+    "httpx==0.28.1",
+    "invoke==2.2.0",
+    "mypy==1.15.0",
+    "pandas-stubs==2.2.3.241126",
+    "pip-audit==2.8.0",
+    "pyarrow-stubs==17.17",
+    "pytest==8.3.4",
+    "pytest-cov==6.0.0",
+    "ruff==0.9.7",
+    "types-pyyaml==6.0.12.20241230",
+    "watchdog==6.0.0",
 ]
 
 [tool.hatch.version]
