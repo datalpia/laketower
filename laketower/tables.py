@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from datetime import datetime, timezone
-from typing import Any, Optional, Protocol
+from typing import Any, Protocol
 
 import deltalake
 import duckdb
@@ -20,8 +18,8 @@ DEFAULT_LIMIT = 10
 
 class TableMetadata(pydantic.BaseModel):
     table_format: TableFormats
-    name: Optional[str] = None
-    description: Optional[str] = None
+    name: str | None = None
+    description: str | None = None
     uri: str
     id: str
     version: int
@@ -33,7 +31,7 @@ class TableMetadata(pydantic.BaseModel):
 class TableRevision(pydantic.BaseModel):
     version: int
     timestamp: datetime
-    client_version: Optional[str] = None
+    client_version: str | None = None
     operation: str
     operation_parameters: dict[str, Any]
     operation_metrics: dict[str, Any]

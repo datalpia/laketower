@@ -1,6 +1,6 @@
 import urllib.parse
 from pathlib import Path
-from typing import Annotated, Optional
+from typing import Annotated
 
 import pydantic_settings
 from fastapi import APIRouter, FastAPI, Query, Request
@@ -118,11 +118,11 @@ def get_table_history(request: Request, table_id: str) -> HTMLResponse:
 def get_table_view(
     request: Request,
     table_id: str,
-    limit: Optional[int] = None,
-    cols: Annotated[Optional[list[str]], Query()] = None,
-    sort_asc: Optional[str] = None,
-    sort_desc: Optional[str] = None,
-    version: Optional[int] = None,
+    limit: int | None = None,
+    cols: Annotated[list[str] | None, Query()] = None,
+    sort_asc: str | None = None,
+    sort_desc: str | None = None,
+    version: int | None = None,
 ) -> HTMLResponse:
     config: Config = request.app.state.config
     table_config = next(
