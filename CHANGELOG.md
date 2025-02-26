@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2025-02-27
+Minor release with fixes and dropped Python 3.9 support.
+
+### BREAKING CHANGES
+- deps: drop support for python 3.9
+
+### Fixed
+- web: handle invalid tables sql query
+- web: truncate long table names in sidebar
+
 ## [0.2.0] - 2025-02-25
 Introducing the Laketower web application!
 
@@ -37,6 +47,7 @@ Initial release of `laketower`.
     - View a given table with simple query builder
     - Query all registered tables with DuckDB SQL dialect
 
-[Unreleased]: https://github.com/datalpia/laketower/compare/0.2.0...HEAD
+[Unreleased]: https://github.com/datalpia/laketower/compare/0.3.0...HEAD
+[0.3.0]: https://github.com/datalpia/laketower/compare/0.2.0...0.3.0
 [0.2.0]: https://github.com/datalpia/laketower/compare/0.1.0...0.2.0
 [0.1.0]: https://github.com/datalpia/laketower/releases/tag/0.1.0
