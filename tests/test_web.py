@@ -288,3 +288,21 @@ def test_table_query(
     df = delta_table.to_pandas()
     assert all(str(row) in html for row in df[selected_column][0:selected_limit])
     assert not all(str(row) in html for row in df[selected_column][selected_limit:])
+
+
+def test_tables_query_invalid(
+    client: TestClient, delta_table: deltalake.DeltaTable
+) -> None:
+    sql_query = "select * from unknown_table"
+
+    response = client.get(f"/tables/query?sql={sql_query}")
+    assert response.status_code == HTTPStatus.OK
+
+    html = response.content.decode()
+    assert "Error" in html
+    assert not all(field.name in html for field in delta_table.schema().fields)
+
+    df = delta_table.to_pandas()
+    assert not all(
+        str(row[col]) in html for _, row in df.iterrows() for col in row.index
+    )
