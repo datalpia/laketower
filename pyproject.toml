@@ -61,7 +61,7 @@ dev = [
     "pyarrow-stubs==17.17",
     "pytest==8.3.4",
     "pytest-cov==6.0.0",
-    "ruff==0.9.7",
+    "ruff==0.9.8",
     "types-pyyaml==6.0.12.20241230",
     "watchdog==6.0.0",
 ]
