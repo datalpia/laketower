@@ -15,6 +15,7 @@ Utility application to explore and manage tables in your data lakehouse, especia
 - Inspect table metadata
 - Inspect table schema
 - Inspect table history
+- Get table statistics
 - View table content with a simple query builder
 - Query all registered tables with DuckDB SQL dialect
 - Static and versionable YAML configuration
@@ -205,6 +206,40 @@ weather
     │   ├── mode: ErrorIfExists
     │   └── location: file:///Users/romain/Documents/dev/datalpia/laketower/demo/weather
     └── operation metrics
+```
+
+#### Get statistics of a given table
+
+Get basic statistics on all columns of a given table:
+
+```bash
+$ laketower -c demo/laketower.yml tables statistics weather
+
+┏━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ column_name          ┃ count ┃ avg                ┃ std                ┃ min                    ┃ max                    ┃
+┡━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━╇━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ time                 │ 576   │ None               │ None               │ 2025-01-26 01:00:00+01 │ 2025-02-12 00:00:00+01 │
+│ city                 │ 576   │ None               │ None               │ Grenoble               │ Grenoble               │
+│ temperature_2m       │ 576   │ 5.2623263956047595 │ 3.326529069892729  │ 0.0                    │ 15.1                   │
+│ relative_humidity_2m │ 576   │ 78.76909722222223  │ 15.701802163559918 │ 29.0                   │ 100.0                  │
+│ wind_speed_10m       │ 576   │ 7.535763886032833  │ 10.00898058743763  │ 0.0                    │ 42.4                   │
+└──────────────────────┴───────┴────────────────────┴────────────────────┴────────────────────────┴────────────────────────┘
+```
+
+Specifying a table version yields according results:
+
+```bash
+$ laketower -c demo/laketower.yml tables statistics --version 0 weather
+
+┏━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━┳━━━━━━┳━━━━━━┳━━━━━━┳━━━━━━┓
+┃ column_name          ┃ count ┃ avg  ┃ std  ┃ min  ┃ max  ┃
+┡━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━╇━━━━━━╇━━━━━━╇━━━━━━╇━━━━━━┩
+│ time                 │ 0     │ None │ None │ None │ None │
+│ city                 │ 0     │ None │ None │ None │ None │
+│ temperature_2m       │ 0     │ None │ None │ None │ None │
+│ relative_humidity_2m │ 0     │ None │ None │ None │ None │
+│ wind_speed_10m       │ 0     │ None │ None │ None │ None │
+└──────────────────────┴───────┴──────┴──────┴──────┴──────┘
 ```
 
 #### View a given table

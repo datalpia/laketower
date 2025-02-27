@@ -11,7 +11,12 @@ import uvicorn
 
 from laketower.__about__ import __version__
 from laketower.config import load_yaml_config
-from laketower.tables import execute_query, generate_table_query, load_table
+from laketower.tables import (
+    execute_query,
+    generate_table_query,
+    generate_table_statistics_query,
+    load_table,
+)
 
 
 def run_web(config_path: Path, reload: bool) -> None:  # pragma: no cover
@@ -95,6 +100,27 @@ def table_history(config_path: Path, table_name: str) -> None:
             tree_op_metrics.add(f"{metric_key}: {metric_val}")
     console = rich.get_console()
     console.print(tree, markup=False)
+
+
+def table_statistics(
+    config_path: Path, table_name: str, version: int | None = None
+) -> None:
+    config = load_yaml_config(config_path)
+    table_config = next(filter(lambda x: x.name == table_name, config.tables))
+    table = load_table(table_config)
+    table_dataset = table.dataset(version=version)
+    sql_query = generate_table_statistics_query(table_name)
+    results = execute_query({table_name: table_dataset}, sql_query)
+
+    out = rich.table.Table()
+    for column in results.columns:
+        out.add_column(column)
+    for value_list in results.to_numpy().tolist():
+        row = [str(x) for x in value_list]
+        out.add_row(*row)
+
+    console = rich.get_console()
+    console.print(out, markup=False)  # disable markup to allow bracket characters
 
 
 def view_table(
@@ -211,6 +237,17 @@ def cli() -> None:
     )
     parser_tables_history.add_argument("table", help="Name of the table")
     parser_tables_history.set_defaults(func=lambda x: table_history(x.config, x.table))
+
+    parser_tables_statistics = subsparsers_tables.add_parser(
+        "statistics", help="Display summary statistics of a given table schema"
+    )
+    parser_tables_statistics.add_argument("table", help="Name of the table")
+    parser_tables_statistics.add_argument(
+        "--version", type=int, help="Time-travel to table revision number"
+    )
+    parser_tables_statistics.set_defaults(
+        func=lambda x: table_statistics(x.config, x.table, x.version)
+    )
 
     parser_tables_view = subsparsers_tables.add_parser(
         "view", help="View a given table"

@@ -247,6 +247,74 @@ def test_tables_history(
                 assert f"{metric_key}: {metric_val}" in output
 
 
+def test_tables_statistics(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    sample_config: dict[str, Any],
+    sample_config_path: Path,
+    delta_table: deltalake.DeltaTable,
+) -> None:
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "laketower",
+            "--config",
+            str(sample_config_path),
+            "tables",
+            "statistics",
+            sample_config["tables"][0]["name"],
+        ],
+    )
+
+    cli.cli()
+
+    captured = capsys.readouterr()
+    output = captured.out
+    assert all(field.name in output for field in delta_table.schema().fields)
+    assert "column_name" in output
+    assert "count" in output
+    assert "avg" in output
+    assert "std" in output
+    assert "min" in output
+    assert "max" in output
+
+
+def test_tables_statistics_version(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    sample_config: dict[str, Any],
+    sample_config_path: Path,
+    delta_table: deltalake.DeltaTable,
+) -> None:
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "laketower",
+            "--config",
+            str(sample_config_path),
+            "tables",
+            "statistics",
+            "--version",
+            "0",
+            sample_config["tables"][0]["name"],
+        ],
+    )
+
+    cli.cli()
+
+    captured = capsys.readouterr()
+    output = captured.out
+    assert all(field.name in output for field in delta_table.schema().fields)
+    assert "column_name" in output
+    assert "count" in output
+    assert "avg" in output
+    assert "std" in output
+    assert "min" in output
+    assert "max" in output
+
+
 def test_tables_view(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
