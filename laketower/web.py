@@ -12,6 +12,7 @@ from laketower.config import Config, load_yaml_config
 from laketower.tables import (
     DEFAULT_LIMIT,
     execute_query,
+    generate_table_statistics_query,
     generate_table_query,
     load_table,
 )
@@ -110,6 +111,35 @@ def get_table_history(request: Request, table_id: str) -> HTMLResponse:
             "tables": config.tables,
             "table_id": table_id,
             "table_history": table.history(),
+        },
+    )
+
+
+@router.get("/tables/{table_id}/statistics", response_class=HTMLResponse)
+def get_table_statistics(
+    request: Request,
+    table_id: str,
+    version: int | None = None,
+) -> HTMLResponse:
+    config: Config = request.app.state.config
+    table_config = next(
+        filter(lambda table_config: table_config.name == table_id, config.tables)
+    )
+    table = load_table(table_config)
+    table_name = table_config.name
+    table_metadata = table.metadata()
+    table_dataset = table.dataset(version=version)
+    sql_query = generate_table_statistics_query(table_name)
+    query_results = execute_query({table_name: table_dataset}, sql_query)
+
+    return templates.TemplateResponse(
+        request=request,
+        name="tables/statistics.html",
+        context={
+            "tables": config.tables,
+            "table_id": table_id,
+            "table_metadata": table_metadata,
+            "table_results": query_results,
         },
     )
 
