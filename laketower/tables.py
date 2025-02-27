@@ -9,6 +9,7 @@ import pyarrow.dataset as padataset
 import pydantic
 import sqlglot
 import sqlglot.dialects.duckdb
+import sqlglot.expressions
 
 from laketower.config import ConfigTable, TableFormats
 
@@ -117,6 +118,12 @@ def generate_table_query(
         query_expr = query_expr.order_by(f"{sort_desc} desc")
     return sqlglot.Generator(dialect=sqlglot.dialects.duckdb.DuckDB).generate(
         query_expr
+    )
+
+
+def generate_table_statistics_query(table_name: str) -> str:
+    return (
+        f"SELECT column_name, count, avg, std, min, max FROM (SUMMARIZE {table_name})"  # nosec B608
     )
 
 
