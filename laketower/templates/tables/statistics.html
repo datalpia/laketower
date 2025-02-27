@@ -1,0 +1,56 @@
+{% extends "_base.html" %}
+{% import 'tables/_macros.html' as table_macros %}
+
+{% block body %}
+{{ table_macros.table_nav(table_id, 'statistics') }}
+
+<div class="row">
+  <div class="col">
+    <div class="table-responsive">
+      <table class="table table-sm table-bordered table-striped table-hover">
+        <thead>
+          <tr>
+            {% for column in table_results.columns %}
+            <th>{{ column }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody class="table-group-divider">
+          {% for row in table_results.to_numpy().tolist() %}
+          <tr>
+            {% for col in row %}
+            <td>{{ col }}</td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <div class="d-flex justify-content-between">
+        <div class="row">
+          <form class="col" ="{{ request.url.path }}" method="get">
+            {% for param_name, param_val in request.query_params.multi_items() %}
+            {% if param_name != 'version' %}
+            <input type="hidden" name="{{ param_name }}" value="{{ param_val }}">
+            {% endif %}
+            {% endfor %}
+
+            <div class="input-group">
+              <input
+                id="version-input"
+                name="version"
+                type="number"
+                class="form-control"
+                min="0"
+                max="{{ table_metadata.version }}"
+                value="{{ request.query_params.version or table_metadata.version }}"
+              >
+              <button type="submit" class="btn btn-primary">Version</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

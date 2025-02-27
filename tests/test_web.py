@@ -144,6 +144,42 @@ def test_table_history(
                 assert f"{metric_key}: {metric_val}" in html
 
 
+def test_tables_statistics(
+    client: TestClient, sample_config: dict[str, Any], delta_table: deltalake.DeltaTable
+) -> None:
+    table = sample_config["tables"][0]
+
+    response = client.get(f"/tables/{table['name']}/statistics")
+    assert response.status_code == HTTPStatus.OK
+
+    html = response.content.decode()
+    assert all(field.name in html for field in delta_table.schema().fields)
+    assert "column_name" in html
+    assert "count" in html
+    assert "avg" in html
+    assert "std" in html
+    assert "min" in html
+    assert "max" in html
+
+
+def test_tables_statistics_version(
+    client: TestClient, sample_config: dict[str, Any], delta_table: deltalake.DeltaTable
+) -> None:
+    table = sample_config["tables"][0]
+
+    response = client.get(f"/tables/{table['name']}/statistics?version=0")
+    assert response.status_code == HTTPStatus.OK
+
+    html = response.content.decode()
+    assert all(field.name in html for field in delta_table.schema().fields)
+    assert "column_name" in html
+    assert "count" in html
+    assert "avg" in html
+    assert "std" in html
+    assert "min" in html
+    assert "max" in html
+
+
 def test_table_view(
     client: TestClient, sample_config: dict[str, Any], delta_table: deltalake.DeltaTable
 ) -> None:
