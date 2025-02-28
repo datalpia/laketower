@@ -29,6 +29,7 @@ class ConfigTable(pydantic.BaseModel):
 
 class ConfigQuery(pydantic.BaseModel):
     name: str
+    title: str
     sql: str
 
 
@@ -38,6 +39,7 @@ class ConfigDashboard(pydantic.BaseModel):
 
 class Config(pydantic.BaseModel):
     tables: list[ConfigTable] = []
+    queries: list[ConfigQuery] = []
 
 
 def load_yaml_config(config_path: Path) -> Config:

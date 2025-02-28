@@ -18,6 +18,7 @@ Utility application to explore and manage tables in your data lakehouse, especia
 - Get table statistics
 - View table content with a simple query builder
 - Query all registered tables with DuckDB SQL dialect
+- Execute saved queries
 - Static and versionable YAML configuration
 - Web application
 - CLI application
@@ -68,6 +69,30 @@ tables:
   - name: weather
     uri: demo/weather
     format: delta
+
+queries:
+  - name: all_data
+    title: All data
+    sql: |
+      select
+        sample_table.*,
+        weather.*
+      from
+        sample_table,
+        weather
+      limit 10
+  - name: daily_avg_temperature
+    title: Daily average temperature
+    sql: |
+      select
+        date_trunc('day', time) as day,
+        round(avg(temperature_2m)) as avg_temperature
+      from
+        weather
+      group by
+        day
+      order by
+        day asc
 ```
 
 ### Web Application
@@ -84,18 +109,20 @@ Laketower provides a CLI interface:
 
 ```bash
 $ laketower --help
-usage: laketower [-h] [--version] [--config CONFIG] {web,config,tables} ...
+
+usage: laketower [-h] [--version] [--config CONFIG] {web,config,tables,queries} ...
 
 options:
-  -h, --help           show this help message and exit
-  --version            show program's version number and exit
-  --config, -c CONFIG  Path to the Laketower YAML configuration file (default: laketower.yml)
+  -h, --help            show this help message and exit
+  --version             show program's version number and exit
+  --config, -c CONFIG   Path to the Laketower YAML configuration file (default: laketower.yml)
 
 commands:
-  {web,config,tables}
-    web                Launch the web application
-    config             Work with configuration
-    tables             Work with tables
+  {web,config,tables,queries}
+    web                 Launch the web application
+    config              Work with configuration
+    tables              Work with tables
+    queries             Work with queries
 ```
 
 By default, a YAML configuration file named `laketower.yml` will be looked for.
@@ -305,7 +332,6 @@ $ laketower -c demo/laketower.yml tables view weather --version 1
 └───────────────────────────┴──────────┴───────────────────┴──────────────────────┴────────────────────┘
 ```
 
-
 #### Query all registered tables
 
 Query any registered tables using DuckDB SQL dialect!
@@ -320,6 +346,16 @@ $ laketower -c demo/laketower.yml tables query "select date_trunc('day', time) a
 │ 2025-02-11 00:00:00+01:00 │ 4.833333373069763  │
 │ 2025-02-10 00:00:00+01:00 │ 2.1083333243926368 │
 └───────────────────────────┴────────────────────┘
+```
+
+#### List saved queries
+
+```bash
+$ laketower -c demo/laketower.yml queries list
+
+queries
+├── all_data
+└── daily_avg_temperature
 ```
 
 ## License

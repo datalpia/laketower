@@ -597,3 +597,30 @@ def test_tables_query_invalid(
     assert not all(
         str(row[col]) in output for _, row in df.iterrows() for col in row.index
     )
+
+
+def test_queries_list(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    sample_config: dict[str, Any],
+    sample_config_path: Path,
+) -> None:
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "laketower",
+            "--config",
+            str(sample_config_path),
+            "queries",
+            "list",
+        ],
+    )
+
+    cli.cli()
+
+    captured = capsys.readouterr()
+    output = captured.out
+    assert "queries" in output
+    for query in sample_config["queries"]:
+        assert query["name"] in output
