@@ -175,6 +175,15 @@ def query_table(config_path: Path, sql_query: str) -> None:
     console.print(out)
 
 
+def list_queries(config_path: Path) -> None:
+    config = load_yaml_config(config_path)
+    tree = rich.tree.Tree("queries")
+    for query in config.queries:
+        tree.add(query.name)
+    console = rich.get_console()
+    console.print(tree)
+
+
 def cli() -> None:
     parser = argparse.ArgumentParser(
         "laketower", formatter_class=argparse.ArgumentDefaultsHelpFormatter
@@ -278,6 +287,14 @@ def cli() -> None:
     )
     parser_tables_query.add_argument("sql", help="SQL query to execute")
     parser_tables_query.set_defaults(func=lambda x: query_table(x.config, x.sql))
+
+    parser_queries = subparsers.add_parser("queries", help="Work with queries")
+    subsparsers_queries = parser_queries.add_subparsers(required=True)
+
+    parser_queries_list = subsparsers_queries.add_parser(
+        "list", help="List all registered queries"
+    )
+    parser_queries_list.set_defaults(func=lambda x: list_queries(x.config))
 
     args = parser.parse_args()
     args.func(args)

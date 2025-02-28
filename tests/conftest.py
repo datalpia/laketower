@@ -42,7 +42,14 @@ def sample_config(delta_table: deltalake.DeltaTable) -> dict[str, Any]:
     return {
         "tables": [
             {"name": "delta_table", "uri": delta_table.table_uri, "format": "delta"}
-        ]
+        ],
+        "queries": [
+            {
+                "name": "daily_average_temperature",
+                "title": "Daily average temperature",
+                "sql": "select date_trunc('day', time) as day, round(avg(temperature)) as avg_temperature from delta_table group by day order by day asc",
+            }
+        ],
     }
 
 
