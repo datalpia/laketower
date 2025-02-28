@@ -184,6 +184,31 @@ def list_queries(config_path: Path) -> None:
     console.print(tree)
 
 
+def view_query(config_path: Path, query_name: str) -> None:
+    config = load_yaml_config(config_path)
+    query_config = next(filter(lambda x: x.name == query_name, config.queries))
+    sql_query = query_config.sql
+    tables_dataset = {
+        table_config.name: load_table(table_config).dataset()
+        for table_config in config.tables
+    }
+
+    out: rich.jupyter.JupyterMixin
+    try:
+        results = execute_query(tables_dataset, sql_query)
+        out = rich.table.Table()
+        for column in results.columns:
+            out.add_column(column)
+        for value_list in results.values.tolist():
+            row = [str(x) for x in value_list]
+            out.add_row(*row)
+    except ValueError as e:
+        out = rich.panel.Panel.fit(f"[red]{e}")
+
+    console = rich.get_console()
+    console.print(out)
+
+
 def cli() -> None:
     parser = argparse.ArgumentParser(
         "laketower", formatter_class=argparse.ArgumentDefaultsHelpFormatter
@@ -295,6 +320,12 @@ def cli() -> None:
         "list", help="List all registered queries"
     )
     parser_queries_list.set_defaults(func=lambda x: list_queries(x.config))
+
+    parser_queries_view = subsparsers_queries.add_parser(
+        "view", help="View a given query"
+    )
+    parser_queries_view.add_argument("query", help="Name of the query")
+    parser_queries_view.set_defaults(func=lambda x: view_query(x.config, x.query))
 
     args = parser.parse_args()
     args.func(args)
