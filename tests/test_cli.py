@@ -624,3 +624,61 @@ def test_queries_list(
     assert "queries" in output
     for query in sample_config["queries"]:
         assert query["name"] in output
+
+
+def test_queries_view(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    sample_config: dict[str, Any],
+    sample_config_path: Path,
+) -> None:
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "laketower",
+            "--config",
+            str(sample_config_path),
+            "queries",
+            "view",
+            sample_config["queries"][0]["name"],
+        ],
+    )
+
+    cli.cli()
+
+    captured = capsys.readouterr()
+    output = captured.out
+    assert all(col in output for col in {"day", "temperature"})
+
+
+def test_queries_view_invalid(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    sample_config: dict[str, Any],
+    sample_config_path: Path,
+) -> None:
+    sample_config["queries"][0]["sql"] = "select * from unknown_table"
+    config_path = tmp_path / "laketower.yml"
+    config_path.write_text(yaml.dump(sample_config))
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "laketower",
+            "--config",
+            str(sample_config_path),
+            "queries",
+            "view",
+            sample_config["queries"][0]["name"],
+        ],
+    )
+
+    cli.cli()
+
+    captured = capsys.readouterr()
+    output = captured.out
+    assert "Error" in output
+    assert not all(col in output for col in {"day", "temperature"})
