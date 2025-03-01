@@ -45,7 +45,10 @@ def index(request: Request) -> HTMLResponse:
     return templates.TemplateResponse(
         request=request,
         name="index.html",
-        context={"tables": config.tables},
+        context={
+            "tables": config.tables,
+            "queries": config.queries,
+        },
     )
 
 
@@ -69,6 +72,7 @@ def get_tables_query(request: Request, sql: str) -> HTMLResponse:
         name="tables/query.html",
         context={
             "tables": config.tables,
+            "queries": config.queries,
             "table_results": results,
             "sql_query": sql,
             "error": error,
@@ -89,6 +93,7 @@ def get_table_index(request: Request, table_id: str) -> HTMLResponse:
         name="tables/index.html",
         context={
             "tables": config.tables,
+            "queries": config.queries,
             "table_id": table_id,
             "table_metadata": table.metadata(),
             "table_schema": table.schema(),
@@ -109,6 +114,7 @@ def get_table_history(request: Request, table_id: str) -> HTMLResponse:
         name="tables/history.html",
         context={
             "tables": config.tables,
+            "queries": config.queries,
             "table_id": table_id,
             "table_history": table.history(),
         },
@@ -137,6 +143,7 @@ def get_table_statistics(
         name="tables/statistics.html",
         context={
             "tables": config.tables,
+            "queries": config.queries,
             "table_id": table_id,
             "table_metadata": table_metadata,
             "table_results": query_results,
@@ -172,11 +179,43 @@ def get_table_view(
         name="tables/view.html",
         context={
             "tables": config.tables,
+            "queries": config.queries,
             "table_id": table_id,
             "table_metadata": table_metadata,
             "table_results": results,
             "sql_query": sql_query,
             "default_limit": DEFAULT_LIMIT,
+        },
+    )
+
+
+@router.get("/queries/{query_id}/view", response_class=HTMLResponse)
+def get_query_view(request: Request, query_id: str) -> HTMLResponse:
+    config: Config = request.app.state.config
+    query_config = next(
+        filter(lambda query_config: query_config.name == query_id, config.queries)
+    )
+    tables_dataset = {
+        table_config.name: load_table(table_config).dataset()
+        for table_config in config.tables
+    }
+
+    try:
+        results = execute_query(tables_dataset, query_config.sql)
+        error = None
+    except ValueError as e:
+        error = {"message": str(e)}
+        results = None
+
+    return templates.TemplateResponse(
+        request=request,
+        name="queries/view.html",
+        context={
+            "tables": config.tables,
+            "queries": config.queries,
+            "query": query_config,
+            "query_results": results,
+            "error": error,
         },
     )
 

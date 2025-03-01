@@ -19,7 +19,14 @@
         <a class="sidebar-brand" href="/">
           Laketower
         </a>
-        <button type="button" class="btn-close d-md-none" data-bs-dismiss="offcanvas" aria-label="Close" data-bs-target="#sidebar"></button>
+        <button
+          type="button"
+          class="btn-close d-md-none"
+          data-bs-dismiss="offcanvas"
+          aria-label="Close"
+          data-bs-target="#sidebar"
+        >
+        </button>
       </div>
       <div class="offcanvas-body">
         <ul class="sidebar-nav">
@@ -30,9 +37,33 @@
           {% for table in tables %}
           {% set table_url = '/tables/' + table.name %}
           <li class="nav-item">
-            <a class="text-truncate nav-link{% if request.url.path.startswith(table_url) %} active{% endif %}" href="{{ table_url }}" aria-current="page">
+            <a
+              class="text-truncate nav-link{% if request.url.path.startswith(table_url) %} active{% endif %}"
+              href="{{ table_url }}"
+              aria-current="page"
+            >
               <i class="bi-table" aria-hidden="true"></i>
               {{ table.name }}
+            </a>
+          </li>
+          {% endfor %}
+
+          <li><hr class="sidebar-divider"></li>
+
+          <li>
+            <h6 class="sidebar-header">Queries</h6>
+          </li>
+          <li><hr class="sidebar-divider"></li>
+          {% for query in queries %}
+          {% set query_url = '/queries/' + query.name + '/view' %}
+          <li class="nav-item">
+            <a
+              class="text-truncate nav-link{% if request.url.path.startswith(query_url) %} active{% endif %}"
+              href="{{ query_url }}"
+              aria-current="page"
+            >
+              <i class="bi-code-square" aria-hidden="true"></i>
+              {{ query.title }}
             </a>
           </li>
           {% endfor %}
