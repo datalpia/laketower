@@ -53,6 +53,7 @@ build-backend = "hatchling.build"
 [dependency-groups]
 dev = [
     "bandit==1.8.3",
+    "beautifulsoup4==4.13.3",
     "httpx==0.28.1",
     "invoke==2.2.0",
     "mypy==1.15.0",

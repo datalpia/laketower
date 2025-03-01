@@ -1,12 +1,13 @@
 {% extends "_base.html" %}
-{% import 'tables/_macros.html' as table_macros %}
 
 {% block body %}
 <div class="row">
   <div class="col">
+    <h2 class="mb-3">{{ query.title }}</h2>
+
     <form action="{{ request.url.path }}" method="get">
       <div class="mb-3">
-        <textarea name="sql" rows="5" class="form-control">{{ sql_query }}</textarea>
+        <textarea disabled name="sql" rows="5" class="form-control">{{ query.sql }}</textarea>
       </div>
 
       <div class="mb-3">
@@ -25,13 +26,13 @@
       <table class="table table-sm table-bordered table-striped table-hover">
         <thead>
           <tr>
-            {% for column in table_results.columns %}
+            {% for column in query_results.columns %}
             <th>{{ column }}</th>
             {% endfor %}
           </tr>
         </thead>
         <tbody class="table-group-divider">
-          {% for row in table_results.to_numpy().tolist() %}
+          {% for row in query_results.to_numpy().tolist() %}
           <tr>
             {% for col in row %}
             <td>{{ col }}</td>

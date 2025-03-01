@@ -388,6 +388,7 @@ def test_tables_view_cols(
     sample_config_path: Path,
     delta_table: deltalake.DeltaTable,
 ) -> None:
+    default_limit = 10
     num_fields = len(delta_table.schema().fields)
     selected_columns = [
         delta_table.schema().fields[i].name for i in range(num_fields - 1)
@@ -416,9 +417,17 @@ def test_tables_view_cols(
     assert all(col in output for col in selected_columns)
     assert not all(col in output for col in filtered_columns)
 
-    df = delta_table.to_pandas()
-    assert all(str(row) in output for row in df[selected_columns])
-    assert not all(str(row) in output for row in df[filtered_columns])
+    df = delta_table.to_pandas()[:default_limit]
+    assert all(
+        str(row[col]) in output
+        for _, row in df[selected_columns].iterrows()
+        for col in row.index
+    )
+    assert not all(
+        str(row[col]) in output
+        for _, row in df[filtered_columns].iterrows()
+        for col in row.index
+    )
 
 
 def test_tables_view_sort_asc(
@@ -653,15 +662,13 @@ def test_queries_view(
 
 
 def test_queries_view_invalid(
-    tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
     sample_config: dict[str, Any],
     sample_config_path: Path,
 ) -> None:
     sample_config["queries"][0]["sql"] = "select * from unknown_table"
-    config_path = tmp_path / "laketower.yml"
-    config_path.write_text(yaml.dump(sample_config))
+    sample_config_path.write_text(yaml.dump(sample_config))
 
     monkeypatch.setattr(
         sys,

@@ -7,6 +7,8 @@ from unittest.mock import patch
 
 import deltalake
 import pytest
+import yaml
+from bs4 import BeautifulSoup
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
@@ -65,6 +67,10 @@ def test_index(client: TestClient, sample_config: dict[str, Any]) -> None:
     for table in sample_config["tables"]:
         assert table["name"] in html
         assert f"/tables/{table['name']}" in html
+    for query in sample_config["queries"]:
+        assert query["title"] in html
+        assert f"/queries/{query['name']}/view" in html
+        assert query["sql"] not in html
 
 
 def test_table_index(
@@ -220,6 +226,7 @@ def test_tables_view_cols(
     client: TestClient, sample_config: dict[str, Any], delta_table: deltalake.DeltaTable
 ) -> None:
     table = sample_config["tables"][0]
+    default_limit = 10
     num_fields = len(delta_table.schema().fields)
     selected_columns = [
         delta_table.schema().fields[i].name for i in range(num_fields - 1)
@@ -231,12 +238,24 @@ def test_tables_view_cols(
     assert response.status_code == HTTPStatus.OK
 
     html = response.content.decode()
-    assert all(col in html for col in selected_columns)
-    assert not all(col in html for col in filtered_columns)
+    soup = BeautifulSoup(html, "html.parser")
 
-    df = delta_table.to_pandas()
-    assert all(str(row) in html for row in df[selected_columns])
-    assert not all(str(row) in html for row in df[filtered_columns])
+    all_th = [th.text.strip() for th in soup.find_all("th")]
+    assert all(col in all_th for col in selected_columns)
+    assert not all(col in all_th for col in filtered_columns)
+
+    all_td = [td.text.strip() for td in soup.find_all("td")]
+    df = delta_table.to_pandas()[0:default_limit]
+    assert all(
+        str(row[col]) in all_td
+        for _, row in df[selected_columns].iterrows()
+        for col in row.index
+    )
+    assert not all(
+        str(row[col]) in all_td
+        for _, row in df[filtered_columns].iterrows()
+        for col in row.index
+    )
 
 
 def test_table_view_sort_asc(
@@ -342,3 +361,47 @@ def test_tables_query_invalid(
     assert not all(
         str(row[col]) in html for _, row in df.iterrows() for col in row.index
     )
+
+
+def test_queries_view(client: TestClient, sample_config: dict[str, Any]) -> None:
+    query = sample_config["queries"][0]
+
+    response = client.get(f"/queries/{query['name']}/view")
+    assert response.status_code == HTTPStatus.OK
+
+    html = response.content.decode()
+    soup = BeautifulSoup(html, "html.parser")
+
+    assert soup.find("h2", string=query["title"])
+
+    textarea = soup.find("textarea")
+    assert textarea and textarea.text.strip() == query["sql"]
+
+    all_th = [th.text.strip() for th in soup.find_all("th")]
+    assert all(col in all_th for col in {"day", "avg_temperature"})
+
+
+def test_queries_view_invalid(
+    monkeypatch: pytest.MonkeyPatch,
+    sample_config: dict[str, Any],
+    sample_config_path: Path,
+) -> None:
+    sample_config["queries"][0]["sql"] = "select * from unknown_table"
+    query = sample_config["queries"][0]
+    sample_config_path.write_text(yaml.dump(sample_config))
+    monkeypatch.setenv("LAKETOWER_CONFIG_PATH", str(sample_config_path.absolute()))
+    client = TestClient(web.create_app())
+
+    response = client.get(f"/queries/{query['name']}/view")
+    assert response.status_code == HTTPStatus.OK
+
+    html = response.content.decode()
+    soup = BeautifulSoup(html, "html.parser")
+
+    assert soup.find("h2", string=query["title"])
+
+    textarea = soup.find("textarea")
+    assert textarea and textarea.text.strip() == query["sql"]
+
+    all_th = [th.text.strip() for th in soup.find_all("th")]
+    assert not all(col in all_th for col in {"day", "avg_temperature"})
