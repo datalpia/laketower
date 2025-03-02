@@ -373,9 +373,9 @@ def test_queries_view(client: TestClient, sample_config: dict[str, Any]) -> None
     soup = BeautifulSoup(html, "html.parser")
 
     assert soup.find("h2", string=query["title"])
-
-    textarea = soup.find("textarea")
-    assert textarea and textarea.text.strip() == query["sql"]
+    assert (textarea := soup.find("textarea")) and textarea.text.strip() == query["sql"]
+    assert next(filter(lambda a: a.text.strip() == "Edit SQL", soup.find_all("a")))
+    assert next(filter(lambda a: a.text.strip() == "Execute", soup.find_all("button")))
 
     all_th = [th.text.strip() for th in soup.find_all("th")]
     assert all(col in all_th for col in {"day", "avg_temperature"})
@@ -399,9 +399,9 @@ def test_queries_view_invalid(
     soup = BeautifulSoup(html, "html.parser")
 
     assert soup.find("h2", string=query["title"])
-
-    textarea = soup.find("textarea")
-    assert textarea and textarea.text.strip() == query["sql"]
+    assert (textarea := soup.find("textarea")) and textarea.text.strip() == query["sql"]
+    assert next(filter(lambda a: a.text.strip() == "Edit SQL", soup.find_all("a")))
+    assert next(filter(lambda a: a.text.strip() == "Execute", soup.find_all("button")))
 
     all_th = [th.text.strip() for th in soup.find_all("th")]
     assert not all(col in all_th for col in {"day", "avg_temperature"})
