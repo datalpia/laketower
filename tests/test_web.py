@@ -324,7 +324,7 @@ def test_tables_view_version(
     )
 
 
-def test_table_query(
+def test_tables_query(
     client: TestClient, sample_config: dict[str, Any], delta_table: deltalake.DeltaTable
 ) -> None:
     selected_column = delta_table.schema().fields[0].name
@@ -336,13 +336,20 @@ def test_table_query(
     assert response.status_code == HTTPStatus.OK
 
     html = response.content.decode()
-    assert sql_query in html
-    assert selected_column in html
-    assert not all(col in html for col in filtered_columns)
+    soup = BeautifulSoup(html, "html.parser")
+
+    assert soup.find("h2", string="SQL Query")
+    assert (textarea := soup.find("textarea")) and textarea.text.strip() == sql_query
+    assert next(filter(lambda a: a.text.strip() == "Execute", soup.find_all("button")))
+
+    all_th = [th.text.strip() for th in soup.find_all("th")]
+    assert selected_column in all_th
+    assert not all(col in all_th for col in filtered_columns)
 
     df = delta_table.to_pandas()
-    assert all(str(row) in html for row in df[selected_column][0:selected_limit])
-    assert not all(str(row) in html for row in df[selected_column][selected_limit:])
+    all_td = [td.text.strip() for td in soup.find_all("td")]
+    assert all(str(row) in all_td for row in df[selected_column][0:selected_limit])
+    assert not all(str(row) in all_td for row in df[selected_column][selected_limit:])
 
 
 def test_tables_query_invalid(
@@ -354,12 +361,20 @@ def test_tables_query_invalid(
     assert response.status_code == HTTPStatus.OK
 
     html = response.content.decode()
+    soup = BeautifulSoup(html, "html.parser")
+
+    assert soup.find("h2", string="SQL Query")
+    assert (textarea := soup.find("textarea")) and textarea.text.strip() == sql_query
+    assert next(filter(lambda a: a.text.strip() == "Execute", soup.find_all("button")))
     assert "Error" in html
-    assert not all(field.name in html for field in delta_table.schema().fields)
+
+    all_th = [th.text.strip() for th in soup.find_all("th")]
+    assert not all(field.name in all_th for field in delta_table.schema().fields)
 
     df = delta_table.to_pandas()
+    all_td = [td.text.strip() for td in soup.find_all("td")]
     assert not all(
-        str(row[col]) in html for _, row in df.iterrows() for col in row.index
+        str(row[col]) in all_td for _, row in df.iterrows() for col in row.index
     )
 
 

@@ -4,6 +4,8 @@
 {% block body %}
 <div class="row">
   <div class="col">
+    <h2 class="mb-3">SQL Query</h2>
+
     <form action="{{ request.url.path }}" method="get">
       <div class="mb-3">
         <textarea name="sql" rows="5" class="form-control">{{ sql_query }}</textarea>
@@ -11,7 +13,9 @@
 
       <div class="mb-3">
         <div class="d-flex justify-content-end">
-          <button type="submit" class="btn btn-primary">Execute</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="bi-lightning" aria-hidden="true"></i> Execute
+          </button>
         </div>
       </div>
     </form>
