@@ -12,7 +12,19 @@
 
       <div class="mb-3">
         <div class="d-flex justify-content-end">
-          <button type="submit" class="btn btn-primary">Execute</button>
+          <div class="row">
+            <div class="col">
+              <a href="/tables/query?sql={{ query.sql | urlencode }}" class="btn btn-secondary" type="button" >
+                <i class="bi-code" aria-hidden="true"></i> Edit SQL
+              </a>
+            </div>
+
+            <div class="col-auto">
+              <button type="submit" class="btn btn-primary">
+                <i class="bi-lightning" aria-hidden="true"></i> Execute
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </form>
