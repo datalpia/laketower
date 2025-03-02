@@ -52,6 +52,11 @@ tables:
   - name: <table_name>
     uri: <local path to table>
     format: {delta}
+
+queries:
+  - name: <query_name>
+    title: <Query name>
+    sql: <sql expression>
 ```
 
 Current limitations:
