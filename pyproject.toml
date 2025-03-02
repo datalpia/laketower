@@ -60,7 +60,7 @@ dev = [
     "pandas-stubs==2.2.3.241126",
     "pip-audit==2.8.0",
     "pyarrow-stubs==17.17",
-    "pytest==8.3.4",
+    "pytest==8.3.5",
     "pytest-cov==6.0.0",
     "ruff==0.9.9",
     "types-pyyaml==6.0.12.20241230",
