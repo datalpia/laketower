@@ -487,7 +487,7 @@ dev = [
     { name = "httpx", specifier = "==0.28.1" },
     { name = "invoke", specifier = "==2.2.0" },
     { name = "mypy", specifier = "==1.15.0" },
-    { name = "pandas-stubs", specifier = "==2.2.3.241126" },
+    { name = "pandas-stubs", specifier = "==2.2.3.250308" },
     { name = "pip-audit", specifier = "==2.8.0" },
     { name = "pyarrow-stubs", specifier = "==17.17" },
     { name = "pytest", specifier = "==8.3.5" },
@@ -817,15 +817,15 @@ wheels = [
 
 [[package]]
 name = "pandas-stubs"
-version = "2.2.3.241126"
+version = "2.2.3.250308"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "numpy" },
     { name = "types-pytz" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/90/86/93c545d149c3e1fe1c4c55478cc3a69859d0ea3467e1d9892e9eb28cb1e7/pandas_stubs-2.2.3.241126.tar.gz", hash = "sha256:cf819383c6d9ae7d4dabf34cd47e1e45525bb2f312e6ad2939c2c204cb708acd", size = 104204 }
+sdist = { url = "https://files.pythonhosted.org/packages/2e/5a/261f5c67a73e46df2d5984fe7129d66a3ed4864fd7aa9d8721abb3fc802e/pandas_stubs-2.2.3.250308.tar.gz", hash = "sha256:3a6e9daf161f00b85c83772ed3d5cff9522028f07a94817472c07b91f46710fd", size = 103986 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/6f/ab/ed42acf15bab2e86e5c49fad4aa038315233c4c2d22f41b49faa4d837516/pandas_stubs-2.2.3.241126-py3-none-any.whl", hash = "sha256:74aa79c167af374fe97068acc90776c0ebec5266a6e5c69fe11e9c2cf51f2267", size = 158280 },
+    { url = "https://files.pythonhosted.org/packages/ba/64/ab61d9ca06ff66c07eb804ec27dec1a2be1978b3c3767caaa91e363438cc/pandas_stubs-2.2.3.250308-py3-none-any.whl", hash = "sha256:a377edff3b61f8b268c82499fdbe7c00fdeed13235b8b71d6a1dc347aeddc74d", size = 158053 },
 ]
 
 [[package]]
