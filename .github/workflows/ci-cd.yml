@@ -48,6 +48,9 @@ jobs:
       CODECOV_REPORT_TITLE: "Code coverage report"
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/checkout@v4
       - name: Install uv
         uses: astral-sh/setup-uv@v5
         with:
@@ -61,8 +64,17 @@ jobs:
           name: coverage
       - name: Generate Markdown code coverage report
         run: |
-          echo "## ${CODECOV_REPORT_TITLE}" >> "${CODECOV_MD_FILE}"
+          echo "# ${CODECOV_REPORT_TITLE}" >> "${CODECOV_MD_FILE}"
           uv run coverage report --show-missing --format=markdown >> "${CODECOV_MD_FILE}"
+      - name: Compute diff coverage with target branch
+        if: ${{ github.event_name == 'pull_request' }}
+        env:
+          TARGET_BRANCH: origin/${{ github.event.pull_request.base.ref }}
+          DIFFCOV_MD_FILE: "diff-coverage.md"
+        run: |
+          uv run coverage xml
+          uv run --with diff_cover diff-cover --compare-branch ${TARGET_BRANCH} --diff-range-notation '..' --ignore-staged --ignore-unstaged --markdown-report "${DIFFCOV_MD_FILE}" coverage.xml
+          cat "${DIFFCOV_MD_FILE}" >> "${CODECOV_MD_FILE}"
       - name: Export code coverage report to job summary
         run: cat "${CODECOV_MD_FILE}" >> "${GITHUB_STEP_SUMMARY}"
       - name: Add or update code coverage comment to pull request
