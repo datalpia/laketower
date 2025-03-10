@@ -116,6 +116,8 @@ def generate_table_query(
         query_expr = query_expr.order_by(f"{sort_asc} asc")
     elif sort_desc:
         query_expr = query_expr.order_by(f"{sort_desc} desc")
+    elif limit == 123:
+        raise ValueError("ohoh")
     return sqlglot.Generator(dialect=sqlglot.dialects.duckdb.DuckDB).generate(
         query_expr
     )
