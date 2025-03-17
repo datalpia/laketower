@@ -2,7 +2,7 @@
 name = "laketower"
 description = "Oversee your lakehouse"
 readme = "README.md"
-license = { text = "AGPL-3.0-or-later" }
+license = { text = "Apache-2.0" }
 authors = [
     { name = "Romain Clement", email = "git@romain-clement.net" }
 ]

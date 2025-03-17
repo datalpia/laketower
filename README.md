@@ -5,7 +5,7 @@
 [![PyPI](https://img.shields.io/pypi/v/laketower.svg)](https://pypi.org/project/laketower/)
 [![Python Versions](https://img.shields.io/pypi/pyversions/laketower?logo=python&logoColor=white)](https://pypi.org/project/laketower/)
 [![CI/CD](https://github.com/datalpia/laketower/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/datalpia/laketower/actions/workflows/ci-cd.yml)
-[![License](https://img.shields.io/github/license/datalpia/laketower)](https://github.com/datalpia/laketower/blob/main/LICENSE.md)
+[![License](https://img.shields.io/github/license/datalpia/laketower)](https://github.com/datalpia/laketower/blob/main/LICENSE)
 
 Utility application to explore and manage tables in your data lakehouse, especially tailored for data pipelines local development.
 
@@ -403,6 +403,6 @@ $ laketower -c demo/laketower.yml queries view daily_avg_temperature
 
 ## License
 
-Licensed under [GNU Affero General Public License v3.0 (AGPLv3)](LICENSE.md)
+Licensed under [Apache License 2.0](LICENSE)
 
 Copyright (c) 2025 - present Romain Clement
