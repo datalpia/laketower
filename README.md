@@ -108,6 +108,15 @@ The easiest way to get started is to launch the Laketower web application:
 $ laketower -c demo/laketower.yml web
 ```
 
+#### Screenshots
+
+![Laketower UI - Tables Overview](docs/static/tables_overview.png)
+![Laketower UI - Tables View](docs/static/tables_view.png)
+![Laketower UI - Tables Statistics](docs/static/tables_statistics.png)
+![Laketower UI - Tables History](docs/static/tables_history.png)
+![Laketower UI - Tables Query](docs/static/tables_query.png)
+![Laketower UI - Queries View](docs/static/queries_view.png)
+
 ### CLI
 
 Laketower provides a CLI interface:
