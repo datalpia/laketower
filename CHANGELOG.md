@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2025-03-19
+**Announcement:** Laketower open-source license is switching from AGPLv3 to Apache 2.0.
+
+### Fixed
+- deps: avoid dependency jinja2 version 3.1.5
+
+### Changed
+- docs: update configuration format
+- docs: update web application section with screenshots
+
 ## [0.4.1] - 2025-03-02
 Minor release with fixes.
 
@@ -69,7 +79,8 @@ Initial release of `laketower`.
     - View a given table with simple query builder
     - Query all registered tables with DuckDB SQL dialect
 
-[Unreleased]: https://github.com/datalpia/laketower/compare/0.4.1...HEAD
+[Unreleased]: https://github.com/datalpia/laketower/compare/0.5.0...HEAD
+[0.5.0]: https://github.com/datalpia/laketower/compare/0.4.1...0.5.0
 [0.4.1]: https://github.com/datalpia/laketower/compare/0.4.0...0.4.1
 [0.4.0]: https://github.com/datalpia/laketower/compare/0.3.0...0.4.0
 [0.3.0]: https://github.com/datalpia/laketower/compare/0.2.0...0.3.0
