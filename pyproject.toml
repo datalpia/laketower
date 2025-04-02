@@ -63,7 +63,7 @@ dev = [
     "pytest==8.3.5",
     "pytest-cov==6.1.0",
     "ruff==0.11.2",
-    "types-pyyaml==6.0.12.20250326",
+    "types-pyyaml==6.0.12.20250402",
     "watchdog==6.0.0",
 ]
 
