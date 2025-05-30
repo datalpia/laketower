@@ -8,7 +8,7 @@ authors = [
 ]
 requires-python = ">=3.10,<3.14"
 dependencies = [
-    "deltalake",
+    "deltalake>=1,<2",
     "duckdb",
     "fastapi",
     "jinja2>=3,!=3.1.5",

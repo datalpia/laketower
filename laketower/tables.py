@@ -72,7 +72,7 @@ class DeltaTable:
         )
 
     def schema(self) -> pa.Schema:
-        return self._impl.schema().to_pyarrow()
+        return pa.schema(self._impl.schema().to_arrow())  # type: ignore[arg-type]
 
     def history(self) -> TableHistory:
         delta_history = self._impl.history()

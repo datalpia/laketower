@@ -6,6 +6,7 @@ from typing import Any
 from unittest.mock import patch
 
 import deltalake
+import pyarrow as pa
 import pytest
 import yaml
 from bs4 import BeautifulSoup
@@ -89,7 +90,9 @@ def test_table_index(
     assert "Column" in html
     assert "Type" in html
     assert "Nullable" in html
-    for field in delta_table.schema().to_pyarrow():
+
+    table_schema = pa.schema(delta_table.schema().to_arrow())  # type: ignore[arg-type]
+    for field in table_schema:
         assert field.name in html
         assert str(field.type) in html
         assert str(field.nullable) in html

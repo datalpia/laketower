@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any
 
 import deltalake
+import pyarrow as pa
 import pytest
 import yaml
 
@@ -196,7 +197,9 @@ def test_tables_schema(
     captured = capsys.readouterr()
     output = captured.out
     assert output.startswith(table_name)
-    for field in delta_table.schema().to_pyarrow():
+
+    table_schema = pa.schema(delta_table.schema().to_arrow())  # type: ignore[arg-type]
+    for field in table_schema:
         nullable = "" if field.nullable else " not null"
         assert f"{field.name}: {field.type}{nullable}" in output
 
