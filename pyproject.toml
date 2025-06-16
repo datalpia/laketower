@@ -56,7 +56,7 @@ dev = [
     "beautifulsoup4==4.13.4",
     "httpx==0.28.1",
     "invoke==2.2.0",
-    "mypy==1.16.0",
+    "mypy==1.16.1",
     "pandas-stubs==2.2.3.250527",
     "pip-audit==2.9.0",
     "pyarrow-stubs==19.4",
