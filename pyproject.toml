@@ -59,7 +59,7 @@ dev = [
     "mypy==1.16.1",
     "pandas-stubs==2.2.3.250527",
     "pip-audit==2.9.0",
-    "pyarrow-stubs==19.4",
+    "pyarrow-stubs==20.0.0.20250618",
     "pytest==8.4.1",
     "pytest-cov==6.2.1",
     "ruff==0.12.0",
