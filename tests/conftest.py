@@ -41,7 +41,12 @@ def delta_table(tmp_path: Path, delta_table_data: pd.DataFrame) -> deltalake.Del
 def sample_config(delta_table: deltalake.DeltaTable) -> dict[str, Any]:
     return {
         "tables": [
-            {"name": "delta_table", "uri": delta_table.table_uri, "format": "delta"}
+            {"name": "delta_table", "uri": delta_table.table_uri, "format": "delta"},
+            {
+                "name": "invalid_uri_table",
+                "uri": "path/to/invalid_uri_table",
+                "format": "delta",
+            },
         ],
         "queries": [
             {

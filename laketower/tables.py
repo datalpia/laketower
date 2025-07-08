@@ -43,6 +43,9 @@ class TableHistory(pydantic.BaseModel):
 
 
 class TableProtocol(Protocol):  # pragma: no cover
+    @classmethod
+    def is_valid(cls, table_config: ConfigTable) -> bool: ...
+    def __init__(self, table_config: ConfigTable) -> None: ...
     def metadata(self) -> TableMetadata: ...
     def schema(self) -> pa.Schema: ...
     def history(self) -> TableHistory: ...
@@ -54,6 +57,10 @@ class DeltaTable:
         super().__init__()
         self.table_config = table_config
         self._impl = deltalake.DeltaTable(table_config.uri)
+
+    @classmethod
+    def is_valid(cls, table_config: ConfigTable) -> bool:
+        return deltalake.DeltaTable.is_deltatable(table_config.uri)
 
     def metadata(self) -> TableMetadata:
         metadata = self._impl.metadata()
@@ -98,8 +105,23 @@ class DeltaTable:
 
 
 def load_table(table_config: ConfigTable) -> TableProtocol:
-    format_handler = {TableFormats.delta: DeltaTable}
-    return format_handler[table_config.table_format](table_config)
+    format_handler: dict[TableFormats, type[TableProtocol]] = {
+        TableFormats.delta: DeltaTable
+    }
+    table_handler = format_handler[table_config.table_format]
+    if not table_handler.is_valid(table_config):
+        raise ValueError(f"Invalid table: {table_config.uri}")
+    return table_handler(table_config)
+
+
+def load_datasets(table_configs: list[ConfigTable]) -> dict[str, padataset.Dataset]:
+    tables_dataset = {}
+    for table_config in table_configs:
+        try:
+            tables_dataset[table_config.name] = load_table(table_config).dataset()
+        except ValueError:
+            pass
+    return tables_dataset
 
 
 def generate_table_query(
