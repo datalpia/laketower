@@ -85,29 +85,6 @@ def test_config_validate_invalid_table_format(
     assert "Configuration is invalid" in output
 
 
-def test_config_validate_invalid_delta_table(
-    monkeypatch: pytest.MonkeyPatch,
-    capsys: pytest.CaptureFixture[str],
-    tmp_path: Path,
-    sample_config: dict[str, Any],
-) -> None:
-    sample_config["tables"][0]["uri"] = "unknown_table"
-    sample_config_path = tmp_path / "laketower.yml"
-    sample_config_path.write_text(yaml.dump(sample_config))
-
-    monkeypatch.setattr(
-        sys,
-        "argv",
-        ["laketower", "--config", str(sample_config_path), "config", "validate"],
-    )
-
-    cli.cli()
-
-    captured = capsys.readouterr()
-    output = captured.out
-    assert "Configuration is invalid" in output
-
-
 def test_tables_list(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
@@ -170,6 +147,32 @@ def test_tables_metadata(
     assert f"configuration: {delta_table.metadata().configuration}" in output
 
 
+def test_tables_metadata_invalid_table_uri(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    sample_config: dict[str, Any],
+    sample_config_path: Path,
+) -> None:
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "laketower",
+            "--config",
+            str(sample_config_path),
+            "tables",
+            "metadata",
+            sample_config["tables"][-1]["name"],
+        ],
+    )
+
+    cli.cli()
+
+    captured = capsys.readouterr()
+    output = captured.out
+    assert f"Invalid table: {sample_config['tables'][-1]['uri']}" in output
+
+
 def test_tables_schema(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
@@ -202,6 +205,32 @@ def test_tables_schema(
     for field in table_schema:
         nullable = "" if field.nullable else " not null"
         assert f"{field.name}: {field.type}{nullable}" in output
+
+
+def test_tables_schema_invalid_table_uri(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    sample_config: dict[str, Any],
+    sample_config_path: Path,
+) -> None:
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "laketower",
+            "--config",
+            str(sample_config_path),
+            "tables",
+            "schema",
+            sample_config["tables"][-1]["name"],
+        ],
+    )
+
+    cli.cli()
+
+    captured = capsys.readouterr()
+    output = captured.out
+    assert f"Invalid table: {sample_config['tables'][-1]['uri']}" in output
 
 
 def test_tables_history(
@@ -248,6 +277,32 @@ def test_tables_history(
         if operation_metrics:
             for metric_key, metric_val in operation_metrics.items():
                 assert f"{metric_key}: {metric_val}" in output
+
+
+def test_tables_history_invalid_table_uri(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    sample_config: dict[str, Any],
+    sample_config_path: Path,
+) -> None:
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "laketower",
+            "--config",
+            str(sample_config_path),
+            "tables",
+            "history",
+            sample_config["tables"][-1]["name"],
+        ],
+    )
+
+    cli.cli()
+
+    captured = capsys.readouterr()
+    output = captured.out
+    assert f"Invalid table: {sample_config['tables'][-1]['uri']}" in output
 
 
 def test_tables_statistics(
@@ -316,6 +371,32 @@ def test_tables_statistics_version(
     assert "std" in output
     assert "min" in output
     assert "max" in output
+
+
+def test_tables_statistics_invalid_table_uri(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    sample_config: dict[str, Any],
+    sample_config_path: Path,
+) -> None:
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "laketower",
+            "--config",
+            str(sample_config_path),
+            "tables",
+            "statistics",
+            sample_config["tables"][-1]["name"],
+        ],
+    )
+
+    cli.cli()
+
+    captured = capsys.readouterr()
+    output = captured.out
+    assert f"Invalid table: {sample_config['tables'][-1]['uri']}" in output
 
 
 def test_tables_view(
@@ -543,6 +624,32 @@ def test_tables_view_version(
     )
 
 
+def test_tables_view_invalid_table_uri(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    sample_config: dict[str, Any],
+    sample_config_path: Path,
+) -> None:
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "laketower",
+            "--config",
+            str(sample_config_path),
+            "tables",
+            "view",
+            sample_config["tables"][-1]["name"],
+        ],
+    )
+
+    cli.cli()
+
+    captured = capsys.readouterr()
+    output = captured.out
+    assert f"Invalid table: {sample_config['tables'][-1]['uri']}" in output
+
+
 def test_tables_query(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
@@ -579,11 +686,20 @@ def test_tables_query(
     assert not all(str(row) in output for row in df[selected_column][selected_limit:])
 
 
-def test_tables_query_invalid(
+@pytest.mark.parametrize(
+    ["sql"],
+    [
+        ("select * from unknown_table",),
+        ("select * from invalid_table_uri",),
+        ("select",),
+    ],
+)
+def test_tables_query_invalid_sql(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
     sample_config_path: Path,
     delta_table: deltalake.DeltaTable,
+    sql: str,
 ) -> None:
     monkeypatch.setattr(
         sys,
@@ -594,7 +710,7 @@ def test_tables_query_invalid(
             str(sample_config_path),
             "tables",
             "query",
-            "select * from unknown_table",
+            sql,
         ],
     )
 
@@ -664,7 +780,7 @@ def test_queries_view(
     assert all(col in output for col in {"day", "temperature"})
 
 
-def test_queries_view_invalid(
+def test_queries_view_invalid_sql(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
     sample_config: dict[str, Any],

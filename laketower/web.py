@@ -14,6 +14,7 @@ from laketower.tables import (
     execute_query,
     generate_table_statistics_query,
     generate_table_query,
+    load_datasets,
     load_table,
 )
 
@@ -55,10 +56,7 @@ def index(request: Request) -> HTMLResponse:
 @router.get("/tables/query", response_class=HTMLResponse)
 def get_tables_query(request: Request, sql: str) -> HTMLResponse:
     config: Config = request.app.state.config
-    tables_dataset = {
-        table_config.name: load_table(table_config).dataset()
-        for table_config in config.tables
-    }
+    tables_dataset = load_datasets(config.tables)
 
     try:
         results = execute_query(tables_dataset, sql)
@@ -195,10 +193,7 @@ def get_query_view(request: Request, query_id: str) -> HTMLResponse:
     query_config = next(
         filter(lambda query_config: query_config.name == query_id, config.queries)
     )
-    tables_dataset = {
-        table_config.name: load_table(table_config).dataset()
-        for table_config in config.tables
-    }
+    tables_dataset = load_datasets(config.tables)
 
     try:
         results = execute_query(tables_dataset, query_config.sql)

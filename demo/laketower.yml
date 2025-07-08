@@ -5,6 +5,9 @@ tables:
   - name: weather
     uri: demo/weather
     format: delta
+  - name: invalid_uri_table
+    uri: demo/invalid_uri_table
+    format: delta
 
 queries:
   - name: all_data

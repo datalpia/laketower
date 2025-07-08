@@ -5,7 +5,6 @@ from pathlib import Path
 import rich.jupyter
 import rich.panel
 import rich.table
-import rich.text
 import rich.tree
 import uvicorn
 
@@ -15,6 +14,7 @@ from laketower.tables import (
     execute_query,
     generate_table_query,
     generate_table_statistics_query,
+    load_datasets,
     load_table,
 )
 
@@ -47,77 +47,96 @@ def list_tables(config_path: Path) -> None:
 
 
 def table_metadata(config_path: Path, table_name: str) -> None:
-    config = load_yaml_config(config_path)
-    table_config = next(filter(lambda x: x.name == table_name, config.tables))
-    table = load_table(table_config)
-    metadata = table.metadata()
+    out: rich.jupyter.JupyterMixin
+    try:
+        config = load_yaml_config(config_path)
+        table_config = next(filter(lambda x: x.name == table_name, config.tables))
+        table = load_table(table_config)
+        metadata = table.metadata()
 
-    tree = rich.tree.Tree(table_name)
-    tree.add(f"name: {metadata.name}")
-    tree.add(f"description: {metadata.description}")
-    tree.add(f"format: {metadata.table_format.value}")
-    tree.add(f"uri: {metadata.uri}")
-    tree.add(f"id: {metadata.id}")
-    tree.add(f"version: {metadata.version}")
-    tree.add(f"created at: {metadata.created_at}")
-    tree.add(f"partitions: {', '.join(metadata.partitions)}")
-    tree.add(f"configuration: {metadata.configuration}")
+        out = rich.tree.Tree(table_name)
+        out.add(f"name: {metadata.name}")
+        out.add(f"description: {metadata.description}")
+        out.add(f"format: {metadata.table_format.value}")
+        out.add(f"uri: {metadata.uri}")
+        out.add(f"id: {metadata.id}")
+        out.add(f"version: {metadata.version}")
+        out.add(f"created at: {metadata.created_at}")
+        out.add(f"partitions: {', '.join(metadata.partitions)}")
+        out.add(f"configuration: {metadata.configuration}")
+    except Exception as e:
+        out = rich.panel.Panel.fit(f"[red]{e}")
+
     console = rich.get_console()
-    console.print(tree)
+    console.print(out)
 
 
 def table_schema(config_path: Path, table_name: str) -> None:
-    config = load_yaml_config(config_path)
-    table_config = next(filter(lambda x: x.name == table_name, config.tables))
-    table = load_table(table_config)
-    schema = table.schema()
+    out: rich.jupyter.JupyterMixin
+    try:
+        config = load_yaml_config(config_path)
+        table_config = next(filter(lambda x: x.name == table_name, config.tables))
+        table = load_table(table_config)
+        schema = table.schema()
 
-    tree = rich.tree.Tree(table_name)
-    for field in schema:
-        nullable = "" if field.nullable else " not null"
-        tree.add(f"{field.name}: {field.type}{nullable}")
+        out = rich.tree.Tree(table_name)
+        for field in schema:
+            nullable = "" if field.nullable else " not null"
+            out.add(f"{field.name}: {field.type}{nullable}")
+    except Exception as e:
+        out = rich.panel.Panel.fit(f"[red]{e}")
+
     console = rich.get_console()
-    console.print(tree, markup=False)  # disable markup to allow bracket characters
+    console.print(out, markup=False)  # disable markup to allow bracket characters
 
 
 def table_history(config_path: Path, table_name: str) -> None:
-    config = load_yaml_config(config_path)
-    table_config = next(filter(lambda x: x.name == table_name, config.tables))
-    table = load_table(table_config)
-    history = table.history()
+    out: rich.jupyter.JupyterMixin
+    try:
+        config = load_yaml_config(config_path)
+        table_config = next(filter(lambda x: x.name == table_name, config.tables))
+        table = load_table(table_config)
+        history = table.history()
 
-    tree = rich.tree.Tree(table_name)
-    for rev in history.revisions:
-        tree_version = tree.add(f"version: {rev.version}")
-        tree_version.add(f"timestamp: {rev.timestamp}")
-        tree_version.add(f"client version: {rev.client_version}")
-        tree_version.add(f"operation: {rev.operation}")
-        tree_op_params = tree_version.add("operation parameters")
-        for param_key, param_val in rev.operation_parameters.items():
-            tree_op_params.add(f"{param_key}: {param_val}")
-        tree_op_metrics = tree_version.add("operation metrics")
-        for metric_key, metric_val in rev.operation_metrics.items():
-            tree_op_metrics.add(f"{metric_key}: {metric_val}")
+        out = rich.tree.Tree(table_name)
+        for rev in history.revisions:
+            tree_version = out.add(f"version: {rev.version}")
+            tree_version.add(f"timestamp: {rev.timestamp}")
+            tree_version.add(f"client version: {rev.client_version}")
+            tree_version.add(f"operation: {rev.operation}")
+            tree_op_params = tree_version.add("operation parameters")
+            for param_key, param_val in rev.operation_parameters.items():
+                tree_op_params.add(f"{param_key}: {param_val}")
+            tree_op_metrics = tree_version.add("operation metrics")
+            for metric_key, metric_val in rev.operation_metrics.items():
+                tree_op_metrics.add(f"{metric_key}: {metric_val}")
+    except Exception as e:
+        out = rich.panel.Panel.fit(f"[red]{e}")
+
     console = rich.get_console()
-    console.print(tree, markup=False)
+    console.print(out, markup=False)
 
 
 def table_statistics(
     config_path: Path, table_name: str, version: int | None = None
 ) -> None:
-    config = load_yaml_config(config_path)
-    table_config = next(filter(lambda x: x.name == table_name, config.tables))
-    table = load_table(table_config)
-    table_dataset = table.dataset(version=version)
-    sql_query = generate_table_statistics_query(table_name)
-    results = execute_query({table_name: table_dataset}, sql_query)
+    out: rich.jupyter.JupyterMixin
+    try:
+        config = load_yaml_config(config_path)
+        table_config = next(filter(lambda x: x.name == table_name, config.tables))
+        table = load_table(table_config)
+        table_dataset = table.dataset(version=version)
+        sql_query = generate_table_statistics_query(table_name)
+        results = execute_query({table_name: table_dataset}, sql_query)
 
-    out = rich.table.Table()
-    for column in results.columns:
-        out.add_column(column)
-    for value_list in results.to_numpy().tolist():
-        row = [str(x) for x in value_list]
-        out.add_row(*row)
+        out = rich.table.Table()
+        for column in results.columns:
+            out.add_column(column)
+        for value_list in results.to_numpy().tolist():
+            row = [str(x) for x in value_list]
+            out.add_row(*row)
+    except Exception as e:
+        out = rich.panel.Panel.fit(f"[red]{e}")
 
     console = rich.get_console()
     console.print(out, markup=False)  # disable markup to allow bracket characters
@@ -132,36 +151,37 @@ def view_table(
     sort_desc: str | None = None,
     version: int | None = None,
 ) -> None:
-    config = load_yaml_config(config_path)
-    table_config = next(filter(lambda x: x.name == table_name, config.tables))
-    table = load_table(table_config)
-    table_dataset = table.dataset(version=version)
-    sql_query = generate_table_query(
-        table_name, limit=limit, cols=cols, sort_asc=sort_asc, sort_desc=sort_desc
-    )
-    results = execute_query({table_name: table_dataset}, sql_query)
+    out: rich.jupyter.JupyterMixin
+    try:
+        config = load_yaml_config(config_path)
+        table_config = next(filter(lambda x: x.name == table_name, config.tables))
+        table = load_table(table_config)
+        table_dataset = table.dataset(version=version)
+        sql_query = generate_table_query(
+            table_name, limit=limit, cols=cols, sort_asc=sort_asc, sort_desc=sort_desc
+        )
+        results = execute_query({table_name: table_dataset}, sql_query)
 
-    out = rich.table.Table()
-    for column in results.columns:
-        out.add_column(column)
-    for value_list in results.to_numpy().tolist():
-        row = [str(x) for x in value_list]
-        out.add_row(*row)
+        out = rich.table.Table()
+        for column in results.columns:
+            out.add_column(column)
+        for value_list in results.to_numpy().tolist():
+            row = [str(x) for x in value_list]
+            out.add_row(*row)
+    except Exception as e:
+        out = rich.panel.Panel.fit(f"[red]{e}")
 
     console = rich.get_console()
     console.print(out)
 
 
 def query_table(config_path: Path, sql_query: str) -> None:
-    config = load_yaml_config(config_path)
-    tables_dataset = {
-        table_config.name: load_table(table_config).dataset()
-        for table_config in config.tables
-    }
-
     out: rich.jupyter.JupyterMixin
     try:
+        config = load_yaml_config(config_path)
+        tables_dataset = load_datasets(config.tables)
         results = execute_query(tables_dataset, sql_query)
+
         out = rich.table.Table()
         for column in results.columns:
             out.add_column(column)
@@ -185,17 +205,14 @@ def list_queries(config_path: Path) -> None:
 
 
 def view_query(config_path: Path, query_name: str) -> None:
-    config = load_yaml_config(config_path)
-    query_config = next(filter(lambda x: x.name == query_name, config.queries))
-    sql_query = query_config.sql
-    tables_dataset = {
-        table_config.name: load_table(table_config).dataset()
-        for table_config in config.tables
-    }
-
     out: rich.jupyter.JupyterMixin
     try:
+        config = load_yaml_config(config_path)
+        tables_dataset = load_datasets(config.tables)
+        query_config = next(filter(lambda x: x.name == query_name, config.queries))
+        sql_query = query_config.sql
         results = execute_query(tables_dataset, sql_query)
+
         out = rich.table.Table()
         for column in results.columns:
             out.add_column(column)
