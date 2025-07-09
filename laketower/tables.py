@@ -155,6 +155,11 @@ def execute_query(
     try:
         conn = duckdb.connect()
         for table_name, table_dataset in tables_datasets.items():
+            # ATTACH IF NOT EXISTS ':memory:' AS {catalog.name};
+            # CREATE SCHEMA IF NOT EXISTS {catalog.name}.{database.name};
+            # USE {catalog.name}.{database.name};
+            # CREATE VIEW IF NOT EXISTS {table.name} AS FROM {table.name}_dataset;
+
             view_name = f"{table_name}_view"
             conn.register(view_name, table_dataset)
             conn.execute(f"create table {table_name} as select * from {view_name}")  # nosec B608

@@ -2,6 +2,11 @@
 {% import 'tables/_macros.html' as table_macros %}
 
 {% block body %}
+{% if error %}
+<div class="alert alert-danger" role="alert">
+  {{ error.message }}
+</div>
+{% else %}
 {{ table_macros.table_nav(table_id, 'history') }}
 
 <div class="row">
@@ -39,4 +44,5 @@
       {% endfor %}
   </div>
 </div>
+{% endif %}
 {% endblock %}

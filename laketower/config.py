@@ -13,12 +13,16 @@ class ConfigTable(pydantic.BaseModel):
     name: str
     uri: str
     table_format: TableFormats = pydantic.Field(alias="format")
+    catalog: str | None = None
+    database: str | None = None
 
 
 class ConfigQuery(pydantic.BaseModel):
     name: str
     title: str
     sql: str
+    use_catalog: str | None = None
+    use_database: str | None = None
 
 
 class ConfigDashboard(pydantic.BaseModel):
