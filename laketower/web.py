@@ -84,7 +84,15 @@ def get_table_index(request: Request, table_id: str) -> HTMLResponse:
     table_config = next(
         filter(lambda table_config: table_config.name == table_id, config.tables)
     )
-    table = load_table(table_config)
+    try:
+        table = load_table(table_config)
+        table_metadata = table.metadata()
+        table_schema = table.schema()
+        error = None
+    except ValueError as e:
+        error = {"message": str(e)}
+        table_metadata = None
+        table_schema = None
 
     return templates.TemplateResponse(
         request=request,
@@ -93,8 +101,9 @@ def get_table_index(request: Request, table_id: str) -> HTMLResponse:
             "tables": config.tables,
             "queries": config.queries,
             "table_id": table_id,
-            "table_metadata": table.metadata(),
-            "table_schema": table.schema(),
+            "table_metadata": table_metadata,
+            "table_schema": table_schema,
+            "error": error,
         },
     )
 
@@ -105,7 +114,13 @@ def get_table_history(request: Request, table_id: str) -> HTMLResponse:
     table_config = next(
         filter(lambda table_config: table_config.name == table_id, config.tables)
     )
-    table = load_table(table_config)
+    try:
+        table = load_table(table_config)
+        table_history = table.history()
+        error = None
+    except ValueError as e:
+        error = {"message": str(e)}
+        table_history = None
 
     return templates.TemplateResponse(
         request=request,
@@ -114,7 +129,8 @@ def get_table_history(request: Request, table_id: str) -> HTMLResponse:
             "tables": config.tables,
             "queries": config.queries,
             "table_id": table_id,
-            "table_history": table.history(),
+            "table_history": table_history,
+            "error": error,
         },
     )
 
@@ -129,12 +145,18 @@ def get_table_statistics(
     table_config = next(
         filter(lambda table_config: table_config.name == table_id, config.tables)
     )
-    table = load_table(table_config)
-    table_name = table_config.name
-    table_metadata = table.metadata()
-    table_dataset = table.dataset(version=version)
-    sql_query = generate_table_statistics_query(table_name)
-    query_results = execute_query({table_name: table_dataset}, sql_query)
+    try:
+        table = load_table(table_config)
+        table_name = table_config.name
+        table_metadata = table.metadata()
+        table_dataset = table.dataset(version=version)
+        sql_query = generate_table_statistics_query(table_name)
+        query_results = execute_query({table_name: table_dataset}, sql_query)
+        error = None
+    except ValueError as e:
+        error = {"message": str(e)}
+        table_metadata = None
+        query_results = None
 
     return templates.TemplateResponse(
         request=request,
@@ -145,6 +167,7 @@ def get_table_statistics(
             "table_id": table_id,
             "table_metadata": table_metadata,
             "table_results": query_results,
+            "error": error,
         },
     )
 
@@ -163,14 +186,21 @@ def get_table_view(
     table_config = next(
         filter(lambda table_config: table_config.name == table_id, config.tables)
     )
-    table = load_table(table_config)
-    table_name = table_config.name
-    table_metadata = table.metadata()
-    table_dataset = table.dataset(version=version)
-    sql_query = generate_table_query(
-        table_name, limit=limit, cols=cols, sort_asc=sort_asc, sort_desc=sort_desc
-    )
-    results = execute_query({table_name: table_dataset}, sql_query)
+    try:
+        table = load_table(table_config)
+        table_name = table_config.name
+        table_metadata = table.metadata()
+        table_dataset = table.dataset(version=version)
+        sql_query = generate_table_query(
+            table_name, limit=limit, cols=cols, sort_asc=sort_asc, sort_desc=sort_desc
+        )
+        results = execute_query({table_name: table_dataset}, sql_query)
+        error = None
+    except ValueError as e:
+        error = {"message": str(e)}
+        table_metadata = None
+        sql_query = None
+        results = None
 
     return templates.TemplateResponse(
         request=request,
@@ -183,6 +213,7 @@ def get_table_view(
             "table_results": results,
             "sql_query": sql_query,
             "default_limit": DEFAULT_LIMIT,
+            "error": error,
         },
     )
 

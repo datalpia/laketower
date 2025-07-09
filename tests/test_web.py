@@ -125,6 +125,21 @@ def test_table_index(
     assert str(delta_table.metadata().configuration) in html
 
 
+def test_table_index_invalid_table_uri(
+    client: TestClient, sample_config: dict[str, Any]
+) -> None:
+    table = sample_config["tables"][-1]
+
+    response = client.get(f"/tables/{table['name']}")
+    assert response.status_code == HTTPStatus.OK
+
+    html = response.content.decode()
+    for table in sample_config["tables"]:
+        assert table["name"] in html
+
+    assert f"Invalid table: {table['uri']}" in html
+
+
 def test_table_history(
     client: TestClient, sample_config: dict[str, Any], delta_table: deltalake.DeltaTable
 ) -> None:
@@ -151,6 +166,18 @@ def test_table_history(
         if operation_metrics:
             for metric_key, metric_val in operation_metrics.items():
                 assert f"{metric_key}: {metric_val}" in html
+
+
+def test_table_history_invalid_table_uri(
+    client: TestClient, sample_config: dict[str, Any]
+) -> None:
+    table = sample_config["tables"][-1]
+
+    response = client.get(f"/tables/{table['name']}/history")
+    assert response.status_code == HTTPStatus.OK
+
+    html = response.content.decode()
+    assert f"Invalid table: {table['uri']}" in html
 
 
 def test_tables_statistics(
@@ -187,6 +214,18 @@ def test_tables_statistics_version(
     assert "std" in html
     assert "min" in html
     assert "max" in html
+
+
+def test_table_statistics_invalid_table_uri(
+    client: TestClient, sample_config: dict[str, Any]
+) -> None:
+    table = sample_config["tables"][-1]
+
+    response = client.get(f"/tables/{table['name']}/statistics")
+    assert response.status_code == HTTPStatus.OK
+
+    html = response.content.decode()
+    assert f"Invalid table: {table['uri']}" in html
 
 
 def test_table_view(
@@ -325,6 +364,18 @@ def test_tables_view_version(
     assert not all(
         str(row[col]) in html for _, row in df.iterrows() for col in row.index
     )
+
+
+def test_table_view_invalid_table_uri(
+    client: TestClient, sample_config: dict[str, Any]
+) -> None:
+    table = sample_config["tables"][-1]
+
+    response = client.get(f"/tables/{table['name']}/view")
+    assert response.status_code == HTTPStatus.OK
+
+    html = response.content.decode()
+    assert f"Invalid table: {table['uri']}" in html
 
 
 def test_tables_query(

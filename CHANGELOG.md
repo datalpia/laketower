@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changes
 - cli: table uri lazy validation in app configuration
+- web: table uri lazy validation in app configuration
 
 ## [0.5.1] - 2025-05-30
 Patch release with support for `deltalake` version 1.0.0.

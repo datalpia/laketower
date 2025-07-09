@@ -2,6 +2,11 @@
 {% import 'tables/_macros.html' as table_macros %}
 
 {% block body %}
+{% if error %}
+<div class="alert alert-danger" role="alert">
+  {{ error.message }}
+</div>
+{% else %}
 {{ table_macros.table_nav(table_id, 'overview') }}
 
 <div class="row row-cols-1 row-cols-md-2 g-4">
@@ -81,4 +86,5 @@
     </div>
   </div>
 </div>
+{% endif %}
 {% endblock %}
