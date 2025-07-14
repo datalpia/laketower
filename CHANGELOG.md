@@ -10,9 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - cli: add csv export option to tables query command
 - web: add csv export to query views
 
-### Changes
+### Changed
 - cli: table uri lazy validation in app configuration
 - web: table uri lazy validation in app configuration
+- docs: update web application screenshots
 
 ## [0.5.1] - 2025-05-30
 Patch release with support for `deltalake` version 1.0.0.
