@@ -396,6 +396,14 @@ def test_tables_query(
     assert (textarea := soup.find("textarea")) and textarea.text.strip() == sql_query
     assert next(filter(lambda a: a.text.strip() == "Execute", soup.find_all("button")))
 
+    export_csv_a = next(
+        filter(lambda a: a.text.strip() == "Export CSV", soup.find_all("a"))
+    )
+    assert (
+        export_csv_a.get("href")  # type: ignore[attr-defined]
+        == f"/tables/query/csv?sql={urllib.parse.quote(sql_query)}"
+    )
+
     all_th = [th.text.strip() for th in soup.find_all("th")]
     assert selected_column in all_th
     assert not all(col in all_th for col in filtered_columns)
@@ -422,6 +430,10 @@ def test_tables_query_invalid(
     assert next(filter(lambda a: a.text.strip() == "Execute", soup.find_all("button")))
     assert "Error" in html
 
+    assert (
+        next(filter(lambda a: "Export CSV" in a.text, soup.find_all("a")), None) is None
+    )
+
     all_th = [th.text.strip() for th in soup.find_all("th")]
     assert not all(field.name in all_th for field in delta_table.schema().fields)
 
@@ -445,6 +457,14 @@ def test_queries_view(client: TestClient, sample_config: dict[str, Any]) -> None
     assert (textarea := soup.find("textarea")) and textarea.text.strip() == query["sql"]
     assert next(filter(lambda a: a.text.strip() == "Edit SQL", soup.find_all("a")))
     assert next(filter(lambda a: a.text.strip() == "Execute", soup.find_all("button")))
+
+    export_csv_a = next(
+        filter(lambda a: a.text.strip() == "Export CSV", soup.find_all("a"))
+    )
+    assert (
+        export_csv_a.get("href")  # type: ignore[attr-defined]
+        == f"/tables/query/csv?sql={urllib.parse.quote(query['sql'])}"
+    )
 
     all_th = [th.text.strip() for th in soup.find_all("th")]
     assert all(col in all_th for col in {"day", "avg_temperature"})
@@ -472,5 +492,46 @@ def test_queries_view_invalid(
     assert next(filter(lambda a: a.text.strip() == "Edit SQL", soup.find_all("a")))
     assert next(filter(lambda a: a.text.strip() == "Execute", soup.find_all("button")))
 
+    assert (
+        next(filter(lambda a: "Export CSV" in a.text, soup.find_all("a")), None) is None
+    )
+
     all_th = [th.text.strip() for th in soup.find_all("th")]
     assert not all(col in all_th for col in {"day", "avg_temperature"})
+
+
+def test_tables_query_export_csv(
+    client: TestClient, sample_config: dict[str, Any], delta_table: deltalake.DeltaTable
+) -> None:
+    selected_column = delta_table.schema().fields[0].name
+    selected_limit = 2
+    sql_query = f"select {selected_column} from {sample_config['tables'][0]['name']} limit {selected_limit}"
+
+    response = client.get(f"/tables/query/csv?sql={sql_query}")
+    assert response.status_code == HTTPStatus.OK
+    assert response.headers["content-type"] == "text/csv; charset=utf-8"
+    assert "attachment" in response.headers["content-disposition"]
+    assert "query_results.csv" in response.headers["content-disposition"]
+
+    csv_content = response.content.decode("utf-8")
+    assert selected_column in csv_content
+    lines = csv_content.strip().split("\n")
+    assert len(lines) == selected_limit + 1
+
+
+def test_queries_view_export_csv(
+    client: TestClient, sample_config: dict[str, Any]
+) -> None:
+    query = sample_config["queries"][0]
+
+    response = client.get(f"/tables/query/csv?sql={query['sql']}")
+    assert response.status_code == HTTPStatus.OK
+    assert response.headers["content-type"] == "text/csv; charset=utf-8"
+    assert "attachment" in response.headers["content-disposition"]
+    assert "query_results.csv" in response.headers["content-disposition"]
+
+    csv_content = response.content.decode("utf-8")
+    assert "day" in csv_content
+    assert "avg_temperature" in csv_content
+    lines = csv_content.strip().split("\n")
+    assert len(lines) > 1
