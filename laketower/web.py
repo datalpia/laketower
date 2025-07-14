@@ -4,7 +4,7 @@ from typing import Annotated
 
 import pydantic_settings
 from fastapi import APIRouter, FastAPI, Query, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
@@ -75,6 +75,21 @@ def get_tables_query(request: Request, sql: str) -> HTMLResponse:
             "sql_query": sql,
             "error": error,
         },
+    )
+
+
+@router.get("/tables/query/csv")
+def export_tables_query_csv(request: Request, sql: str) -> Response:
+    config: Config = request.app.state.config
+    tables_dataset = load_datasets(config.tables)
+
+    results = execute_query(tables_dataset, sql)
+    csv_content = results.to_csv(header=True, index=False, sep=",")
+
+    return Response(
+        content=csv_content,
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=query_results.csv"},
     )
 
 
