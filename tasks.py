@@ -94,6 +94,11 @@ def shots(ctx: Context):
             echo=True,
             pty=True,
         )
+        ctx.run(
+            "uvx shot-scraper install",
+            echo=True,
+            pty=True,
+        )
         try:
             time.sleep(5)
             ctx.run(
