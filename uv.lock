@@ -581,7 +581,7 @@ dev = [
     { name = "mypy", specifier = "==1.17.0" },
     { name = "pandas-stubs", specifier = "==2.3.0.250703" },
     { name = "pip-audit", specifier = "==2.9.0" },
-    { name = "pyarrow-stubs", specifier = "==20.0.0.20250627" },
+    { name = "pyarrow-stubs", specifier = "==20.0.0.20250715" },
     { name = "pytest", specifier = "==8.4.1" },
     { name = "pytest-cov", specifier = "==6.2.1" },
     { name = "ruff", specifier = "==0.12.3" },
@@ -1144,14 +1144,14 @@ wheels = [
 
 [[package]]
 name = "pyarrow-stubs"
-version = "20.0.0.20250627"
+version = "20.0.0.20250715"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pyarrow" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/1f/96/614dacc9957bf130a8ad0da117b663703615bc8ae2b4332f9419c0c5de6d/pyarrow_stubs-20.0.0.20250627.tar.gz", hash = "sha256:eb1dfc2433316cfe7a2c7d3950224aa47cd68a9ced60c5f6c183c05516588c65", size = 236144, upload-time = "2025-06-27T03:16:04.195Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/67/f1/f2b4cceb862fa4a0005639694a2a7cd9ec7aa6bcc34c2a5342ac8db2ccdb/pyarrow_stubs-20.0.0.20250715.tar.gz", hash = "sha256:046dc849408c2d374d3787e203e3d98a24af31b72dc7a1f5f0b0b82a7053c34e", size = 236280, upload-time = "2025-07-15T10:06:38.89Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/df/1f/e965765d0643fba3b591b9cc65a539d59478a06e3ba8da271b5f3cd19c7c/pyarrow_stubs-20.0.0.20250627-py3-none-any.whl", hash = "sha256:1ffd64931665f7a5a9cf77b8e7beb621f5a7e00f8b4119004dea55c1662c3619", size = 235446, upload-time = "2025-06-27T03:16:05.888Z" },
+    { url = "https://files.pythonhosted.org/packages/b6/84/9262f37c4c634d4256735f62e9e3b78883fc52d3915675447d497d4b1498/pyarrow_stubs-20.0.0.20250715-py3-none-any.whl", hash = "sha256:1ff1bc66aaebfa2644117ea7fa1cd6fc96a11dce4a5e21ae98d0dacf55234767", size = 235588, upload-time = "2025-07-15T10:06:37.478Z" },
 ]
 
 [[package]]
