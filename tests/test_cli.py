@@ -686,6 +686,51 @@ def test_tables_query(
     assert not all(str(row) in output for row in df[selected_column][selected_limit:])
 
 
+def test_tables_query_output_csv(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    tmp_path: Path,
+    sample_config: dict[str, Any],
+    sample_config_path: Path,
+    delta_table: deltalake.DeltaTable,
+) -> None:
+    selected_column = delta_table.schema().fields[0].name
+    selected_limit = 1
+
+    output_csv_path = tmp_path / "output.csv"
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "laketower",
+            "--config",
+            str(sample_config_path),
+            "tables",
+            "query",
+            "--output",
+            str(output_csv_path),
+            f"select {selected_column} from {sample_config['tables'][0]['name']} limit {selected_limit}",
+        ],
+    )
+
+    cli.cli()
+
+    captured = capsys.readouterr()
+    output = captured.out
+    assert "Query results written to:" in output
+    assert output_csv_path.name in output
+    assert output_csv_path.exists()
+
+    df = delta_table.to_pandas()
+    expected_output = df[[selected_column]][0:selected_limit]
+    expected_csv_path = tmp_path / "expected.csv"
+    expected_output.to_csv(
+        expected_csv_path, header=True, index=False, sep=",", encoding="utf-8"
+    )
+    assert output_csv_path.read_text() == expected_csv_path.read_text()
+
+
 @pytest.mark.parametrize(
     ["sql"],
     [
