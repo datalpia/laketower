@@ -362,6 +362,14 @@ $ laketower -c demo/laketower.yml tables query "select date_trunc('day', time) a
 └───────────────────────────┴────────────────────┘
 ```
 
+Export query results to CSV:
+
+```bash
+$ laketower -c demo/laketower.yml tables query --output results.csv "select date_trunc('day', time) as day, avg(temperature_2m) as mean_temperature from weather group by day order by day desc limit 3"
+
+Query results written to: results.csv
+```
+
 #### List saved queries
 
 ```bash

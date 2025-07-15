@@ -5,6 +5,7 @@ from pathlib import Path
 import rich.jupyter
 import rich.panel
 import rich.table
+import rich.text
 import rich.tree
 import uvicorn
 
@@ -175,7 +176,9 @@ def view_table(
     console.print(out)
 
 
-def query_table(config_path: Path, sql_query: str) -> None:
+def query_table(
+    config_path: Path, sql_query: str, output_path: Path | None = None
+) -> None:
     out: rich.jupyter.JupyterMixin
     try:
         config = load_yaml_config(config_path)
@@ -188,6 +191,12 @@ def query_table(config_path: Path, sql_query: str) -> None:
         for value_list in results.values.tolist():
             row = [str(x) for x in value_list]
             out.add_row(*row)
+
+        if output_path is not None:
+            results.to_csv(
+                output_path, header=True, index=False, sep=",", encoding="utf-8"
+            )
+            out = rich.text.Text(f"Query results written to: {output_path}")
     except ValueError as e:
         out = rich.panel.Panel.fit(f"[red]{e}")
 
@@ -327,8 +336,13 @@ def cli() -> None:
     parser_tables_query = subsparsers_tables.add_parser(
         "query", help="Query registered tables"
     )
+    parser_tables_query.add_argument(
+        "--output", help="Output query results to a file (default format: CSV)"
+    )
     parser_tables_query.add_argument("sql", help="SQL query to execute")
-    parser_tables_query.set_defaults(func=lambda x: query_table(x.config, x.sql))
+    parser_tables_query.set_defaults(
+        func=lambda x: query_table(x.config, x.sql, x.output)
+    )
 
     parser_queries = subparsers.add_parser("queries", help="Work with queries")
     subsparsers_queries = parser_queries.add_subparsers(required=True)
