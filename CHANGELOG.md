@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - web: table uri lazy validation in app configuration
 - docs: update web application screenshots
 
+### Fixed
+- cli: laketower python entrypoint script
+
 ## [0.5.1] - 2025-05-30
 Patch release with support for `deltalake` version 1.0.0.
 
