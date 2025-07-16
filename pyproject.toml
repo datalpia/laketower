@@ -44,7 +44,7 @@ Issues = "https://github.com/datalpia/laketower/issues"
 Changelog = "https://github.com/datalpia/laketower/blob/main/CHANGELOG.md"
 
 [project.scripts]
-laketower = "laketower:cli.cli"
+laketower = "laketower.__main__:cli"
 
 [build-system]
 requires = ["hatchling"]
