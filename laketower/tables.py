@@ -1,4 +1,6 @@
+import enum
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any, Protocol
 
 import deltalake
@@ -15,6 +17,11 @@ from laketower.config import ConfigTable, TableFormats
 
 
 DEFAULT_LIMIT = 10
+
+
+class ImportModeEnum(str, enum.Enum):
+    append = "append"
+    overwrite = "overwrite"
 
 
 class TableMetadata(pydantic.BaseModel):
@@ -50,6 +57,9 @@ class TableProtocol(Protocol):  # pragma: no cover
     def schema(self) -> pa.Schema: ...
     def history(self) -> TableHistory: ...
     def dataset(self, version: int | str | None = None) -> padataset.Dataset: ...
+    def import_data(
+        self, data: pd.DataFrame, mode: ImportModeEnum = ImportModeEnum.append
+    ) -> None: ...
 
 
 class DeltaTable:
@@ -102,6 +112,13 @@ class DeltaTable:
         if version is not None:
             self._impl.load_as_version(version)
         return self._impl.to_pyarrow_dataset()
+
+    def import_data(
+        self, data: pd.DataFrame, mode: ImportModeEnum = ImportModeEnum.append
+    ) -> None:
+        deltalake.write_deltalake(
+            self.table_config.uri, data, mode=mode.value, schema_mode="merge"
+        )
 
 
 def load_table(table_config: ConfigTable) -> TableProtocol:
@@ -166,3 +183,14 @@ def execute_query(
         return conn.execute(sql_query).df()
     except duckdb.Error as e:
         raise ValueError(str(e)) from e
+
+
+def import_csv_to_table(
+    table_config: ConfigTable,
+    csv_path: Path,
+    mode: ImportModeEnum = ImportModeEnum.append,
+) -> int:
+    table = load_table(table_config)
+    df = pd.read_csv(csv_path)
+    table.import_data(df, mode=mode)
+    return len(df)

@@ -12,9 +12,11 @@ import uvicorn
 from laketower.__about__ import __version__
 from laketower.config import load_yaml_config
 from laketower.tables import (
+    ImportModeEnum,
     execute_query,
     generate_table_query,
     generate_table_statistics_query,
+    import_csv_to_table,
     load_datasets,
     load_table,
 )
@@ -204,6 +206,24 @@ def query_table(
     console.print(out)
 
 
+def import_table(
+    config_path: Path, table_name: str, csv_path: Path, mode: ImportModeEnum
+) -> None:
+    out: rich.jupyter.JupyterMixin
+    try:
+        config = load_yaml_config(config_path)
+        table_config = next(filter(lambda x: x.name == table_name, config.tables))
+        rows_imported = import_csv_to_table(table_config, csv_path, mode)
+        out = rich.text.Text(
+            f"Successfully imported {rows_imported} rows into table '{table_name}' in '{mode.value}' mode"
+        )
+    except Exception as e:
+        out = rich.panel.Panel.fit(f"[red]{e}")
+
+    console = rich.get_console()
+    console.print(out)
+
+
 def list_queries(config_path: Path) -> None:
     config = load_yaml_config(config_path)
     tree = rich.tree.Tree("queries")
@@ -342,6 +362,24 @@ def cli() -> None:
     parser_tables_query.add_argument("sql", help="SQL query to execute")
     parser_tables_query.set_defaults(
         func=lambda x: query_table(x.config, x.sql, x.output)
+    )
+
+    parser_tables_import = subsparsers_tables.add_parser(
+        "import", help="Import data into a table"
+    )
+    parser_tables_import.add_argument("table", help="Name of the table")
+    parser_tables_import.add_argument(
+        "--csv", type=Path, required=True, help="Path to CSV file to import"
+    )
+    parser_tables_import.add_argument(
+        "--mode",
+        choices=[mode.value for mode in ImportModeEnum],
+        default=ImportModeEnum.append.value,
+        type=ImportModeEnum,
+        help=f"Import mode (default: {ImportModeEnum.append.value})",
+    )
+    parser_tables_import.set_defaults(
+        func=lambda x: import_table(x.config, x.table, x.csv, x.mode)
     )
 
     parser_queries = subparsers.add_parser("queries", help="Work with queries")

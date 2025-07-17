@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any
 
 import deltalake
+import pandas as pd
 import pyarrow as pa
 import pytest
 import yaml
@@ -853,3 +854,230 @@ def test_queries_view_invalid_sql(
     output = captured.out
     assert "Error" in output
     assert not all(col in output for col in {"day", "temperature"})
+
+
+def test_tables_import_csv_append(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    tmp_path: Path,
+    sample_config: dict[str, Any],
+    sample_config_path: Path,
+    delta_table: deltalake.DeltaTable,
+) -> None:
+    table_name = sample_config["tables"][0]["name"]
+    insert_mode = "append"
+
+    new_city = "Lyon"
+    csv_data = pd.DataFrame(
+        {
+            "time": ["2025-01-02T00:00:00+00:00", "2025-01-02T01:00:00+00:00"],
+            "city": new_city,
+            "temperature": [10.5, 11.0],
+        }
+    )
+    csv_path = tmp_path / "test_data.csv"
+    csv_data.to_csv(csv_path, index=False)
+
+    new_data_count = len(csv_data)
+    original_count = len(delta_table.to_pandas())
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "laketower",
+            "--config",
+            str(sample_config_path),
+            "tables",
+            "import",
+            table_name,
+            "--csv",
+            str(csv_path),
+            "--mode",
+            insert_mode,
+        ],
+    )
+
+    cli.cli()
+
+    captured = capsys.readouterr()
+    output = captured.out
+    assert (
+        f"Successfully imported {new_data_count} rows into table '{table_name}' in '{insert_mode}' mode"
+        in output
+    )
+
+    updated_table = deltalake.DeltaTable(delta_table.table_uri)
+    updated_count = len(updated_table.to_pandas())
+    assert updated_count == original_count + new_data_count
+
+    df = updated_table.to_pandas()
+    assert new_city in df["city"].unique()
+
+
+def test_tables_import_csv_overwrite(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    tmp_path: Path,
+    sample_config: dict[str, Any],
+    sample_config_path: Path,
+    delta_table: deltalake.DeltaTable,
+) -> None:
+    table_name = sample_config["tables"][0]["name"]
+    insert_mode = "overwrite"
+
+    new_city = "Lyon"
+    csv_data = pd.DataFrame(
+        {
+            "time": pd.to_datetime(
+                ["2025-01-02T00:00:00+00:00", "2025-01-02T01:00:00+00:00"]
+            ),
+            "city": new_city,
+            "temperature": [10.5, 11.0],
+        }
+    )
+    csv_path = tmp_path / "test_data.csv"
+    csv_data.to_csv(csv_path, index=False)
+    csv_data_count = len(csv_data)
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "laketower",
+            "--config",
+            str(sample_config_path),
+            "tables",
+            "import",
+            table_name,
+            "--csv",
+            str(csv_path),
+            "--mode",
+            insert_mode,
+        ],
+    )
+
+    cli.cli()
+
+    captured = capsys.readouterr()
+    output = captured.out
+    assert (
+        f"Successfully imported {csv_data_count} rows into table '{table_name}' in '{insert_mode}' mode"
+        in output
+    )
+
+    updated_table = deltalake.DeltaTable(delta_table.table_uri)
+    updated_count = len(updated_table.to_pandas())
+    assert updated_count == csv_data_count
+
+    df = updated_table.to_pandas()
+    df["time"] = pd.to_datetime(df["time"], utc=True)
+    assert (df == csv_data).all().all()
+
+
+def test_tables_import_csv_missing_file(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    sample_config: dict[str, Any],
+    sample_config_path: Path,
+) -> None:
+    csv_path = "nonexistent.csv"
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "laketower",
+            "--config",
+            str(sample_config_path),
+            "tables",
+            "import",
+            sample_config["tables"][0]["name"],
+            "--csv",
+            csv_path,
+            "--mode",
+            "append",
+        ],
+    )
+
+    cli.cli()
+
+    captured = capsys.readouterr()
+    output = captured.out
+    assert f"No such file or directory: '{csv_path}'" in output
+
+
+def test_tables_import_csv_invalid_table(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    tmp_path: Path,
+    sample_config: dict[str, Any],
+    sample_config_path: Path,
+) -> None:
+    # Create test CSV file
+    csv_data = pd.DataFrame(
+        {"time": ["2025-01-02T00:00:00+00:00"], "city": ["Lyon"], "temperature": [10.5]}
+    )
+    csv_path = tmp_path / "test_data.csv"
+    csv_data.to_csv(csv_path, index=False)
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "laketower",
+            "--config",
+            str(sample_config_path),
+            "tables",
+            "import",
+            sample_config["tables"][-1]["name"],  # invalid_uri_table
+            "--csv",
+            str(csv_path),
+            "--mode",
+            "append",
+        ],
+    )
+
+    cli.cli()
+
+    captured = capsys.readouterr()
+    output = captured.out
+    assert f"Invalid table: {sample_config['tables'][-1]['uri']}" in output
+
+
+def test_tables_import_csv_schema_mismatch(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    tmp_path: Path,
+    sample_config: dict[str, Any],
+    sample_config_path: Path,
+) -> None:
+    # Create test CSV file with wrong schema
+    csv_data = pd.DataFrame(
+        {"wrong_column": ["value1", "value2"], "another_wrong": ["value3", "value4"]}
+    )
+    csv_path = tmp_path / "test_data.csv"
+    csv_data.to_csv(csv_path, index=False)
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "laketower",
+            "--config",
+            str(sample_config_path),
+            "tables",
+            "import",
+            sample_config["tables"][0]["name"],
+            "--csv",
+            str(csv_path),
+            "--mode",
+            "append",
+        ],
+    )
+
+    cli.cli()
+
+    captured = capsys.readouterr()
+    output = captured.out
+    assert "Invariant violations" in output
