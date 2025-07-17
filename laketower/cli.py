@@ -12,9 +12,12 @@ import uvicorn
 from laketower.__about__ import __version__
 from laketower.config import load_yaml_config
 from laketower.tables import (
+    ImportFileFormatEnum,
+    ImportModeEnum,
     execute_query,
     generate_table_query,
     generate_table_statistics_query,
+    import_file_to_table,
     load_datasets,
     load_table,
 )
@@ -204,6 +207,33 @@ def query_table(
     console.print(out)
 
 
+def import_table(
+    config_path: Path,
+    table_name: str,
+    file_path: Path,
+    mode: ImportModeEnum,
+    file_format: ImportFileFormatEnum,
+    delimiter: str,
+    encoding: str,
+) -> None:
+    out: rich.jupyter.JupyterMixin
+    try:
+        config = load_yaml_config(config_path)
+        table_config = next(filter(lambda x: x.name == table_name, config.tables))
+        with open(file_path, "rb") as file_content:
+            rows_imported = import_file_to_table(
+                table_config, file_content, mode, file_format, delimiter, encoding
+            )
+        out = rich.text.Text(
+            f"Successfully imported {rows_imported} rows into table '{table_name}' in '{mode.value}' mode"
+        )
+    except Exception as e:
+        out = rich.panel.Panel.fit(f"[red]{e}")
+
+    console = rich.get_console()
+    console.print(out)
+
+
 def list_queries(config_path: Path) -> None:
     config = load_yaml_config(config_path)
     tree = rich.tree.Tree("queries")
@@ -342,6 +372,39 @@ def cli() -> None:
     parser_tables_query.add_argument("sql", help="SQL query to execute")
     parser_tables_query.set_defaults(
         func=lambda x: query_table(x.config, x.sql, x.output)
+    )
+
+    parser_tables_import = subsparsers_tables.add_parser(
+        "import", help="Import data into a table"
+    )
+    parser_tables_import.add_argument("table", help="Name of the table")
+    parser_tables_import.add_argument(
+        "--file", type=Path, required=True, help="Path to file to import"
+    )
+    parser_tables_import.add_argument(
+        "--mode",
+        choices=[mode.value for mode in ImportModeEnum],
+        default=ImportModeEnum.append.value,
+        type=ImportModeEnum,
+        help=f"Import mode (default: {ImportModeEnum.append.value})",
+    )
+    parser_tables_import.add_argument(
+        "--format",
+        choices=[file_format.value for file_format in ImportFileFormatEnum],
+        default=ImportFileFormatEnum.csv.value,
+        type=ImportFileFormatEnum,
+        help=f"File format (default: {ImportFileFormatEnum.csv.value})",
+    )
+    parser_tables_import.add_argument(
+        "--delimiter", default=",", help="Column delimiter to use (default: ',')"
+    )
+    parser_tables_import.add_argument(
+        "--encoding", default="utf-8", help="File encoding to use (default: 'utf-8')"
+    )
+    parser_tables_import.set_defaults(
+        func=lambda x: import_table(
+            x.config, x.table, x.file, x.mode, x.format, x.delimiter, x.encoding
+        )
     )
 
     parser_queries = subparsers.add_parser("queries", help="Work with queries")
