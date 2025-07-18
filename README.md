@@ -16,9 +16,11 @@ Utility application to explore and manage tables in your data lakehouse, especia
 - Inspect table schema
 - Inspect table history
 - Get table statistics
+- Import data into a table from CSV files
 - View table content with a simple query builder
 - Query all registered tables with DuckDB SQL dialect
 - Execute saved queries
+- Export query results to CSV files
 - Static and versionable YAML configuration
 - Web application
 - CLI application
@@ -282,6 +284,18 @@ $ laketower -c demo/laketower.yml tables statistics --version 0 weather
 │ wind_speed_10m       │ 0     │ None │ None │ None │ None │
 └──────────────────────┴───────┴──────┴──────┴──────┴──────┘
 ```
+
+#### Import data into a given table
+
+Import a CSV dataset into a table in append mode:
+
+```bash
+$ laketower -c demo/laketower.yml tables import weather --csv data.csv --mode append
+```
+
+`--mode` argument can be one of:
+- `append`: append rows to the table
+- `overwrite`: replace all rows with the ones from the input file
 
 #### View a given table
 
