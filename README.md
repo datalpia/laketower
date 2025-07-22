@@ -116,6 +116,7 @@ $ laketower -c demo/laketower.yml web
 ![Laketower UI - Tables View](https://raw.githubusercontent.com/datalpia/laketower/refs/heads/main/docs/static/tables_view.png)
 ![Laketower UI - Tables Statistics](https://raw.githubusercontent.com/datalpia/laketower/refs/heads/main/docs/static/tables_statistics.png)
 ![Laketower UI - Tables History](https://raw.githubusercontent.com/datalpia/laketower/refs/heads/main/docs/static/tables_history.png)
+![Laketower UI - Tables Import](https://raw.githubusercontent.com/datalpia/laketower/refs/heads/main/docs/static/tables_import.png)
 ![Laketower UI - Tables Query](https://raw.githubusercontent.com/datalpia/laketower/refs/heads/main/docs/static/tables_query.png)
 ![Laketower UI - Queries View](https://raw.githubusercontent.com/datalpia/laketower/refs/heads/main/docs/static/queries_view.png)
 
