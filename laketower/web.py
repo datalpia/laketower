@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Annotated
 
 import pydantic_settings
-from fastapi import APIRouter, FastAPI, Query, Request
+from fastapi import APIRouter, FastAPI, File, Form, Query, Request, UploadFile
 from fastapi.responses import HTMLResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -11,9 +11,12 @@ from fastapi.templating import Jinja2Templates
 from laketower.config import Config, load_yaml_config
 from laketower.tables import (
     DEFAULT_LIMIT,
+    ImportFileFormatEnum,
+    ImportModeEnum,
     execute_query,
     generate_table_statistics_query,
     generate_table_query,
+    import_file_to_table,
     load_datasets,
     load_table,
 )
@@ -229,6 +232,77 @@ def get_table_view(
             "sql_query": sql_query,
             "default_limit": DEFAULT_LIMIT,
             "error": error,
+        },
+    )
+
+
+@router.get("/tables/{table_id}/import", response_class=HTMLResponse)
+def get_table_import(
+    request: Request,
+    table_id: str,
+) -> HTMLResponse:
+    config: Config = request.app.state.config
+    table_config = next(
+        filter(lambda table_config: table_config.name == table_id, config.tables)
+    )
+    try:
+        table = load_table(table_config)
+        table_metadata = table.metadata()
+        message = None
+    except ValueError as e:
+        message = {"type": "error", "body": str(e)}
+        table_metadata = None
+
+    return templates.TemplateResponse(
+        request=request,
+        name="tables/import.html",
+        context={
+            "tables": config.tables,
+            "queries": config.queries,
+            "table_id": table_id,
+            "table_metadata": table_metadata,
+            "message": message,
+        },
+    )
+
+
+@router.post("/tables/{table_id}/import", response_class=HTMLResponse)
+def post_table_import(
+    request: Request,
+    table_id: str,
+    input_file: Annotated[UploadFile, File()],
+    mode: Annotated[ImportModeEnum, Form()],
+    file_format: Annotated[ImportFileFormatEnum, Form()],
+    delimiter: Annotated[str, Form()],
+    encoding: Annotated[str, Form()],
+) -> HTMLResponse:
+    config: Config = request.app.state.config
+    table_config = next(
+        filter(lambda table_config: table_config.name == table_id, config.tables)
+    )
+    try:
+        table = load_table(table_config)
+        table_metadata = table.metadata()
+        rows_imported = import_file_to_table(
+            table_config, input_file.file, mode, file_format, delimiter, encoding
+        )
+        message = {
+            "type": "success",
+            "body": f"Successfully imported {rows_imported} rows",
+        }
+    except Exception as e:
+        message = {"type": "error", "body": str(e)}
+        table_metadata = None
+
+    return templates.TemplateResponse(
+        request=request,
+        name="tables/import.html",
+        context={
+            "tables": config.tables,
+            "queries": config.queries,
+            "table_id": table_id,
+            "table_metadata": table_metadata,
+            "message": message,
         },
     )
 

@@ -1,0 +1,71 @@
+{% extends "_base.html" %}
+{% import 'tables/_macros.html' as table_macros %}
+
+{% block body %}
+{{ table_macros.table_nav(table_id, 'import') }}
+
+{% if message %}
+{% if message.type == 'success' %}{% set alert_type = 'success' %}
+{% elif message.type == 'error' %}{% set alert_type = 'danger' %}
+{% else %}{% set alert_type = 'primary' %}
+{% endif %}
+
+<div class="alert alert-{{ alert_type }}" role="alert">
+  {{ message.body }}
+</div>
+{% endif %}
+
+<div class="row justify-content-center">
+  <div class="col-12 col-md-8 col-lg-4">
+    <form action="{{ request.url.path }}" method="post" enctype="multipart/form-data">
+      <div class="mb-3">
+        <label for="import-file-input" class="form-label">Input file</label>
+        <input id="import-file-input" class="form-control" name="input_file" type="file" accept=".csv" required>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Mode</label>
+
+        <div class="form-check">
+          <input id="import-mode-append" class="form-check-input" name="mode" type="radio" value="append" checked>
+          <label for="import-mode-append" class="form-check-label">Append</label>
+        </div>
+        <div class="form-check">
+          <input id="import-mode-overwrite" class="form-check-input" name="mode" type="radio" value="overwrite">
+          <label for="import-mode-overwrite" class="form-check-label">Overwrite</label>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="import-file-format" class="form-label">File format</label>
+        <select id="import-file-format" class="form-select" name="file_format">
+          <option value="csv" selected>CSV</option>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label for="import-delimiter" class="form-label">Delimiter</label>
+        <input id="import-delimiter" class="form-control" name="delimiter" value="," required>
+      </div>
+
+      <div class="mb-3">
+        <label for="import-encoding" class="form-label">Encoding</label>
+        <select id="import-encoding" class="form-select" name="encoding">
+          <option value="utf-8" selected>UTF-8</option>
+          <option value="utf-16">UTF-16</option>
+          <option value="utf-32">UTF-32</option>
+          <option value="latin-1">Latin-1</option>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <div class="d-flex justify-content-end">
+          <button type="submit" class="btn btn-primary">
+            <i class="bi-upload" aria-hidden="true"></i> Import Data
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -6,6 +6,7 @@ from typing import Any
 from unittest.mock import patch
 
 import deltalake
+import pandas as pd
 import pyarrow as pa
 import pytest
 import yaml
@@ -442,6 +443,204 @@ def test_tables_query_invalid(
     assert not all(
         str(row[col]) in all_td for _, row in df.iterrows() for col in row.index
     )
+
+
+def test_tables_import(client: TestClient, sample_config: dict[str, Any]) -> None:
+    table = sample_config["tables"][0]
+    url = f"/tables/{table['name']}/import"
+
+    response = client.get(url)
+    assert response.status_code == HTTPStatus.OK
+
+    html = response.content.decode()
+    soup = BeautifulSoup(html, "html.parser")
+    import_tab = next(
+        filter(lambda a: a.text.strip() == "Import", soup.find_all("a")), None
+    )
+    assert import_tab is not None
+    assert import_tab.get("href") == url  # type: ignore[attr-defined]
+    assert "active" in import_tab.get("class", [])  # type: ignore[attr-defined]
+
+    form = soup.find("form")
+    assert form is not None
+    assert form.get("action") == url  # type: ignore[attr-defined]
+    assert form.get("method") == "post"  # type: ignore[attr-defined]
+    assert form.get("enctype") == "multipart/form-data"  # type: ignore[attr-defined]
+
+    file_input = soup.find("input", {"type": "file", "name": "input_file"})
+    assert file_input is not None
+    assert file_input.get("accept") == ".csv"  # type: ignore[attr-defined]
+    assert file_input.has_attr("required")  # type: ignore[attr-defined]
+
+    expected_mode_inputs = [("append", True), ("overwrite", False)]
+    mode_inputs = soup.find_all("input", {"name": "mode"})
+    for mode_input, expected_mode_input in zip(
+        mode_inputs, expected_mode_inputs, strict=True
+    ):
+        assert mode_input.get("value") == expected_mode_input[0]  # type: ignore[attr-defined]
+        assert mode_input.has_attr("checked") == expected_mode_input[1]  # type: ignore[attr-defined]
+
+    expected_file_formats_options = [("csv", True)]
+    file_format_select = soup.find("select", {"name": "file_format"})
+    assert file_format_select is not None
+    file_format_options = file_format_select.find_all("option", recursive=False)  # type: ignore[attr-defined]
+    for file_format_option, expected_file_format_option in zip(
+        file_format_options, expected_file_formats_options, strict=True
+    ):
+        assert file_format_option.get("value") == expected_file_format_option[0]
+        assert file_format_option.has_attr("selected") == expected_file_format_option[1]
+
+    delimiter_input = soup.find("input", {"name": "delimiter"})
+    assert delimiter_input is not None
+    assert delimiter_input.get("value") == ","  # type: ignore[attr-defined]
+    assert delimiter_input.has_attr("required")  # type: ignore[attr-defined]
+
+    expected_encoding_options = [
+        ("utf-8", True),
+        ("utf-16", False),
+        ("utf-32", False),
+        ("latin-1", False),
+    ]
+    encoding_select = soup.find("select", {"name": "encoding"})
+    assert encoding_select is not None
+    encoding_options = encoding_select.find_all("option", recursive=False)  # type: ignore[attr-defined]
+    for encoding_option, expected_encoding_option in zip(
+        encoding_options, expected_encoding_options, strict=True
+    ):
+        assert encoding_option.get("value") == expected_encoding_option[0]
+        assert encoding_option.has_attr("selected") == expected_encoding_option[1]
+
+    submit_button = soup.find("button", {"type": "submit"})
+    assert submit_button is not None
+
+
+def test_tables_import_invalid_table_uri(
+    client: TestClient, sample_config: dict[str, Any]
+) -> None:
+    table = sample_config["tables"][-1]
+
+    response = client.get(f"/tables/{table['name']}/import")
+    assert response.status_code == HTTPStatus.OK
+
+    html = response.content.decode()
+    assert f"Invalid table: {table['uri']}" in html
+
+
+@pytest.mark.parametrize("delimiter", [",", ";"])
+@pytest.mark.parametrize("encoding", ["utf-8", "latin-1"])
+def test_tables_import_post_csv_append(
+    client: TestClient,
+    sample_config: dict[str, Any],
+    delta_table: deltalake.DeltaTable,
+    tmp_path: Path,
+    delimiter: str,
+    encoding: str,
+) -> None:
+    table = sample_config["tables"][0]
+
+    new_city = "Lyon"
+    csv_data = pd.DataFrame(
+        {
+            "time": ["2025-01-02T00:00:00+00:00", "2025-01-02T01:00:00+00:00"],
+            "city": new_city,
+            "temperature": [10.5, 11.0],
+        }
+    )
+    csv_path = tmp_path / "test_data.csv"
+    csv_data.to_csv(csv_path, index=False, sep=delimiter, encoding=encoding)
+
+    new_data_count = len(csv_data)
+    original_count = len(delta_table.to_pandas())
+
+    response = client.post(
+        f"/tables/{table['name']}/import",
+        files={"input_file": open(csv_path, "rb")},
+        data={
+            "mode": "append",
+            "file_format": "csv",
+            "delimiter": delimiter,
+            "encoding": encoding,
+        },
+    )
+    assert response.status_code == HTTPStatus.OK
+
+    html = response.content.decode()
+    assert f"Successfully imported {new_data_count} rows" in html
+
+    updated_table = deltalake.DeltaTable(table["uri"])
+    new_count = len(updated_table.to_pandas())
+    assert new_count == original_count + new_data_count
+
+
+@pytest.mark.parametrize("delimiter", [",", ";"])
+@pytest.mark.parametrize("encoding", ["utf-8", "latin-1"])
+def test_tables_import_post_csv_overwrite(
+    client: TestClient,
+    sample_config: dict[str, Any],
+    tmp_path: Path,
+    delimiter: str,
+    encoding: str,
+) -> None:
+    table = sample_config["tables"][0]
+
+    new_city = "Lyon"
+    csv_data = pd.DataFrame(
+        {
+            "time": ["2025-01-02T00:00:00+00:00", "2025-01-02T01:00:00+00:00"],
+            "city": new_city,
+            "temperature": [10.5, 11.0],
+        }
+    )
+    csv_path = tmp_path / "test_data.csv"
+    csv_data.to_csv(csv_path, index=False, sep=delimiter, encoding=encoding)
+
+    new_data_count = len(csv_data)
+
+    response = client.post(
+        f"/tables/{table['name']}/import",
+        files={"input_file": open(csv_path, "rb")},
+        data={
+            "mode": "overwrite",
+            "file_format": "csv",
+            "delimiter": delimiter,
+            "encoding": encoding,
+        },
+    )
+    assert response.status_code == HTTPStatus.OK
+
+    html = response.content.decode()
+    assert f"Successfully imported {new_data_count} rows" in html
+
+    updated_table = deltalake.DeltaTable(table["uri"])
+    new_count = len(updated_table.to_pandas())
+    assert new_count == new_data_count
+
+
+def test_tables_import_post_csv_schema_mismatch(
+    client: TestClient, sample_config: dict[str, Any], tmp_path: Path
+) -> None:
+    table = sample_config["tables"][0]
+
+    csv_data = pd.DataFrame(
+        {"wrong_column": ["value1", "value2"], "another_wrong": ["value3", "value4"]}
+    )
+    csv_path = tmp_path / "test_data.csv"
+    csv_data.to_csv(csv_path, index=False)
+
+    response = client.post(
+        f"/tables/{table['name']}/import",
+        files={"input_file": open(csv_path, "rb")},
+        data={
+            "file_format": "csv",
+            "mode": "append",
+            "delimiter": ",",
+            "encoding": "utf-8",
+        },
+    )
+    assert response.status_code == HTTPStatus.OK
+
+    html = response.content.decode()
+    assert "Invariant violations" in html
 
 
 def test_queries_view(client: TestClient, sample_config: dict[str, Any]) -> None:
