@@ -12,5 +12,8 @@
   <li class="nav-item">
     <a class="nav-link{% if current == 'history' %} active{% endif %}"{% if current == 'history' %} aria-current="true"{% endif %} href="/tables/{{ table_id }}/history">History</a>
   </li>
+  <li class="nav-item">
+    <a class="nav-link{% if current == 'import' %} active{% endif %}"{% if current == 'import' %} aria-current="true"{% endif %} href="/tables/{{ table_id }}/import">Import</a>
+  </li>
 </ul>
 {%- endmacro %}

@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - cli: add csv export option to tables query command
 - cli: add tables import command
 - web: add csv export to query views
+- web: add table import form
 
 ### Changed
 - cli: table uri lazy validation in app configuration

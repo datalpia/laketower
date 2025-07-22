@@ -16,6 +16,7 @@ dependencies = [
     "pyarrow!=19.0.0",
     "pydantic>=2",
     "pydantic-settings>=2",
+    "python-multipart",
     "pyyaml",
     "rich",
     "sqlglot",
