@@ -67,6 +67,10 @@ def shots(ctx: Context):
             "output": screenshots_path / "tables_statistics.png",
         },
         {
+            "url": f"{server_url}/tables/weather/import",
+            "output": screenshots_path / "tables_import.png",
+        },
+        {
             "url": f"{server_url}/tables/weather/history",
             "output": screenshots_path / "tables_history.png",
         },
