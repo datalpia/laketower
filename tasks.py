@@ -16,12 +16,12 @@ def format(ctx: Context) -> None:
 
 
 @task
-def audit(ctx: Context):
+def audit(ctx: Context) -> None:
     ctx.run("pip-audit", echo=True, pty=True)
 
 
 @task
-def vuln(ctx: Context):
+def vuln(ctx: Context) -> None:
     ctx.run(f"bandit -r {app_path}", echo=True, pty=True)
 
 
@@ -36,7 +36,7 @@ def typing(ctx: Context) -> None:
 
 
 @task
-def test(ctx: Context):
+def test(ctx: Context) -> None:
     ctx.run(
         f"py.test -v --cov={app_path} --cov={tests_path} --cov-branch --cov-report=term-missing {tests_path}",
         echo=True,
@@ -50,7 +50,7 @@ def qa(ctx: Context):
 
 
 @task
-def shots(ctx: Context):
+def shots(ctx: Context) -> None:
     server_url = "http://localhost:8000"
     screenshots_path = Path(__file__).parent / "docs" / "static"
     screenshots = [
