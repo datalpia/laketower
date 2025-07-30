@@ -152,21 +152,26 @@ def generate_table_query(
     sort_desc: str | None = None,
 ) -> str:
     query_expr = (
-        sqlglot.select(*(cols or ["*"])).from_(table_name).limit(limit or DEFAULT_LIMIT)
+        sqlglot.select(*([f'"{col}"' for col in cols] if cols else ["*"]))
+        .from_(f'"{table_name}"')
+        .limit(limit or DEFAULT_LIMIT)
     )
     if sort_asc:
         query_expr = query_expr.order_by(f"{sort_asc} asc")
     elif sort_desc:
         query_expr = query_expr.order_by(f"{sort_desc} desc")
-    return sqlglot.Generator(dialect=sqlglot.dialects.duckdb.DuckDB).generate(
-        query_expr
-    )
+    return query_expr.sql(dialect=sqlglot.dialects.duckdb.DuckDB, identify="always")
 
 
 def generate_table_statistics_query(table_name: str) -> str:
-    return (
-        f"SELECT column_name, count, avg, std, min, max FROM (SUMMARIZE {table_name})"  # nosec B608
+    summarize_expr = sqlglot.expressions.Summarize(
+        this=sqlglot.expressions.Table(this=f'"{table_name}"')
     )
+    subquery_expr = sqlglot.expressions.Subquery(this=summarize_expr)
+    query_expr = sqlglot.select(
+        "column_name", "count", "avg", "std", "min", "max"
+    ).from_(subquery_expr)
+    return query_expr.sql(dialect=sqlglot.dialects.duckdb.DuckDB, identify="always")
 
 
 def execute_query(
@@ -182,7 +187,7 @@ def execute_query(
 
             view_name = f"{table_name}_view"
             conn.register(view_name, table_dataset)
-            conn.execute(f"create table {table_name} as select * from {view_name}")  # nosec B608
+            conn.execute(f'create table "{table_name}" as select * from "{view_name}"')  # nosec B608
         return conn.execute(sql_query).df()
     except duckdb.Error as e:
         raise ValueError(str(e)) from e
