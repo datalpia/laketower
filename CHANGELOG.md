@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - cli: laketower python entrypoint script
+- always use quoted SQL identifiers in query builder
 
 ## [0.5.1] - 2025-05-30
 Patch release with support for `deltalake` version 1.0.0.

@@ -43,6 +43,11 @@ def sample_config(delta_table: deltalake.DeltaTable) -> dict[str, Any]:
         "tables": [
             {"name": "delta_table", "uri": delta_table.table_uri, "format": "delta"},
             {
+                "name": "123_delta_table",  # test table name starting with digits
+                "uri": delta_table.table_uri,
+                "format": "delta",
+            },
+            {
                 "name": "invalid_uri_table",
                 "uri": "path/to/invalid_uri_table",
                 "format": "delta",
