@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.6.0] - 2025-08-27
+Minor release with new features (CSV import/export, S3/ADLS remote tables)
+and quality of life improvements (tables lazy loading, quoted SQL identifiers).
+
 ### Added
 - cli: add csv export option to tables query command
 - cli: add tables import command
@@ -101,7 +106,8 @@ Initial release of `laketower`.
     - View a given table with simple query builder
     - Query all registered tables with DuckDB SQL dialect
 
-[Unreleased]: https://github.com/datalpia/laketower/compare/0.5.1...HEAD
+[Unreleased]: https://github.com/datalpia/laketower/compare/0.6.0...HEAD
+[0.6.0]: https://github.com/datalpia/laketower/compare/0.5.1...0.6.0
 [0.5.1]: https://github.com/datalpia/laketower/compare/0.5.0...0.5.1
 [0.5.0]: https://github.com/datalpia/laketower/compare/0.4.1...0.5.0
 [0.4.1]: https://github.com/datalpia/laketower/compare/0.4.0...0.4.1
