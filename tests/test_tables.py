@@ -25,6 +25,28 @@ def test_load_table_deltatable_s3(
     }
 
 
+@mock.patch("laketower.tables.deltalake.DeltaTable")
+def test_load_table_deltatable_adls(
+    mock_deltatable: mock.MagicMock, sample_config_table_delta_adls: dict[str, Any]
+) -> None:
+    table_config = config.ConfigTable.model_validate(sample_config_table_delta_adls)
+
+    _ = tables.load_table(table_config)
+
+    expected_adls_conn = sample_config_table_delta_adls["connection"]["adls"]
+    assert mock_deltatable.call_count == 1
+    assert mock_deltatable.call_args.kwargs["storage_options"] == {
+        "azure_storage_account_name": expected_adls_conn["adls_account_name"],
+        "azure_storage_access_key": expected_adls_conn["adls_access_key"],
+        "azure_storage_sas_key": expected_adls_conn["adls_sas_key"],
+        "azure_storage_tenant_id": expected_adls_conn["adls_tenant_id"],
+        "azure_storage_client_id": expected_adls_conn["adls_client_id"],
+        "azure_storage_client_secret": expected_adls_conn["adls_client_secret"],
+        "azure_msi_endpoint": str(expected_adls_conn["azure_msi_endpoint"]).rstrip("/"),
+        "azure_use_azure_cli": str(expected_adls_conn["use_azure_cli"]).lower(),
+    }
+
+
 @pytest.mark.parametrize(
     ["table_name", "limit", "cols", "sort_asc", "sort_desc", "expected_query"],
     [

@@ -12,7 +12,7 @@ Utility application to explore and manage tables in your data lakehouse, especia
 ## Features
 
 - Delta Lake table format support
-- Remote tables support (S3)
+- Remote tables support (S3, ADLS)
 - Inspect table metadata
 - Inspect table schema
 - Inspect table history
@@ -66,7 +66,7 @@ Current limitations:
 
 - `tables.uri`:
     - Local paths are supported (`./path/to/table`, `/abs/path/to/table`, `file:///abs/path/to/table`)
-    - Remote paths to S3 (`s3://<bucket>/<path>`)
+    - Remote paths to S3 (`s3://<bucket>/<path>`) and ADLS (`abfss://<container>/<path>`)
 - `tables.format`: only `delta` is allowed
 
 Example from the provided demo:
@@ -159,6 +159,47 @@ tables:
         s3_region: s3-region
         s3_endpoint_url: http://s3.domain.com
         s3_allow_http: false
+```
+
+#### Remote ADLS Tables
+
+Configuring Azure ADLS tables:
+
+```yaml
+tables:
+  - name: delta_table_adls
+    uri: abfss://<container>/path/to/table
+    format: delta
+    connection:
+      adls:
+        adls_account_name: adls-account-name
+        adls_access_key: adls-access-key
+        adls_sas_key: adls-sas-key
+        adls_tenant_id: adls-tenant-id
+        adls_client_id: adls-client-id
+        adls_client_secret: adls-client-secret
+        azure_msi_endpoint: https://msi.azure.com
+        use_azure_cli: false
+```
+
+Depending on your object storage location and configuration, one might have to
+set part or all the available `connection.adls` parameters. The only required one
+is `adls_account_name`.
+
+Also as a security best practice, it is best not to write secrets directly in
+static configuration files, so one can use environment variables to all dynamic substitution,
+e.g.
+
+```yaml
+tables:
+  - name: delta_table_adls
+    uri: abfss://<container>/path/to/table
+    format: delta
+    connection:
+      adls:
+        adls_account_name: adls-account-name
+        adls_access_key:
+          env: ADLS_ACCESS_KEY
 ```
 
 ### Web Application

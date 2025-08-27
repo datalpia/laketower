@@ -82,6 +82,27 @@ def sample_config_table_delta_s3() -> dict[str, Any]:
 
 
 @pytest.fixture()
+def sample_config_table_delta_adls() -> dict[str, Any]:
+    return {
+        "name": "delta_table_adls",
+        "uri": "abfss://container/path/to/table",
+        "format": "delta",
+        "connection": {
+            "adls": {
+                "adls_account_name": "adls-account-name",
+                "adls_access_key": "adls-access-key",
+                "adls_sas_key": "adls-sas-key",
+                "adls_tenant_id": "adls-tenant-id",
+                "adls_client_id": "adls-client-id",
+                "adls_client_secret": "adls-client-secret",
+                "azure_msi_endpoint": "https://msi.azure.com/",
+                "use_azure_cli": False,
+            },
+        },
+    }
+
+
+@pytest.fixture()
 def sample_config_path(tmp_path: Path, sample_config: dict[str, Any]) -> Path:
     config_path = tmp_path / "laketower.yml"
     config_path.write_text(yaml.dump(sample_config))
