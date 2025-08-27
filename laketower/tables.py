@@ -69,7 +69,33 @@ class DeltaTable:
     def __init__(self, table_config: ConfigTable):
         super().__init__()
         self.table_config = table_config
-        self._impl = deltalake.DeltaTable(table_config.uri)
+
+        # documentation from `object-store` Rust crate:
+        # - s3: https://docs.rs/object_store/latest/object_store/aws/enum.AmazonS3ConfigKey.html
+        storage_options = None
+        conn_s3 = (
+            self.table_config.connection.s3
+            if self.table_config.connection and self.table_config.connection.s3
+            else None
+        )
+        if conn_s3:
+            storage_options = (
+                {
+                    "aws_access_key_id": conn_s3.s3_access_key_id,
+                    "aws_secret_access_key": conn_s3.s3_secret_access_key.get_secret_value(),
+                    "aws_allow_http": str(conn_s3.s3_allow_http).lower(),
+                }
+                | ({"aws_region": conn_s3.s3_region} if conn_s3.s3_region else {})
+                | (
+                    {"aws_endpoint_url": str(conn_s3.s3_endpoint_url).rstrip("/")}
+                    if conn_s3.s3_endpoint_url
+                    else {}
+                )
+            )
+
+        self._impl = deltalake.DeltaTable(
+            table_config.uri, storage_options=storage_options
+        )
 
     @classmethod
     def is_valid(cls, table_config: ConfigTable) -> bool:

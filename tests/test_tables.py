@@ -1,5 +1,28 @@
+from typing import Any
+from unittest import mock
+
 import pytest
-from laketower import tables
+
+from laketower import config, tables
+
+
+@mock.patch("laketower.tables.deltalake.DeltaTable")
+def test_load_table_deltatable_s3(
+    mock_deltatable: mock.MagicMock, sample_config_table_delta_s3: dict[str, Any]
+) -> None:
+    table_config = config.ConfigTable.model_validate(sample_config_table_delta_s3)
+
+    _ = tables.load_table(table_config)
+
+    expected_s3_conn = sample_config_table_delta_s3["connection"]["s3"]
+    assert mock_deltatable.call_count == 1
+    assert mock_deltatable.call_args.kwargs["storage_options"] == {
+        "aws_access_key_id": expected_s3_conn["s3_access_key_id"],
+        "aws_secret_access_key": expected_s3_conn["s3_secret_access_key"],
+        "aws_region": expected_s3_conn["s3_region"],
+        "aws_endpoint_url": str(expected_s3_conn["s3_endpoint_url"]).rstrip("/"),
+        "aws_allow_http": str(expected_s3_conn["s3_allow_http"]).lower(),
+    }
 
 
 @pytest.mark.parametrize(
