@@ -55,10 +55,23 @@ class TableFormats(str, enum.Enum):
     delta = "delta"
 
 
+class ConfigTableConnectionS3(pydantic.BaseModel):
+    s3_access_key_id: str
+    s3_secret_access_key: pydantic.SecretStr
+    s3_region: str | None = None
+    s3_endpoint_url: pydantic.AnyHttpUrl | None = None
+    s3_allow_http: bool = False
+
+
+class ConfigTableConnection(pydantic.BaseModel):
+    s3: ConfigTableConnectionS3 | None
+
+
 class ConfigTable(pydantic.BaseModel):
     name: str
     uri: str
     table_format: TableFormats = pydantic.Field(alias="format")
+    connection: ConfigTableConnection | None = None
 
 
 class ConfigQuery(pydantic.BaseModel):

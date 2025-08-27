@@ -64,6 +64,24 @@ def sample_config(delta_table: deltalake.DeltaTable) -> dict[str, Any]:
 
 
 @pytest.fixture()
+def sample_config_table_delta_s3() -> dict[str, Any]:
+    return {
+        "name": "delta_table_s3",
+        "uri": "s3://bucket/path/to/table",
+        "format": "delta",
+        "connection": {
+            "s3": {
+                "s3_access_key_id": "s3-access-key-id",
+                "s3_secret_access_key": "s3-secret-access-key",
+                "s3_region": "s3-region",
+                "s3_endpoint_url": "https://s3.domain.com/",
+                "s3_allow_http": False,
+            },
+        },
+    }
+
+
+@pytest.fixture()
 def sample_config_path(tmp_path: Path, sample_config: dict[str, Any]) -> Path:
     config_path = tmp_path / "laketower.yml"
     config_path.write_text(yaml.dump(sample_config))

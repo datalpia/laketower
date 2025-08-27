@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - web: add csv export to query views
 - web: add table import form
 - allow environment variable substitution in YAML configuration
+- support for remote Delta tables (S3)
 
 ### Changed
 - cli: table uri lazy validation in app configuration

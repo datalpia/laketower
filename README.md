@@ -12,6 +12,7 @@ Utility application to explore and manage tables in your data lakehouse, especia
 ## Features
 
 - Delta Lake table format support
+- Remote tables support (S3)
 - Inspect table metadata
 - Inspect table schema
 - Inspect table history
@@ -63,7 +64,9 @@ queries:
 
 Current limitations:
 
-- `tables.uri`: only local paths are allowed
+- `tables.uri`:
+    - Local paths are supported (`./path/to/table`, `/abs/path/to/table`, `file:///abs/path/to/table`)
+    - Remote paths to S3 (`s3://<bucket>/<path>`)
 - `tables.format`: only `delta` is allowed
 
 Example from the provided demo:
@@ -115,6 +118,47 @@ tables:
     uri:
       env: TABLE_URI
     format: delta
+```
+
+#### Remote S3 Tables
+
+Configuring S3 tables (AWS, MinIO, Cloudflare R2):
+
+```yaml
+tables:
+  - name: delta_table_s3
+    uri: s3://<bucket>/path/to/table
+    format: delta
+    connection:
+      s3:
+        s3_access_key_id: access-key-id
+        s3_secret_access_key: secret-access-key
+        s3_region: s3-region
+        s3_endpoint_url: http://s3.domain.com
+        s3_allow_http: false
+```
+
+Depending on your object storage location and configuration, one might have to
+set part or all the available `connection.s3` parameters. The only required ones
+are `s3_access_key_id` and `s3_secret_access_key`.
+
+Also as a security best practice, it is best not to write secrets directly in
+static configuration files, so one can use environment variables to all dynamic substitution,
+e.g.
+
+```yaml
+tables:
+  - name: delta_table_s3
+    uri: s3://<bucket>/path/to/table
+    format: delta
+    connection:
+      s3:
+        s3_access_key_id: access-key-id
+        s3_secret_access_key:
+          env: S3_SECRET_ACCESS_KEY
+        s3_region: s3-region
+        s3_endpoint_url: http://s3.domain.com
+        s3_allow_http: false
 ```
 
 ### Web Application

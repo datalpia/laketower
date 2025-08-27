@@ -16,6 +16,7 @@ def test_load_yaml_config(
         assert table.name == expected_table["name"]
         assert table.uri == expected_table["uri"]
         assert table.table_format.value == expected_table["format"]
+        assert table.connection is None
 
     for query, expected_query in zip(
         conf.queries, sample_config["queries"], strict=True
@@ -23,6 +24,37 @@ def test_load_yaml_config(
         assert query.name == expected_query["name"]
         assert query.title == expected_query["title"]
         assert query.sql == expected_query["sql"]
+
+
+def test_load_yaml_config_table_delta_s3(
+    tmp_path: Path,
+    sample_config: dict[str, Any],
+    sample_config_table_delta_s3: dict[str, Any],
+) -> None:
+    sample_config["tables"] = [sample_config_table_delta_s3]
+    sample_config_path = tmp_path / "laketower.yml"
+    sample_config_path.write_text(yaml.dump(sample_config))
+
+    conf = config.load_yaml_config(sample_config_path)
+    assert len(conf.tables) == 1
+
+    table = conf.tables[0]
+    assert table.name == sample_config_table_delta_s3["name"]
+    assert table.uri == sample_config_table_delta_s3["uri"]
+    assert table.table_format.value == sample_config_table_delta_s3["format"]
+    assert table.connection is not None
+    assert table.connection.s3 is not None
+
+    expected_s3_conn = sample_config_table_delta_s3["connection"]["s3"]
+    table_s3_conn = table.connection.s3
+    assert table_s3_conn.s3_access_key_id == expected_s3_conn["s3_access_key_id"]
+    assert (
+        table_s3_conn.s3_secret_access_key.get_secret_value()
+        == expected_s3_conn["s3_secret_access_key"]
+    )
+    assert table_s3_conn.s3_region == expected_s3_conn["s3_region"]
+    assert str(table_s3_conn.s3_endpoint_url) == expected_s3_conn["s3_endpoint_url"]
+    assert table_s3_conn.s3_allow_http == expected_s3_conn["s3_allow_http"]
 
 
 @pytest.mark.parametrize(
