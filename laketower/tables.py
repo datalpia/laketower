@@ -69,19 +69,27 @@ class DeltaTable:
     def __init__(self, table_config: ConfigTable):
         super().__init__()
         self.table_config = table_config
+        storage_options = self._generate_storage_options(table_config)
+        self._impl = deltalake.DeltaTable(
+            table_config.uri, storage_options=storage_options
+        )
 
+    @classmethod
+    def _generate_storage_options(
+        cls, table_config: ConfigTable
+    ) -> dict[str, str] | None:
         # documentation from `object-store` Rust crate:
         # - s3: https://docs.rs/object_store/latest/object_store/aws/enum.AmazonS3ConfigKey.html
         # - adls: https://docs.rs/object_store/latest/object_store/azure/enum.AzureConfigKey.html
         storage_options = None
         conn_s3 = (
-            self.table_config.connection.s3
-            if self.table_config.connection and self.table_config.connection.s3
+            table_config.connection.s3
+            if table_config.connection and table_config.connection.s3
             else None
         )
         conn_adls = (
-            self.table_config.connection.adls
-            if self.table_config.connection and self.table_config.connection.adls
+            table_config.connection.adls
+            if table_config.connection and table_config.connection.adls
             else None
         )
         if conn_s3:
@@ -143,14 +151,14 @@ class DeltaTable:
                     else {}
                 )
             )
-
-        self._impl = deltalake.DeltaTable(
-            table_config.uri, storage_options=storage_options
-        )
+        return storage_options
 
     @classmethod
     def is_valid(cls, table_config: ConfigTable) -> bool:
-        return deltalake.DeltaTable.is_deltatable(table_config.uri)
+        storage_options = cls._generate_storage_options(table_config)
+        return deltalake.DeltaTable.is_deltatable(
+            table_config.uri, storage_options=storage_options
+        )
 
     def metadata(self) -> TableMetadata:
         metadata = self._impl.metadata()
