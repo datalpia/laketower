@@ -102,6 +102,21 @@ queries:
         day asc
 ```
 
+Support for environment variables substitution is also supported within the YAML
+configuration using a object containing a single key `env` with the name of the
+environment variable to be injected. The value of the variable can contain JSON
+and will be decoded in a best effort manner (default to string value). For instance:
+
+```yaml
+# export TABLE_URI=path/to/table
+
+tables:
+  - name: sample_table
+    uri:
+      env: TABLE_URI
+    format: delta
+```
+
 ### Web Application
 
 The easiest way to get started is to launch the Laketower web application:
