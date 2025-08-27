@@ -63,8 +63,30 @@ class ConfigTableConnectionS3(pydantic.BaseModel):
     s3_allow_http: bool = False
 
 
+class ConfigTableConnectionADLS(pydantic.BaseModel):
+    adls_account_name: str
+    adls_access_key: pydantic.SecretStr | None = None
+    adls_sas_key: pydantic.SecretStr | None = None
+    adls_tenant_id: str | None = None
+    adls_client_id: str | None = None
+    adls_client_secret: pydantic.SecretStr | None = None
+    azure_msi_endpoint: pydantic.AnyHttpUrl | None = None
+    use_azure_cli: bool = False
+
+
 class ConfigTableConnection(pydantic.BaseModel):
-    s3: ConfigTableConnectionS3 | None
+    s3: ConfigTableConnectionS3 | None = None
+    adls: ConfigTableConnectionADLS | None = None
+
+    @pydantic.model_validator(mode="after")
+    def mutually_exclusive_connectors(self) -> "ConfigTableConnection":
+        connectors = [self.s3, self.adls]
+        non_null_connectors = list(filter(None, connectors))
+        if len(non_null_connectors) > 1:
+            raise ValueError(
+                "only one connection type can be specified among: 's3', 'adls'"
+            )
+        return self
 
 
 class ConfigTable(pydantic.BaseModel):

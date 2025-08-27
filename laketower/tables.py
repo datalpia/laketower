@@ -72,10 +72,16 @@ class DeltaTable:
 
         # documentation from `object-store` Rust crate:
         # - s3: https://docs.rs/object_store/latest/object_store/aws/enum.AmazonS3ConfigKey.html
+        # - adls: https://docs.rs/object_store/latest/object_store/azure/enum.AzureConfigKey.html
         storage_options = None
         conn_s3 = (
             self.table_config.connection.s3
             if self.table_config.connection and self.table_config.connection.s3
+            else None
+        )
+        conn_adls = (
+            self.table_config.connection.adls
+            if self.table_config.connection and self.table_config.connection.adls
             else None
         )
         if conn_s3:
@@ -89,6 +95,51 @@ class DeltaTable:
                 | (
                     {"aws_endpoint_url": str(conn_s3.s3_endpoint_url).rstrip("/")}
                     if conn_s3.s3_endpoint_url
+                    else {}
+                )
+            )
+        elif conn_adls:
+            storage_options = (
+                {
+                    "azure_storage_account_name": conn_adls.adls_account_name,
+                    "azure_use_azure_cli": str(conn_adls.use_azure_cli).lower(),
+                }
+                | (
+                    {
+                        "azure_storage_access_key": conn_adls.adls_access_key.get_secret_value()
+                    }
+                    if conn_adls.adls_access_key
+                    else {}
+                )
+                | (
+                    {"azure_storage_sas_key": conn_adls.adls_sas_key.get_secret_value()}
+                    if conn_adls.adls_sas_key
+                    else {}
+                )
+                | (
+                    {"azure_storage_tenant_id": conn_adls.adls_tenant_id}
+                    if conn_adls.adls_tenant_id
+                    else {}
+                )
+                | (
+                    {"azure_storage_client_id": conn_adls.adls_client_id}
+                    if conn_adls.adls_client_id
+                    else {}
+                )
+                | (
+                    {
+                        "azure_storage_client_secret": conn_adls.adls_client_secret.get_secret_value()
+                    }
+                    if conn_adls.adls_client_secret
+                    else {}
+                )
+                | (
+                    {
+                        "azure_msi_endpoint": str(conn_adls.azure_msi_endpoint).rstrip(
+                            "/"
+                        )
+                    }
+                    if conn_adls.azure_msi_endpoint
                     else {}
                 )
             )

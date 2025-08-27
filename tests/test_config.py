@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Any
 
+import pydantic
 import pytest
 import yaml
 
@@ -55,6 +56,73 @@ def test_load_yaml_config_table_delta_s3(
     assert table_s3_conn.s3_region == expected_s3_conn["s3_region"]
     assert str(table_s3_conn.s3_endpoint_url) == expected_s3_conn["s3_endpoint_url"]
     assert table_s3_conn.s3_allow_http == expected_s3_conn["s3_allow_http"]
+
+
+def test_load_yaml_config_table_delta_adls(
+    tmp_path: Path,
+    sample_config: dict[str, Any],
+    sample_config_table_delta_adls: dict[str, Any],
+) -> None:
+    sample_config["tables"] = [sample_config_table_delta_adls]
+    sample_config_path = tmp_path / "laketower.yml"
+    sample_config_path.write_text(yaml.dump(sample_config))
+
+    conf = config.load_yaml_config(sample_config_path)
+    assert len(conf.tables) == 1
+
+    table = conf.tables[0]
+    assert table.name == sample_config_table_delta_adls["name"]
+    assert table.uri == sample_config_table_delta_adls["uri"]
+    assert table.table_format.value == sample_config_table_delta_adls["format"]
+    assert table.connection is not None
+    assert table.connection.adls is not None
+
+    expected_adls_conn = sample_config_table_delta_adls["connection"]["adls"]
+    table_adls_conn = table.connection.adls
+    assert table_adls_conn.adls_account_name == expected_adls_conn["adls_account_name"]
+    assert table_adls_conn.adls_access_key and (
+        table_adls_conn.adls_access_key.get_secret_value()
+        == expected_adls_conn["adls_access_key"]
+    )
+    assert table_adls_conn.adls_sas_key and (
+        table_adls_conn.adls_sas_key.get_secret_value()
+        == expected_adls_conn["adls_sas_key"]
+    )
+    assert table_adls_conn.adls_tenant_id == expected_adls_conn["adls_tenant_id"]
+    assert table_adls_conn.adls_client_id == expected_adls_conn["adls_client_id"]
+    assert table_adls_conn.adls_client_secret and (
+        table_adls_conn.adls_client_secret.get_secret_value()
+        == expected_adls_conn["adls_client_secret"]
+    )
+    assert (
+        str(table_adls_conn.azure_msi_endpoint)
+        == expected_adls_conn["azure_msi_endpoint"]
+    )
+    assert table_adls_conn.use_azure_cli == expected_adls_conn["use_azure_cli"]
+
+
+def test_load_yaml_config_table_connection_mutually_exclusive(
+    tmp_path: Path,
+    sample_config: dict[str, Any],
+    sample_config_table_delta_s3: dict[str, Any],
+    sample_config_table_delta_adls: dict[str, Any],
+) -> None:
+    sample_config_table_delta_remote = {
+        "name": "remote_delta_table",
+        "uri": "somewhere",
+        "format": "delta",
+        "connection": sample_config_table_delta_s3["connection"]
+        | sample_config_table_delta_adls["connection"],
+    }
+    sample_config["tables"] = [sample_config_table_delta_remote]
+    sample_config_path = tmp_path / "laketower.yml"
+    sample_config_path.write_text(yaml.dump(sample_config))
+
+    with pytest.raises(
+        pydantic.ValidationError,
+        match="only one connection type can be specified among: 's3', 'adls'",
+    ):
+        config.load_yaml_config(sample_config_path)
 
 
 @pytest.mark.parametrize(
