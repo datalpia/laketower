@@ -14,7 +14,7 @@ from bs4 import BeautifulSoup
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from laketower import web
+from laketower import __about__, web
 
 
 @pytest.fixture()
@@ -66,6 +66,13 @@ def test_index(client: TestClient, sample_config: dict[str, Any]) -> None:
     assert response.status_code == HTTPStatus.OK
 
     html = response.content.decode()
+    assert "Laketower" in html
+    assert f"v{__about__.__version__}" in html
+    assert (
+        f"https://github.com/datalpia/laketower/releases/tag/{__about__.__version__}"
+        in html
+    )
+
     for table in sample_config["tables"]:
         assert table["name"] in html
         assert f"/tables/{table['name']}" in html
