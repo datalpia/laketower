@@ -1,4 +1,5 @@
 import urllib.parse
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Annotated
 
@@ -8,6 +9,7 @@ from fastapi.responses import HTMLResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
+from laketower import __about__
 from laketower.config import Config, load_yaml_config
 from laketower.tables import (
     DEFAULT_LIMIT,
@@ -24,6 +26,12 @@ from laketower.tables import (
 
 class Settings(pydantic_settings.BaseSettings):
     laketower_config_path: Path
+
+
+@dataclass(frozen=True)
+class AppMetadata:
+    app_name: str
+    app_version: str
 
 
 def current_path_with_args(request: Request, args: list[tuple[str, str]]) -> str:
@@ -45,11 +53,13 @@ router = APIRouter()
 
 @router.get("/", response_class=HTMLResponse)
 def index(request: Request) -> HTMLResponse:
+    app_metadata: AppMetadata = request.app.state.app_metadata
     config: Config = request.app.state.config
     return templates.TemplateResponse(
         request=request,
         name="index.html",
         context={
+            "app_metadata": app_metadata,
             "tables": config.tables,
             "queries": config.queries,
         },
@@ -58,6 +68,7 @@ def index(request: Request) -> HTMLResponse:
 
 @router.get("/tables/query", response_class=HTMLResponse)
 def get_tables_query(request: Request, sql: str) -> HTMLResponse:
+    app_metadata: AppMetadata = request.app.state.app_metadata
     config: Config = request.app.state.config
     tables_dataset = load_datasets(config.tables)
 
@@ -72,6 +83,7 @@ def get_tables_query(request: Request, sql: str) -> HTMLResponse:
         request=request,
         name="tables/query.html",
         context={
+            "app_metadata": app_metadata,
             "tables": config.tables,
             "queries": config.queries,
             "table_results": results,
@@ -98,6 +110,7 @@ def export_tables_query_csv(request: Request, sql: str) -> Response:
 
 @router.get("/tables/{table_id}", response_class=HTMLResponse)
 def get_table_index(request: Request, table_id: str) -> HTMLResponse:
+    app_metadata: AppMetadata = request.app.state.app_metadata
     config: Config = request.app.state.config
     table_config = next(
         filter(lambda table_config: table_config.name == table_id, config.tables)
@@ -116,6 +129,7 @@ def get_table_index(request: Request, table_id: str) -> HTMLResponse:
         request=request,
         name="tables/index.html",
         context={
+            "app_metadata": app_metadata,
             "tables": config.tables,
             "queries": config.queries,
             "table_id": table_id,
@@ -128,6 +142,7 @@ def get_table_index(request: Request, table_id: str) -> HTMLResponse:
 
 @router.get("/tables/{table_id}/history", response_class=HTMLResponse)
 def get_table_history(request: Request, table_id: str) -> HTMLResponse:
+    app_metadata: AppMetadata = request.app.state.app_metadata
     config: Config = request.app.state.config
     table_config = next(
         filter(lambda table_config: table_config.name == table_id, config.tables)
@@ -144,6 +159,7 @@ def get_table_history(request: Request, table_id: str) -> HTMLResponse:
         request=request,
         name="tables/history.html",
         context={
+            "app_metadata": app_metadata,
             "tables": config.tables,
             "queries": config.queries,
             "table_id": table_id,
@@ -159,6 +175,7 @@ def get_table_statistics(
     table_id: str,
     version: int | None = None,
 ) -> HTMLResponse:
+    app_metadata: AppMetadata = request.app.state.app_metadata
     config: Config = request.app.state.config
     table_config = next(
         filter(lambda table_config: table_config.name == table_id, config.tables)
@@ -180,6 +197,7 @@ def get_table_statistics(
         request=request,
         name="tables/statistics.html",
         context={
+            "app_metadata": app_metadata,
             "tables": config.tables,
             "queries": config.queries,
             "table_id": table_id,
@@ -200,6 +218,7 @@ def get_table_view(
     sort_desc: str | None = None,
     version: int | None = None,
 ) -> HTMLResponse:
+    app_metadata: AppMetadata = request.app.state.app_metadata
     config: Config = request.app.state.config
     table_config = next(
         filter(lambda table_config: table_config.name == table_id, config.tables)
@@ -224,6 +243,7 @@ def get_table_view(
         request=request,
         name="tables/view.html",
         context={
+            "app_metadata": app_metadata,
             "tables": config.tables,
             "queries": config.queries,
             "table_id": table_id,
@@ -241,6 +261,7 @@ def get_table_import(
     request: Request,
     table_id: str,
 ) -> HTMLResponse:
+    app_metadata: AppMetadata = request.app.state.app_metadata
     config: Config = request.app.state.config
     table_config = next(
         filter(lambda table_config: table_config.name == table_id, config.tables)
@@ -257,6 +278,7 @@ def get_table_import(
         request=request,
         name="tables/import.html",
         context={
+            "app_metadata": app_metadata,
             "tables": config.tables,
             "queries": config.queries,
             "table_id": table_id,
@@ -276,6 +298,7 @@ def post_table_import(
     delimiter: Annotated[str, Form()],
     encoding: Annotated[str, Form()],
 ) -> HTMLResponse:
+    app_metadata: AppMetadata = request.app.state.app_metadata
     config: Config = request.app.state.config
     table_config = next(
         filter(lambda table_config: table_config.name == table_id, config.tables)
@@ -298,6 +321,7 @@ def post_table_import(
         request=request,
         name="tables/import.html",
         context={
+            "app_metadata": app_metadata,
             "tables": config.tables,
             "queries": config.queries,
             "table_id": table_id,
@@ -309,6 +333,7 @@ def post_table_import(
 
 @router.get("/queries/{query_id}/view", response_class=HTMLResponse)
 def get_query_view(request: Request, query_id: str) -> HTMLResponse:
+    app_metadata: AppMetadata = request.app.state.app_metadata
     config: Config = request.app.state.config
     query_config = next(
         filter(lambda query_config: query_config.name == query_id, config.queries)
@@ -326,6 +351,7 @@ def get_query_view(request: Request, query_id: str) -> HTMLResponse:
         request=request,
         name="queries/view.html",
         context={
+            "app_metadata": app_metadata,
             "tables": config.tables,
             "queries": config.queries,
             "query": query_config,
@@ -346,6 +372,9 @@ def create_app() -> FastAPI:
         name="static",
     )
     app.include_router(router)
+    app.state.app_metadata = AppMetadata(
+        app_name="Laketower", app_version=__about__.__version__
+    )
     app.state.config = config
 
     return app
