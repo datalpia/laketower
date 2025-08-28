@@ -84,7 +84,7 @@ def shots(ctx: Context) -> None:
         },
     ]
     shot_scraper_config = [
-        {"wait": 100, "width": 1440, "url": shot["url"], "output": str(shot["output"])}
+        {"wait": 100, "width": 1440, "height": 720, "url": shot["url"], "output": str(shot["output"])}
         for shot in screenshots
     ]
 
