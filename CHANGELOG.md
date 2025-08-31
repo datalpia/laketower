@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - web: display app version in sidebar
 
+### Misc
+- vendor static assets for offline usage
+
 ## [0.6.0] - 2025-08-27
 Minor release with new features (CSV import/export, S3/ADLS remote tables)
 and quality of life improvements (tables lazy loading, quoted SQL identifiers).

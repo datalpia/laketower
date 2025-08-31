@@ -1,3 +1,4 @@
+import shutil
 import tempfile
 import time
 from pathlib import Path
@@ -84,7 +85,13 @@ def shots(ctx: Context) -> None:
         },
     ]
     shot_scraper_config = [
-        {"wait": 100, "width": 1440, "height": 720, "url": shot["url"], "output": str(shot["output"])}
+        {
+            "wait": 100,
+            "width": 1440,
+            "height": 720,
+            "url": shot["url"],
+            "output": str(shot["output"]),
+        }
         for shot in screenshots
     ]
 
@@ -112,3 +119,35 @@ def shots(ctx: Context) -> None:
             )
         finally:
             server.runner.kill()
+
+
+@task
+def vendor_static_assets(ctx: Context) -> None:
+    base_path = (Path(__file__).parent / "laketower" / "static" / "vendor").absolute()
+
+    node_packages = {
+        "bootstrap": ["bootstrap/dist/js/bootstrap.bundle.min.js"],
+        "bootstrap-icons": [
+            "bootstrap-icons/font/bootstrap-icons.min.css",
+            "bootstrap-icons/font/fonts",
+        ],
+        "halfmoon": [
+            "halfmoon/css/halfmoon.min.css",
+            "halfmoon/css/cores/halfmoon.modern.css",
+        ],
+    }
+
+    ctx.run("npm install", echo=True, pty=True)
+    for package_name, package_files in node_packages.items():
+        print("vendoring package:", package_name)
+        dst = base_path / package_name
+        shutil.rmtree(dst, ignore_errors=True)
+        dst.mkdir(parents=True, exist_ok=True)
+        for package_file in package_files:
+            src = Path("node_modules") / package_file
+            if src.is_dir():
+                print("copying dir:", src)
+                shutil.copytree(src, dst / src.name, dirs_exist_ok=True)
+            else:
+                print("copying file:", src)
+                shutil.copy(src, dst)
