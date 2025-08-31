@@ -1,0 +1,9 @@
+{
+  "name": "laketower",
+  "private": true,
+  "dependencies": {
+    "bootstrap": "==5.3.8",
+    "bootstrap-icons": "==1.13.1",
+    "halfmoon": "==2.0.2"
+  }
+}

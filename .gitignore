@@ -7,6 +7,9 @@ wheels/
 *.egg-info
 .coverage
 
+# Node.js
+node_modules/
+
 # Virtual environments
 .venv
 
