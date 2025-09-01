@@ -8,7 +8,7 @@
 
     <form action="{{ request.url.path }}" method="get">
       <div class="mb-3">
-        <textarea name="sql" rows="5" class="form-control">{{ sql_query }}</textarea>
+        <textarea id="sql-editor" name="sql" rows="5" class="form-control">{{ sql_query }}</textarea>
       </div>
 
       <div class="mb-3">
@@ -54,4 +54,16 @@
     {% endif %}
   </div>
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', path='/editor.bundle.js') }}"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    const textArea = document.querySelector("textarea#sql-editor")
+    textArea.style.display = "none";
+    const sqlSchema = {{ sql_schema | tojson }}
+    const sqlEditor = editor.createEditor(textArea, { readOnly: false, dialect: 'duckdb', schema: sqlSchema})
+  })
+</script>
 {% endblock %}

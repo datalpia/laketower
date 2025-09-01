@@ -7,14 +7,14 @@
 
     <form action="{{ request.url.path }}" method="get">
       <div class="mb-3">
-        <textarea disabled name="sql" rows="5" class="form-control">{{ query.sql }}</textarea>
+        <textarea disabled id="sql-editor" name="sql" rows="5" class="form-control">{{ query.sql }}</textarea>
       </div>
 
       <div class="mb-3">
         <div class="d-flex justify-content-end">
           <div class="row">
             <div class="col">
-              <a href="/tables/query?sql={{ query.sql | urlencode }}" class="btn btn-secondary" type="button" >
+              <a href="/tables/query?sql={{ query.sql | urlencode }}" class="btn btn-secondary" type="button">
                 <i class="bi-code" aria-hidden="true"></i> Edit SQL
               </a>
             </div>
@@ -63,4 +63,15 @@
     {% endif %}
   </div>
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', path='/editor.bundle.js') }}"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    const textArea = document.querySelector("textarea#sql-editor")
+    textArea.style.display = "none";
+    const sqlEditor = editor.createEditor(textArea, {readOnly: true, dialect: 'duckdb' })
+  })
+</script>
 {% endblock %}

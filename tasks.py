@@ -138,6 +138,16 @@ def vendor_static_assets(ctx: Context) -> None:
     }
 
     ctx.run("npm install", echo=True, pty=True)
+
+    print("build codemirror editor")
+    ctx.run(
+        "node_modules/.bin/rollup laketower/static/editor.js \
+            -o laketower/static/editor.bundle.js \
+            -f iife \
+            -n editor \
+            -p @rollup/plugin-node-resolve"
+    )
+
     for package_name, package_files in node_packages.items():
         print("vendoring package:", package_name)
         dst = base_path / package_name

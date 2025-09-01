@@ -71,6 +71,10 @@ def get_tables_query(request: Request, sql: str) -> HTMLResponse:
     app_metadata: AppMetadata = request.app.state.app_metadata
     config: Config = request.app.state.config
     tables_dataset = load_datasets(config.tables)
+    sql_schema = {
+        table_name: dataset.schema.names
+        for table_name, dataset in tables_dataset.items()
+    }
 
     try:
         results = execute_query(tables_dataset, sql)
@@ -88,6 +92,7 @@ def get_tables_query(request: Request, sql: str) -> HTMLResponse:
             "queries": config.queries,
             "table_results": results,
             "sql_query": sql,
+            "sql_schema": sql_schema,
             "error": error,
         },
     )
