@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - web: display app version in sidebar
+- web: use CodeMirror SQL query editor
 
 ### Fixed
 - handle empty SQL queries
