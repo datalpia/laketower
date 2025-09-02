@@ -738,6 +738,7 @@ def test_tables_query_output_csv(
         ("select * from unknown_table",),
         ("select * from invalid_table_uri",),
         ("select",),
+        ("",),
     ],
 )
 def test_tables_query_invalid_sql(
