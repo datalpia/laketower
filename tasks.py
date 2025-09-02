@@ -76,7 +76,7 @@ def shots(ctx: Context) -> None:
             "output": screenshots_path / "tables_history.png",
         },
         {
-            "url": f"{server_url}/tables/query?sql=SELECT * FROM weather LIMIT 10",
+            "url": f"{server_url}/tables/query?sql=select * from weather limit 10",
             "output": screenshots_path / "tables_query.png",
         },
         {
