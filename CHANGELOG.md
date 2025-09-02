@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - web: display app version in sidebar
 
+### Fixed
+- handle empty SQL queries
+
 ### Misc
 - vendor static assets for offline usage
 

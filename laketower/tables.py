@@ -262,6 +262,9 @@ def generate_table_statistics_query(table_name: str) -> str:
 def execute_query(
     tables_datasets: dict[str, padataset.Dataset], sql_query: str
 ) -> pd.DataFrame:
+    if not sql_query:
+        raise ValueError("Error: Cannot execute empty SQL query")
+
     try:
         conn = duckdb.connect()
         for table_name, table_dataset in tables_datasets.items():
