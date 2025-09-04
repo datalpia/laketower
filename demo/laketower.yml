@@ -32,3 +32,22 @@ queries:
         day
       order by
         day asc
+  - name: daily_avg_temperature_params
+    title: Daily average temperature with parameters
+    parameters:
+      start_date:
+        default: "2025-01-15"
+      end_date:
+        default: "2025-01-31"
+    sql: |
+      select
+        date_trunc('day', time) as day,
+        round(avg(temperature_2m)) as avg_temperature
+      from
+        weather
+      where
+        day between $start_date and $end_date
+      group by
+        day
+      order by
+        day asc
