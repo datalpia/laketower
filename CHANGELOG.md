@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - cli: add support for tables query parameters
 - cli: add support for predefined queries parameters
 
+### Changed
+- demo: add parameters to daily avg temperature query
+
 ### Fixed
 - handle empty SQL queries
 
