@@ -211,7 +211,7 @@ def test_tables_statistics_version(
 ) -> None:
     table = sample_config["tables"][0]
 
-    response = client.get(f"/tables/{table['name']}/statistics?version=0")
+    response = client.get(f"/tables/{table['name']}/statistics", params={"version": 0})
     assert response.status_code == HTTPStatus.OK
 
     html = response.content.decode()
@@ -262,7 +262,9 @@ def test_tables_view_limit(
     table = sample_config["tables"][0]
     selected_limit = 1
 
-    response = client.get(f"/tables/{table['name']}/view?limit={selected_limit}")
+    response = client.get(
+        f"/tables/{table['name']}/view", params={"limit": selected_limit}
+    )
     assert response.status_code == HTTPStatus.OK
 
     html = response.content.decode()
@@ -282,9 +284,11 @@ def test_tables_view_cols(
         delta_table.schema().fields[i].name for i in range(num_fields - 1)
     ]
     filtered_columns = [delta_table.schema().fields[num_fields - 1].name]
-    qs = "&".join(f"cols={col}" for col in selected_columns)
 
-    response = client.get(f"/tables/{table['name']}/view?{qs}")
+    response = client.get(
+        f"/tables/{table['name']}/view",
+        params=[("cols", col) for col in selected_columns],
+    )
     assert response.status_code == HTTPStatus.OK
 
     html = response.content.decode()
@@ -315,7 +319,9 @@ def test_table_view_sort_asc(
     default_limit = 10
     sort_column = "temperature"
 
-    response = client.get(f"/tables/{table['name']}/view?sort_asc={sort_column}")
+    response = client.get(
+        f"/tables/{table['name']}/view", params={"sort_asc": sort_column}
+    )
     assert response.status_code == HTTPStatus.OK
 
     html = response.content.decode()
@@ -340,7 +346,9 @@ def test_table_view_sort_desc(
     default_limit = 10
     sort_column = "temperature"
 
-    response = client.get(f"/tables/{table['name']}/view?sort_desc={sort_column}")
+    response = client.get(
+        f"/tables/{table['name']}/view", params={"sort_desc": sort_column}
+    )
     assert response.status_code == HTTPStatus.OK
 
     html = response.content.decode()
@@ -362,7 +370,7 @@ def test_tables_view_version(
     table = sample_config["tables"][0]
     default_limit = 10
 
-    response = client.get(f"/tables/{table['name']}/view?version=0")
+    response = client.get(f"/tables/{table['name']}/view", params={"version": 0})
     assert response.status_code == HTTPStatus.OK
 
     html = response.content.decode()
@@ -394,7 +402,7 @@ def test_tables_query(
     selected_limit = 1
     sql_query = f"select {selected_column} from {sample_config['tables'][0]['name']} limit {selected_limit}"
 
-    response = client.get(f"/tables/query?sql={sql_query}")
+    response = client.get("/tables/query", params={"sql": sql_query})
     assert response.status_code == HTTPStatus.OK
 
     html = response.content.decode()
@@ -455,7 +463,7 @@ def test_tables_query_invalid(
 ) -> None:
     sql_query = "select * from unknown_table"
 
-    response = client.get(f"/tables/query?sql={sql_query}")
+    response = client.get("/tables/query", params={"sql": sql_query})
     assert response.status_code == HTTPStatus.OK
 
     html = response.content.decode()
@@ -788,7 +796,7 @@ def test_tables_query_export_csv(
     selected_limit = 2
     sql_query = f"select {selected_column} from {sample_config['tables'][0]['name']} limit {selected_limit}"
 
-    response = client.get(f"/tables/query/csv?sql={sql_query}")
+    response = client.get("/tables/query/csv", params={"sql": sql_query})
     assert response.status_code == HTTPStatus.OK
     assert response.headers["content-type"] == "text/csv; charset=utf-8"
     assert "attachment" in response.headers["content-disposition"]
@@ -805,7 +813,7 @@ def test_queries_view_export_csv(
 ) -> None:
     query = sample_config["queries"][0]
 
-    response = client.get(f"/tables/query/csv?sql={query['sql']}")
+    response = client.get("/tables/query/csv", params={"sql": query["sql"]})
     assert response.status_code == HTTPStatus.OK
     assert response.headers["content-type"] == "text/csv; charset=utf-8"
     assert "attachment" in response.headers["content-disposition"]
