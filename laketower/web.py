@@ -16,6 +16,7 @@ from laketower.tables import (
     ImportFileFormatEnum,
     ImportModeEnum,
     execute_query,
+    extract_query_parameter_names,
     generate_table_statistics_query,
     generate_table_query,
     import_file_to_table,
@@ -75,9 +76,13 @@ def get_tables_query(request: Request, sql: str) -> HTMLResponse:
         table_name: dataset.schema.names
         for table_name, dataset in tables_dataset.items()
     }
+    sql_param_names = extract_query_parameter_names(sql)
+    sql_params = {
+        name: request.query_params.get(name) or "" for name in sql_param_names
+    }
 
     try:
-        results = execute_query(tables_dataset, sql)
+        results = execute_query(tables_dataset, sql, sql_params=sql_params)
         error = None
     except ValueError as e:
         error = {"message": str(e)}
@@ -93,6 +98,7 @@ def get_tables_query(request: Request, sql: str) -> HTMLResponse:
             "table_results": results,
             "sql_query": sql,
             "sql_schema": sql_schema,
+            "sql_params": sql_params,
             "error": error,
         },
     )
