@@ -10,11 +10,23 @@
         <textarea disabled id="sql-editor" name="sql" rows="5" class="form-control">{{ query.sql }}</textarea>
       </div>
 
+      {% if sql_params|length %}
+      <h3 class="mb-3">Parameters</h3>
+      {% for param_name, param_value in sql_params.items() %}
+      <div class="row mb-3">
+        <label for="param-{{ param_name }}" class="col-form-label col-sm-2">{{ param_name }}</label>
+        <div class="col-sm-4">
+          <input id="param-{{ param_name }}" class="form-control" name="{{ param_name }}" value="{{ param_value }}">
+        </div>
+      </div>
+      {% endfor %}
+      {% endif %}
+
       <div class="mb-3">
         <div class="d-flex justify-content-end">
           <div class="row">
             <div class="col">
-              <a href="/tables/query?sql={{ query.sql | urlencode }}" class="btn btn-secondary" type="button">
+              <a href="/tables/query?sql={{ query.sql | urlencode }}{% if request.query_params | length > 0 %}&{{ request.query_params.multi_items() | urlencode}}{% endif %}" class="btn btn-secondary" type="button">
                 <i class="bi-code" aria-hidden="true"></i> Edit SQL
               </a>
             </div>
