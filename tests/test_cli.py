@@ -687,6 +687,54 @@ def test_tables_query(
     assert not all(str(row) in output for row in df[selected_column][selected_limit:])
 
 
+def test_tables_query_parameters(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    sample_config: dict[str, Any],
+    sample_config_path: Path,
+    delta_table: deltalake.DeltaTable,
+) -> None:
+    selected_column = delta_table.schema().fields[0].name
+    filtered_columns = [field.name for field in delta_table.schema().fields[1:]]
+    param_column = "time"
+    start_date = "2025-01-01"
+    end_date = "2025-01-31"
+    selected_limit = 1
+
+    sql_query = f"select {selected_column} from {sample_config['tables'][0]['name']} where {param_column} between $start_date and $end_date limit {selected_limit}"
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "laketower",
+            "--config",
+            str(sample_config_path),
+            "tables",
+            "query",
+            sql_query,
+            "--param",
+            "start_date",
+            start_date,
+            "--param",
+            "end_date",
+            end_date,
+        ],
+    )
+
+    cli.cli()
+
+    captured = capsys.readouterr()
+    output = captured.out
+    assert selected_column in output
+    assert not all(col in output for col in filtered_columns)
+
+    df = delta_table.to_pandas()
+    df[(df[param_column] == start_date) & (df[param_column] == end_date)]
+    assert all(str(row) in output for row in df[selected_column][0:selected_limit])
+    assert not all(str(row) in output for row in df[selected_column][selected_limit:])
+
+
 def test_tables_query_output_csv(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],

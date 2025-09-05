@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - web: use CodeMirror SQL query editor
 - web: add support for tables query parameters
 - web: add support for predefined queries parameters
+- cli: add support for tables query parameters
 
 ### Fixed
 - handle empty SQL queries
