@@ -58,7 +58,16 @@ def sample_config(delta_table: deltalake.DeltaTable) -> dict[str, Any]:
                 "name": "daily_average_temperature",
                 "title": "Daily average temperature",
                 "sql": "select date_trunc('day', time) as day, round(avg(temperature)) as avg_temperature from delta_table group by day order by day asc",
-            }
+            },
+            {
+                "name": "daily_average_temperature_params",
+                "title": "Daily average temperature with parameters",
+                "parameters": {
+                    "start_date": {"default": "2025-01-01"},
+                    "end_date": {"default": "2025-01-31"},
+                },
+                "sql": "select date_trunc('day', time) as day, round(avg(temperature)) as avg_temperature from delta_table where day between $start_date and $end_date group by day order by day asc",
+            },
         ],
     }
 

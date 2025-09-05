@@ -704,6 +704,53 @@ def test_queries_view(client: TestClient, sample_config: dict[str, Any]) -> None
     assert all(col in all_th for col in {"day", "avg_temperature"})
 
 
+def test_queries_view_parameters_default(
+    client: TestClient, sample_config: dict[str, Any]
+) -> None:
+    query = sample_config["queries"][1]
+
+    response = client.get(f"/queries/{query['name']}/view")
+    assert response.status_code == HTTPStatus.OK
+    assert response.history[0].has_redirect_location
+
+    html = response.content.decode()
+    soup = BeautifulSoup(html, "html.parser")
+
+    assert soup.find("h2", string=query["title"])
+    assert soup.find("h3", string="Parameters")
+
+    for param_name, param_data in query["parameters"].items():
+        assert soup.find("label", string=param_name)
+        assert soup.find(
+            "input", attrs={"name": param_name, "value": param_data["default"]}
+        )
+
+
+def test_queries_view_parameters(
+    client: TestClient, sample_config: dict[str, Any]
+) -> None:
+    query = sample_config["queries"][1]
+
+    response = client.get(
+        f"/queries/{query['name']}/view",
+        params={k: v["default"] for k, v in query["parameters"].items()},
+    )
+    assert response.status_code == HTTPStatus.OK
+    assert len(response.history) == 0
+
+    html = response.content.decode()
+    soup = BeautifulSoup(html, "html.parser")
+
+    assert soup.find("h2", string=query["title"])
+    assert soup.find("h3", string="Parameters")
+
+    for param_name, param_data in query["parameters"].items():
+        assert soup.find("label", string=param_name)
+        assert soup.find(
+            "input", attrs={"name": param_name, "value": param_data["default"]}
+        )
+
+
 def test_queries_view_invalid(
     monkeypatch: pytest.MonkeyPatch,
     sample_config: dict[str, Any],

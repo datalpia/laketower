@@ -5,7 +5,7 @@ from typing import Annotated
 
 import pydantic_settings
 from fastapi import APIRouter, FastAPI, File, Form, Query, Request, UploadFile
-from fastapi.responses import HTMLResponse, Response
+from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
@@ -343,16 +343,37 @@ def post_table_import(
 
 
 @router.get("/queries/{query_id}/view", response_class=HTMLResponse)
-def get_query_view(request: Request, query_id: str) -> HTMLResponse:
+def get_query_view(request: Request, query_id: str) -> Response:
     app_metadata: AppMetadata = request.app.state.app_metadata
     config: Config = request.app.state.config
     query_config = next(
         filter(lambda query_config: query_config.name == query_id, config.queries)
     )
+
+    if (
+        len(request.query_params.keys()) == 0
+        and len(query_config.parameters.keys()) > 0
+    ):
+        default_parameters = {k: v.default for k, v in query_config.parameters.items()}
+        url = request.url_for("get_query_view", query_id=query_id)
+        query_params = urllib.parse.urlencode(default_parameters)
+        return RedirectResponse(f"{url}?{query_params}")
+
     tables_dataset = load_datasets(config.tables)
+    sql_param_names = extract_query_parameter_names(query_config.sql)
+    sql_params = {
+        name: request.query_params.get(name)
+        or (
+            query_param.default
+            if (query_param := query_config.parameters.get(name))
+            else None
+        )
+        or ""
+        for name in sql_param_names
+    }
 
     try:
-        results = execute_query(tables_dataset, query_config.sql)
+        results = execute_query(tables_dataset, query_config.sql, sql_params=sql_params)
         error = None
     except ValueError as e:
         error = {"message": str(e)}
@@ -367,6 +388,7 @@ def get_query_view(request: Request, query_id: str) -> HTMLResponse:
             "queries": config.queries,
             "query": query_config,
             "query_results": results,
+            "sql_params": sql_params,
             "error": error,
         },
     )

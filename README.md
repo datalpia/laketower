@@ -59,6 +59,9 @@ tables:
 queries:
   - name: <query_name>
     title: <Query name>
+    parameters:
+      <param_name_1>:
+        default: <default_value>
     sql: <sql expression>
 ```
 
