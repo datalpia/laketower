@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - web: display app version in sidebar
 - web: use CodeMirror SQL query editor
 - web: add support for tables query parameters
+- web: add support for predefined queries parameters
 
 ### Fixed
 - handle empty SQL queries

@@ -96,9 +96,14 @@ class ConfigTable(pydantic.BaseModel):
     connection: ConfigTableConnection | None = None
 
 
+class ConfigQueryParameter(pydantic.BaseModel):
+    default: str
+
+
 class ConfigQuery(pydantic.BaseModel):
     name: str
     title: str
+    parameters: dict[str, ConfigQueryParameter] = {}
     sql: str
 
 
