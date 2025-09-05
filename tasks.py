@@ -76,7 +76,7 @@ def shots(ctx: Context) -> None:
             "output": screenshots_path / "tables_history.png",
         },
         {
-            "url": f"{server_url}/tables/query?sql=select * from weather limit 10",
+            "url": f"{server_url}/tables/query?sql=select * from weather where temperature_2m < $temperature_min limit 10&temperature_min=2",
             "output": screenshots_path / "tables_query.png",
         },
         {
