@@ -15,6 +15,7 @@ from laketower.tables import (
     ImportFileFormatEnum,
     ImportModeEnum,
     execute_query,
+    extract_query_parameter_names,
     generate_table_query,
     generate_table_statistics_query,
     import_file_to_table,
@@ -180,13 +181,21 @@ def view_table(
 
 
 def query_table(
-    config_path: Path, sql_query: str, output_path: Path | None = None
+    config_path: Path,
+    sql_query: str,
+    sql_params: list[list[str]] = [],
+    output_path: Path | None = None,
 ) -> None:
     out: rich.jupyter.JupyterMixin
     try:
         config = load_yaml_config(config_path)
         tables_dataset = load_datasets(config.tables)
-        results = execute_query(tables_dataset, sql_query)
+        sql_params_dict = {param[0]: param[1] for param in sql_params}
+        query_param_names = extract_query_parameter_names(sql_query)
+        query_params = {
+            name: sql_params_dict.get(name) or "" for name in query_param_names
+        }
+        results = execute_query(tables_dataset, sql_query, sql_params=query_params)
 
         out = rich.table.Table()
         for column in results.columns:
@@ -369,9 +378,17 @@ def cli() -> None:
     parser_tables_query.add_argument(
         "--output", help="Output query results to a file (default format: CSV)"
     )
+    parser_tables_query.add_argument(
+        "--param",
+        "-p",
+        nargs=2,
+        action="append",
+        default=[],
+        help="Inject query named parameters values",
+    )
     parser_tables_query.add_argument("sql", help="SQL query to execute")
     parser_tables_query.set_defaults(
-        func=lambda x: query_table(x.config, x.sql, x.output)
+        func=lambda x: query_table(x.config, x.sql, x.param, x.output)
     )
 
     parser_tables_import = subsparsers_tables.add_parser(

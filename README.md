@@ -491,6 +491,20 @@ $ laketower -c demo/laketower.yml tables query "select date_trunc('day', time) a
 └───────────────────────────┴────────────────────┘
 ```
 
+Use named parameters within a giving query (note: escape `$` prefixes properly!):
+
+```bash
+$ laketower -c demo/laketower.yml tables query "select date_trunc('day', time) as day, avg(temperature_2m) as mean_temperature from weather where day between \$start_date and \$end_date group by day order by day desc" -p start_date 2025-01-29 -p end_date 2025-01-31
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━┓
+┃ day                       ┃ mean_temperature   ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━┩
+│ 2025-01-31 00:00:00+01:00 │ 5.683333257834117  │
+│ 2025-01-30 00:00:00+01:00 │ 8.900000015894571  │
+│ 2025-01-29 00:00:00+01:00 │ 7.770833313465118  │
+└───────────────────────────┴────────────────────┘
+```
+
 Export query results to CSV:
 
 ```bash
