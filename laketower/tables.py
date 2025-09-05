@@ -229,6 +229,17 @@ def load_datasets(table_configs: list[ConfigTable]) -> dict[str, padataset.Datas
     return tables_dataset
 
 
+def extract_query_parameter_names(sql: str) -> set[str]:
+    parsed_sql = sqlglot.parse(sql, dialect=sqlglot.dialects.duckdb.DuckDB)
+    return {
+        str(node.this)
+        for statement in parsed_sql
+        if statement is not None
+        for node in statement.walk()
+        if isinstance(node, sqlglot.expressions.Placeholder)
+    }
+
+
 def generate_table_query(
     table_name: str,
     limit: int | None = None,
@@ -260,7 +271,9 @@ def generate_table_statistics_query(table_name: str) -> str:
 
 
 def execute_query(
-    tables_datasets: dict[str, padataset.Dataset], sql_query: str
+    tables_datasets: dict[str, padataset.Dataset],
+    sql_query: str,
+    sql_params: dict[str, str] = {},
 ) -> pd.DataFrame:
     if not sql_query:
         raise ValueError("Error: Cannot execute empty SQL query")
@@ -276,7 +289,7 @@ def execute_query(
             view_name = f"{table_name}_view"
             conn.register(view_name, table_dataset)
             conn.execute(f'create table "{table_name}" as select * from "{view_name}"')  # nosec B608
-        return conn.execute(sql_query).df()
+        return conn.execute(sql_query, parameters=sql_params).df()
     except duckdb.Error as e:
         raise ValueError(str(e)) from e
 

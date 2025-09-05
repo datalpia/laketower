@@ -48,6 +48,19 @@ def test_load_table_deltatable_adls(
 
 
 @pytest.mark.parametrize(
+    ("sql", "names"),
+    [
+        ("select * from table", set()),
+        ("select * from table where col = $val", {"val"}),
+        ("select * from table where col1 = $val1 and col2 = $val2", {"val1", "val2"}),
+    ],
+)
+def test_extract_query_parameter_names(sql: str, names: set[str]) -> None:
+    param_names = tables.extract_query_parameter_names(sql)
+    assert param_names == names
+
+
+@pytest.mark.parametrize(
     ["table_name", "limit", "cols", "sort_asc", "sort_desc", "expected_query"],
     [
         ("test_table", None, None, None, None, 'SELECT * FROM "test_table" LIMIT 10'),
