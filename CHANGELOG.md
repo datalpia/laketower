@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - web: add support for tables query parameters
 - web: add support for predefined queries parameters
 - cli: add support for tables query parameters
+- cli: add support for predefined queries parameters
 
 ### Fixed
 - handle empty SQL queries
