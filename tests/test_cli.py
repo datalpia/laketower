@@ -872,7 +872,65 @@ def test_queries_view(
 
     captured = capsys.readouterr()
     output = captured.out
-    assert all(col in output for col in {"day", "temperature"})
+    assert all(col in output for col in {"day", "avg_temperature"})
+
+
+def test_queries_view_parameters_default(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    sample_config: dict[str, Any],
+    sample_config_path: Path,
+) -> None:
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "laketower",
+            "--config",
+            str(sample_config_path),
+            "queries",
+            "view",
+            sample_config["queries"][1]["name"],
+        ],
+    )
+
+    cli.cli()
+
+    captured = capsys.readouterr()
+    output = captured.out
+    assert all(col in output for col in {"day", "avg_temperature"})
+
+
+def test_queries_view_parameters(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    sample_config: dict[str, Any],
+    sample_config_path: Path,
+) -> None:
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "laketower",
+            "--config",
+            str(sample_config_path),
+            "queries",
+            "view",
+            sample_config["queries"][1]["name"],
+            "--param",
+            "start_date",
+            "2025-01-01",
+            "--param",
+            "end_date",
+            "2025-01-31",
+        ],
+    )
+
+    cli.cli()
+
+    captured = capsys.readouterr()
+    output = captured.out
+    assert all(col in output for col in {"day", "avg_temperature"})
 
 
 def test_queries_view_invalid_sql(
@@ -902,7 +960,7 @@ def test_queries_view_invalid_sql(
     captured = capsys.readouterr()
     output = captured.out
     assert "Error" in output
-    assert not all(col in output for col in {"day", "temperature"})
+    assert not all(col in output for col in {"day", "avg_temperature"})
 
 
 @pytest.mark.parametrize("delimiter", [",", ";"])

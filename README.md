@@ -552,6 +552,23 @@ $ laketower -c demo/laketower.yml queries view daily_avg_temperature
 └───────────────────────────┴─────────────────┘
 ```
 
+With alternative parameters:
+
+```bash
+$ laketower -c demo/laketower.yml queries view daily_avg_temperature -p start_date 2025-02-01 -p end_date 2025-02-05
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┓
+┃ day                       ┃ avg_temperature ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━┩
+│ 2025-02-01 00:00:00+01:00 │ 4.0             │
+│ 2025-02-02 00:00:00+01:00 │ 4.0             │
+│ 2025-02-03 00:00:00+01:00 │ 4.0             │
+│ 2025-02-04 00:00:00+01:00 │ 3.0             │
+│ 2025-02-05 00:00:00+01:00 │ 3.0             │
+└───────────────────────────┴─────────────────┘
+```
+
+
 ## License
 
 Licensed under [Apache License 2.0](LICENSE)

@@ -252,14 +252,23 @@ def list_queries(config_path: Path) -> None:
     console.print(tree)
 
 
-def view_query(config_path: Path, query_name: str) -> None:
+def view_query(
+    config_path: Path, query_name: str, query_params: list[list[str]] = []
+) -> None:
     out: rich.jupyter.JupyterMixin
     try:
         config = load_yaml_config(config_path)
         tables_dataset = load_datasets(config.tables)
         query_config = next(filter(lambda x: x.name == query_name, config.queries))
+        default_parameters = {k: v.default for k, v in query_config.parameters.items()}
         sql_query = query_config.sql
-        results = execute_query(tables_dataset, sql_query)
+        query_params_dict = {param[0]: param[1] for param in query_params}
+        sql_param_names = extract_query_parameter_names(sql_query)
+        sql_params = {
+            name: query_params_dict.get(name) or default_parameters.get(name) or ""
+            for name in sql_param_names
+        }
+        results = execute_query(tables_dataset, sql_query, sql_params=sql_params)
 
         out = rich.table.Table()
         for column in results.columns:
@@ -436,7 +445,17 @@ def cli() -> None:
         "view", help="View a given query"
     )
     parser_queries_view.add_argument("query", help="Name of the query")
-    parser_queries_view.set_defaults(func=lambda x: view_query(x.config, x.query))
+    parser_queries_view.add_argument(
+        "--param",
+        "-p",
+        nargs=2,
+        action="append",
+        default=[],
+        help="Inject query named parameters values",
+    )
+    parser_queries_view.set_defaults(
+        func=lambda x: view_query(x.config, x.query, x.param)
+    )
 
     args = parser.parse_args()
     args.func(args)
