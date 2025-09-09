@@ -80,7 +80,7 @@ def shots(ctx: Context) -> None:
             "output": screenshots_path / "tables_query.png",
         },
         {
-            "url": f"{server_url}/queries/daily_avg_temperature/view",
+            "url": f"{server_url}/queries/daily_avg_temperature_params/view",
             "output": screenshots_path / "queries_view.png",
         },
     ]
