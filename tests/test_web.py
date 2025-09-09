@@ -696,7 +696,7 @@ def test_queries_view(client: TestClient, sample_config: dict[str, Any]) -> None
     soup = BeautifulSoup(html, "html.parser")
 
     assert soup.find("h2", string=query["title"])
-    assert (textarea := soup.find("textarea")) and textarea.text.strip() == query["sql"]
+    assert soup.find("textarea") is None
     assert next(filter(lambda a: a.text.strip() == "Edit SQL", soup.find_all("a")))
     assert next(filter(lambda a: a.text.strip() == "Execute", soup.find_all("button")))
 
@@ -777,7 +777,7 @@ def test_queries_view_invalid(
     soup = BeautifulSoup(html, "html.parser")
 
     assert soup.find("h2", string=query["title"])
-    assert (textarea := soup.find("textarea")) and textarea.text.strip() == query["sql"]
+    assert soup.find("textarea") is None
     assert next(filter(lambda a: a.text.strip() == "Edit SQL", soup.find_all("a")))
     assert next(filter(lambda a: a.text.strip() == "Execute", soup.find_all("button")))
 

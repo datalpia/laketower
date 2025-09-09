@@ -6,10 +6,6 @@
     <h2 class="mb-3">{{ query.title }}</h2>
 
     <form action="{{ request.url.path }}" method="get">
-      <div class="mb-3">
-        <textarea disabled id="sql-editor" name="sql" rows="5" class="form-control">{{ query.sql }}</textarea>
-      </div>
-
       {% if sql_params|length %}
       <h3 class="mb-3">Parameters</h3>
       {% for param_name, param_value in sql_params.items() %}
@@ -75,15 +71,4 @@
     {% endif %}
   </div>
 </div>
-{% endblock %}
-
-{% block extra_scripts %}
-<script src="{{ url_for('static', path='/editor.bundle.js') }}"></script>
-<script>
-  window.addEventListener("DOMContentLoaded", () => {
-    const textArea = document.querySelector("textarea#sql-editor")
-    textArea.style.display = "none";
-    const sqlEditor = editor.createEditor(textArea, {readOnly: true, dialect: 'duckdb' })
-  })
-</script>
 {% endblock %}
