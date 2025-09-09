@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - cli: add support for predefined queries parameters
 
 ### Changed
+- web: hide SQL editor for predefined queries
 - demo: add parameters to daily avg temperature query
 
 ### Fixed
