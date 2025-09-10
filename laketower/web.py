@@ -3,6 +3,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Annotated
 
+import bleach
+import markdown
 import pydantic_settings
 from fastapi import APIRouter, FastAPI, File, Form, Query, Request, UploadFile
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
@@ -46,8 +48,15 @@ def current_path_with_args(request: Request, args: list[tuple[str, str]]) -> str
     return f"{request.url.path}?{query_string}"
 
 
+def render_markdown(md_text: str) -> str:
+    return bleach.clean(
+        markdown.markdown(md_text), tags=bleach.sanitizer.ALLOWED_TAGS | {"p"}
+    )
+
+
 templates = Jinja2Templates(directory=Path(__file__).parent / "templates")
 templates.env.filters["current_path_with_args"] = current_path_with_args
+templates.env.filters["render_markdown"] = render_markdown
 
 router = APIRouter()
 

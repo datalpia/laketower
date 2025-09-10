@@ -5,6 +5,12 @@
   <div class="col">
     <h2 class="mb-3">{{ query.title }}</h2>
 
+    {% if query.description %}
+    <div>
+      {{ query.description | render_markdown | safe }}
+    </div>
+    {% endif %}
+
     <form action="{{ request.url.path }}" method="get">
       {% if sql_params|length %}
       <h3 class="mb-3">Parameters</h3>

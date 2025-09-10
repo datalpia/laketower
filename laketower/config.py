@@ -103,6 +103,7 @@ class ConfigQueryParameter(pydantic.BaseModel):
 class ConfigQuery(pydantic.BaseModel):
     name: str
     title: str
+    description: str | None = None
     parameters: dict[str, ConfigQueryParameter] = {}
     sql: str
 
