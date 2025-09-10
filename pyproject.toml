@@ -8,10 +8,12 @@ authors = [
 ]
 requires-python = ">=3.10,<3.14"
 dependencies = [
+    "bleach",
     "deltalake>=1,<2",
     "duckdb",
     "fastapi",
     "jinja2>=3,!=3.1.5",
+    "markdown",
     "pandas",
     "pyarrow!=19.0.0",
     "pydantic>=2",
@@ -64,6 +66,8 @@ dev = [
     "pytest==8.4.2",
     "pytest-cov==7.0.0",
     "ruff==0.13.0",
+    "types-bleach==6.2.0.20250809",
+    "types-markdown==3.9.0.20250906",
     "types-pyyaml==6.0.12.20250822",
     "watchdog==6.0.0",
 ]

@@ -61,6 +61,24 @@ def test_current_path_with_args(
         assert web.current_path_with_args(request, args) == expected
 
 
+@pytest.mark.parametrize(
+    ("md_text", "expected_html"),
+    [
+        ("Some plain text", "<p>Some plain text</p>"),
+        (
+            "Some `Markdown` text with **strong** and _emphasized_ words",
+            "<p>Some <code>Markdown</code> text with <strong>strong</strong> and <em>emphasized</em> words</p>",
+        ),
+        (
+            "Some plain text with xss<script>alert('hello')</script>",
+            "<p>Some plain text with xss&lt;script&gt;alert('hello')&lt;/script&gt;</p>",
+        ),
+    ],
+)
+def test_render_markdown(md_text: str, expected_html: str) -> None:
+    assert web.render_markdown(md_text) == expected_html
+
+
 def test_index(client: TestClient, sample_config: dict[str, Any]) -> None:
     response = client.get("/")
     assert response.status_code == HTTPStatus.OK

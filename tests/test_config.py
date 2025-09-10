@@ -24,6 +24,7 @@ def test_load_yaml_config(
     ):
         assert query.name == expected_query["name"]
         assert query.title == expected_query["title"]
+        assert query.description == expected_query.get("description")
         assert query.sql == expected_query["sql"]
 
 

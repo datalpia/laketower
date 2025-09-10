@@ -12,6 +12,7 @@ tables:
 queries:
   - name: all_data
     title: All data
+    description: Display all rows from `sample_table` and `weather` tables
     sql: |
       select
         sample_table.*,
@@ -22,6 +23,7 @@ queries:
       limit 10
   - name: daily_avg_temperature
     title: Daily average temperature
+    description: Display daily average temperature values from `weather` table
     sql: |
       select
         date_trunc('day', time) as day,
@@ -34,6 +36,7 @@ queries:
         day asc
   - name: daily_avg_temperature_params
     title: Daily average temperature with parameters
+    description: Display daily average temperature values from `weather` table, with dynamic filters for start and end dates
     parameters:
       start_date:
         default: "2025-01-15"
