@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.6.1] - 2025-09-11
+Patch release with minor enhancements (SQL syntax highlighting, query parameters,
+predefined query Markdown description) and quality of life improvements
+(hide read-only SQL editor in predefined queries, web app offline usage).
+
 ### Added
 - web: display app version in sidebar
 - web: use CodeMirror SQL query editor
@@ -124,7 +130,8 @@ Initial release of `laketower`.
     - View a given table with simple query builder
     - Query all registered tables with DuckDB SQL dialect
 
-[Unreleased]: https://github.com/datalpia/laketower/compare/0.6.0...HEAD
+[Unreleased]: https://github.com/datalpia/laketower/compare/0.6.1...HEAD
+[0.6.1]: https://github.com/datalpia/laketower/compare/0.6.0...0.6.1
 [0.6.0]: https://github.com/datalpia/laketower/compare/0.5.1...0.6.0
 [0.5.1]: https://github.com/datalpia/laketower/compare/0.5.0...0.5.1
 [0.5.0]: https://github.com/datalpia/laketower/compare/0.4.1...0.5.0
