@@ -168,12 +168,12 @@ def test_generate_table_statistics_query_success(table_name: str) -> None:
         (
             'CREATE MACRO preprocessing(s) AS trim(s); SELECT * FROM "test_table"',
             1_000,
-            'CREATE MACRO preprocessing(s) AS trim(s); SELECT * FROM (SELECT * FROM "test_table") LIMIT 1000',
+            'CREATE MACRO "preprocessing"(s) AS TRIM("s"); SELECT * FROM (SELECT * FROM "test_table") LIMIT 1000',
         ),
         (
             "CREATE MACRO preprocessing(s) AS trim(s)",
             1_000,
-            "CREATE MACRO preprocessing(s) AS trim(s)",
+            'CREATE MACRO "preprocessing"(s) AS TRIM("s")',
         ),
         (
             "",

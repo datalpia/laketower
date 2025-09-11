@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
     steps:
       - uses: actions/checkout@v5
       - name: Install uv
@@ -28,7 +28,7 @@ jobs:
       - name: Run QA
         run: uv run inv qa
       - name: Upload coverage artifacts
-        if: ${{ matrix.python-version == 3.13 }}
+        if: ${{ matrix.python-version == 3.14 }}
         uses: actions/upload-artifact@v5
         with:
           name: coverage
@@ -54,7 +54,7 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v7
         with:
-          python-version: "3.13"
+          python-version: "3.14"
           enable-cache: true
           cache-dependency-glob: "uv.lock"
       - name: Install dependencies
@@ -128,7 +128,7 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v7
         with:
-          python-version: '3.13'
+          python-version: "3.14"
           enable-cache: true
           cache-dependency-glob: "uv.lock"
       - name: Install dependencies
@@ -211,7 +211,7 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v7
         with:
-          python-version: '3.13'
+          python-version: "3.14"
           enable-cache: true
           cache-dependency-glob: "uv.lock"
       - name: Extract changelog notes
