@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- map arrow datasets as views with DuckDB query engine
+
 ## [0.6.1] - 2025-09-11
 Patch release with minor enhancements (SQL syntax highlighting, query parameters,
 predefined query Markdown description) and quality of life improvements

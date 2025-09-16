@@ -288,7 +288,7 @@ def execute_query(
 
             view_name = f"{table_name}_view"
             conn.register(view_name, table_dataset)
-            conn.execute(f'create table "{table_name}" as select * from "{view_name}"')  # nosec B608
+            conn.execute(f'create view "{table_name}" as select * from "{view_name}"')  # nosec B608
         return conn.execute(sql_query, parameters=sql_params).df()
     except duckdb.Error as e:
         raise ValueError(str(e)) from e
