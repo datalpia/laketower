@@ -561,6 +561,7 @@ dependencies = [
 dev = [
     { name = "bandit" },
     { name = "beautifulsoup4" },
+    { name = "duckdb" },
     { name = "httpx" },
     { name = "invoke" },
     { name = "mypy" },
@@ -580,7 +581,7 @@ dev = [
 requires-dist = [
     { name = "bleach" },
     { name = "deltalake", specifier = ">=1,<2" },
-    { name = "duckdb", specifier = ">1,!=1.4.0" },
+    { name = "duckdb" },
     { name = "fastapi" },
     { name = "jinja2", specifier = ">=3,!=3.1.5" },
     { name = "markdown" },
@@ -599,6 +600,7 @@ requires-dist = [
 dev = [
     { name = "bandit", specifier = "==1.8.6" },
     { name = "beautifulsoup4", specifier = "==4.13.5" },
+    { name = "duckdb", specifier = ">1,!=1.4.0" },
     { name = "httpx", specifier = "==0.28.1" },
     { name = "invoke", specifier = "==2.2.0" },
     { name = "mypy", specifier = "==1.18.2" },
