@@ -1,4 +1,4 @@
-# Laketower
+# 🗼 Laketower
 
 > Oversee your lakehouse
 
@@ -573,4 +573,4 @@ $ laketower -c demo/laketower.yml queries view daily_avg_temperature_params -p s
 
 Licensed under [Apache License 2.0](LICENSE)
 
-Copyright (c) 2025 - present Romain Clement
+Copyright (c) 2025 - present Romain Clement / Datalpia
