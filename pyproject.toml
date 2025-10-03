@@ -57,7 +57,6 @@ build-backend = "hatchling.build"
 dev = [
     "bandit==1.8.6",
     "beautifulsoup4==4.14.2",
-    "duckdb>1,!=1.4.0",
     "httpx==0.28.1",
     "invoke==2.2.0",
     "mypy==1.18.2",
