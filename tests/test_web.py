@@ -312,11 +312,11 @@ def test_tables_view_cols(
     html = response.content.decode()
     soup = BeautifulSoup(html, "html.parser")
 
-    all_th = [th.text.strip() for th in soup.find_all("th")]
+    all_th = [th.get_text().strip() for th in soup.find_all("th")]
     assert all(col in all_th for col in selected_columns)
     assert not all(col in all_th for col in filtered_columns)
 
-    all_td = [td.text.strip() for td in soup.find_all("td")]
+    all_td = [td.get_text().strip() for td in soup.find_all("td")]
     df = delta_table.to_pandas()[0:default_limit]
     assert all(
         str(row[col]) in all_td
@@ -426,24 +426,28 @@ def test_tables_query(
     html = response.content.decode()
     soup = BeautifulSoup(html, "html.parser")
 
-    assert soup.find("h2", string="SQL Query")
-    assert (textarea := soup.find("textarea")) and textarea.text.strip() == sql_query
-    assert next(filter(lambda a: a.text.strip() == "Execute", soup.find_all("button")))
+    assert soup.find("h2", string="SQL Query")  # type: ignore[call-overload]
+    assert (
+        textarea := soup.find("textarea")
+    ) and textarea.get_text().strip() == sql_query
+    assert next(
+        filter(lambda a: a.get_text().strip() == "Execute", soup.find_all("button"))
+    )
 
     export_csv_a = next(
-        filter(lambda a: a.text.strip() == "Export CSV", soup.find_all("a"))
+        filter(lambda a: a.get_text().strip() == "Export CSV", soup.find_all("a"))
     )
     assert (
-        export_csv_a.get("href")  # type: ignore[attr-defined]
+        export_csv_a.get("href")
         == f"/tables/query/csv?sql={urllib.parse.quote(sql_query)}"
     )
 
-    all_th = [th.text.strip() for th in soup.find_all("th")]
+    all_th = [th.get_text().strip() for th in soup.find_all("th")]
     assert selected_column in all_th
     assert not all(col in all_th for col in filtered_columns)
 
     df = delta_table.to_pandas()
-    all_td = [td.text.strip() for td in soup.find_all("td")]
+    all_td = [td.get_text().strip() for td in soup.find_all("td")]
     assert all(str(row) in all_td for row in df[selected_column][0:selected_limit])
     assert not all(str(row) in all_td for row in df[selected_column][selected_limit:])
 
@@ -469,10 +473,10 @@ def test_tables_query_parameters(
     html = response.content.decode()
     soup = BeautifulSoup(html, "html.parser")
 
-    assert soup.find("h3", string="Parameters")
-    assert soup.find("label", string="start_date")
+    assert soup.find("h3", string="Parameters")  # type: ignore[call-overload]
+    assert soup.find("label", string="start_date")  # type: ignore[call-overload]
     assert soup.find("input", attrs={"name": "start_date", "value": start_date})
-    assert soup.find("label", string="end_date")
+    assert soup.find("label", string="end_date")  # type: ignore[call-overload]
     assert soup.find("input", attrs={"name": "end_date", "value": end_date})
 
 
@@ -487,20 +491,24 @@ def test_tables_query_invalid(
     html = response.content.decode()
     soup = BeautifulSoup(html, "html.parser")
 
-    assert soup.find("h2", string="SQL Query")
-    assert (textarea := soup.find("textarea")) and textarea.text.strip() == sql_query
-    assert next(filter(lambda a: a.text.strip() == "Execute", soup.find_all("button")))
+    assert soup.find("h2", string="SQL Query")  # type: ignore[call-overload]
+    assert (
+        textarea := soup.find("textarea")
+    ) and textarea.get_text().strip() == sql_query
+    assert next(
+        filter(lambda a: a.get_text().strip() == "Execute", soup.find_all("button"))
+    )
     assert "Error" in html
 
     assert (
         next(filter(lambda a: "Export CSV" in a.text, soup.find_all("a")), None) is None
     )
 
-    all_th = [th.text.strip() for th in soup.find_all("th")]
+    all_th = [th.get_text().strip() for th in soup.find_all("th")]
     assert not all(field.name in all_th for field in delta_table.schema().fields)
 
     df = delta_table.to_pandas()
-    all_td = [td.text.strip() for td in soup.find_all("td")]
+    all_td = [td.get_text().strip() for td in soup.find_all("td")]
     assert not all(
         str(row[col]) in all_td for _, row in df.iterrows() for col in row.index
     )
@@ -516,35 +524,35 @@ def test_tables_import(client: TestClient, sample_config: dict[str, Any]) -> Non
     html = response.content.decode()
     soup = BeautifulSoup(html, "html.parser")
     import_tab = next(
-        filter(lambda a: a.text.strip() == "Import", soup.find_all("a")), None
+        filter(lambda a: a.get_text().strip() == "Import", soup.find_all("a")), None
     )
     assert import_tab is not None
-    assert import_tab.get("href") == url  # type: ignore[attr-defined]
-    assert "active" in import_tab.get("class", [])  # type: ignore[attr-defined]
+    assert import_tab.get("href") == url
+    assert (classes := import_tab.get("class")) and "active" in classes
 
     form = soup.find("form")
     assert form is not None
-    assert form.get("action") == url  # type: ignore[attr-defined]
-    assert form.get("method") == "post"  # type: ignore[attr-defined]
-    assert form.get("enctype") == "multipart/form-data"  # type: ignore[attr-defined]
+    assert form.get("action") == url
+    assert form.get("method") == "post"
+    assert form.get("enctype") == "multipart/form-data"
 
     file_input = soup.find("input", {"type": "file", "name": "input_file"})
     assert file_input is not None
-    assert file_input.get("accept") == ".csv"  # type: ignore[attr-defined]
-    assert file_input.has_attr("required")  # type: ignore[attr-defined]
+    assert file_input.get("accept") == ".csv"
+    assert file_input.has_attr("required")
 
     expected_mode_inputs = [("append", True), ("overwrite", False)]
     mode_inputs = soup.find_all("input", {"name": "mode"})
     for mode_input, expected_mode_input in zip(
         mode_inputs, expected_mode_inputs, strict=True
     ):
-        assert mode_input.get("value") == expected_mode_input[0]  # type: ignore[attr-defined]
-        assert mode_input.has_attr("checked") == expected_mode_input[1]  # type: ignore[attr-defined]
+        assert mode_input.get("value") == expected_mode_input[0]
+        assert mode_input.has_attr("checked") == expected_mode_input[1]
 
     expected_file_formats_options = [("csv", True)]
     file_format_select = soup.find("select", {"name": "file_format"})
     assert file_format_select is not None
-    file_format_options = file_format_select.find_all("option", recursive=False)  # type: ignore[attr-defined]
+    file_format_options = file_format_select.find_all("option", recursive=False)
     for file_format_option, expected_file_format_option in zip(
         file_format_options, expected_file_formats_options, strict=True
     ):
@@ -553,8 +561,8 @@ def test_tables_import(client: TestClient, sample_config: dict[str, Any]) -> Non
 
     delimiter_input = soup.find("input", {"name": "delimiter"})
     assert delimiter_input is not None
-    assert delimiter_input.get("value") == ","  # type: ignore[attr-defined]
-    assert delimiter_input.has_attr("required")  # type: ignore[attr-defined]
+    assert delimiter_input.get("value") == ","
+    assert delimiter_input.has_attr("required")
 
     expected_encoding_options = [
         ("utf-8", True),
@@ -564,7 +572,7 @@ def test_tables_import(client: TestClient, sample_config: dict[str, Any]) -> Non
     ]
     encoding_select = soup.find("select", {"name": "encoding"})
     assert encoding_select is not None
-    encoding_options = encoding_select.find_all("option", recursive=False)  # type: ignore[attr-defined]
+    encoding_options = encoding_select.find_all("option", recursive=False)
     for encoding_option, expected_encoding_option in zip(
         encoding_options, expected_encoding_options, strict=True
     ):
@@ -715,18 +723,22 @@ def test_queries_view(client: TestClient, sample_config: dict[str, Any]) -> None
 
     assert soup.find("h2", string=query["title"])
     assert soup.find("textarea") is None
-    assert next(filter(lambda a: a.text.strip() == "Edit SQL", soup.find_all("a")))
-    assert next(filter(lambda a: a.text.strip() == "Execute", soup.find_all("button")))
+    assert next(
+        filter(lambda a: a.get_text().strip() == "Edit SQL", soup.find_all("a"))
+    )
+    assert next(
+        filter(lambda a: a.get_text().strip() == "Execute", soup.find_all("button"))
+    )
 
     export_csv_a = next(
-        filter(lambda a: a.text.strip() == "Export CSV", soup.find_all("a"))
+        filter(lambda a: a.get_text().strip() == "Export CSV", soup.find_all("a"))
     )
     assert (
-        export_csv_a.get("href")  # type: ignore[attr-defined]
+        export_csv_a.get("href")
         == f"/tables/query/csv?sql={urllib.parse.quote(query['sql'])}"
     )
 
-    all_th = [th.text.strip() for th in soup.find_all("th")]
+    all_th = [th.get_text().strip() for th in soup.find_all("th")]
     assert all(col in all_th for col in {"day", "avg_temperature"})
 
 
@@ -743,7 +755,7 @@ def test_queries_view_parameters_default(
     soup = BeautifulSoup(html, "html.parser")
 
     assert soup.find("h2", string=query["title"])
-    assert soup.find("h3", string="Parameters")
+    assert soup.find("h3", string="Parameters")  # type: ignore[call-overload]
 
     for param_name, param_data in query["parameters"].items():
         assert soup.find("label", string=param_name)
@@ -768,7 +780,7 @@ def test_queries_view_parameters(
     soup = BeautifulSoup(html, "html.parser")
 
     assert soup.find("h2", string=query["title"])
-    assert soup.find("h3", string="Parameters")
+    assert soup.find("h3", string="Parameters")  # type: ignore[call-overload]
 
     for param_name, param_data in query["parameters"].items():
         assert soup.find("label", string=param_name)
@@ -796,14 +808,18 @@ def test_queries_view_invalid(
 
     assert soup.find("h2", string=query["title"])
     assert soup.find("textarea") is None
-    assert next(filter(lambda a: a.text.strip() == "Edit SQL", soup.find_all("a")))
-    assert next(filter(lambda a: a.text.strip() == "Execute", soup.find_all("button")))
+    assert next(
+        filter(lambda a: a.get_text().strip() == "Edit SQL", soup.find_all("a"))
+    )
+    assert next(
+        filter(lambda a: a.get_text().strip() == "Execute", soup.find_all("button"))
+    )
 
     assert (
         next(filter(lambda a: "Export CSV" in a.text, soup.find_all("a")), None) is None
     )
 
-    all_th = [th.text.strip() for th in soup.find_all("th")]
+    all_th = [th.get_text().strip() for th in soup.find_all("th")]
     assert not all(col in all_th for col in {"day", "avg_temperature"})
 
 
