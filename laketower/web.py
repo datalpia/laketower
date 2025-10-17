@@ -1,3 +1,4 @@
+import io
 import urllib.parse
 from dataclasses import dataclass
 from pathlib import Path
@@ -5,6 +6,7 @@ from typing import Annotated
 
 import bleach
 import markdown
+import pyarrow.csv as pacsv
 import pydantic_settings
 from fastapi import APIRouter, FastAPI, File, Form, Query, Request, UploadFile
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
@@ -119,10 +121,13 @@ def export_tables_query_csv(request: Request, sql: str) -> Response:
     tables_dataset = load_datasets(config.tables)
 
     results = execute_query(tables_dataset, sql)
-    csv_content = results.to_csv(header=True, index=False, sep=",")
+    csv_content = io.BytesIO()
+    pacsv.write_csv(
+        results, csv_content, pacsv.WriteOptions(include_header=True, delimiter=",")
+    )
 
     return Response(
-        content=csv_content,
+        content=csv_content.getvalue(),
         media_type="text/csv",
         headers={"Content-Disposition": "attachment; filename=query_results.csv"},
     )
