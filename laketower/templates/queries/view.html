@@ -58,16 +58,16 @@
       <table class="table table-sm table-bordered table-striped table-hover">
         <thead>
           <tr>
-            {% for column in query_results.columns %}
+            {% for column in query_results.column_names %}
             <th>{{ column }}</th>
             {% endfor %}
           </tr>
         </thead>
         <tbody class="table-group-divider">
-          {% for row in query_results.to_numpy().tolist() %}
+          {% for row in query_results.to_pylist() %}
           <tr>
-            {% for col in row %}
-            <td>{{ col }}</td>
+            {% for column in query_results.column_names %}
+            <td>{{ row[column] }}</td>
             {% endfor %}
           </tr>
           {% endfor %}

@@ -4,8 +4,8 @@ from typing import Any, BinaryIO, Protocol, TextIO
 
 import deltalake
 import duckdb
-import pandas as pd
 import pyarrow as pa
+import pyarrow.csv as csv
 import pyarrow.dataset as padataset
 import pydantic
 import sqlglot
@@ -61,7 +61,7 @@ class TableProtocol(Protocol):  # pragma: no cover
     def history(self) -> TableHistory: ...
     def dataset(self, version: int | str | None = None) -> padataset.Dataset: ...
     def import_data(
-        self, data: pd.DataFrame, mode: ImportModeEnum = ImportModeEnum.append
+        self, data: pa.Table, mode: ImportModeEnum = ImportModeEnum.append
     ) -> None: ...
 
 
@@ -202,7 +202,7 @@ class DeltaTable:
         return self._impl.to_pyarrow_dataset()
 
     def import_data(
-        self, data: pd.DataFrame, mode: ImportModeEnum = ImportModeEnum.append
+        self, data: pa.Table, mode: ImportModeEnum = ImportModeEnum.append
     ) -> None:
         deltalake.write_deltalake(
             self.table_config.uri, data, mode=mode.value, schema_mode="merge"
@@ -274,7 +274,7 @@ def execute_query(
     tables_datasets: dict[str, padataset.Dataset],
     sql_query: str,
     sql_params: dict[str, str] = {},
-) -> pd.DataFrame:
+) -> pa.Table:
     if not sql_query:
         raise ValueError("Error: Cannot execute empty SQL query")
 
@@ -289,7 +289,7 @@ def execute_query(
             view_name = f"{table_name}_view"
             conn.register(view_name, table_dataset)
             conn.execute(f'create view "{table_name}" as select * from "{view_name}"')  # nosec B608
-        return conn.execute(sql_query, parameters=sql_params).df()
+        return conn.execute(sql_query, parameters=sql_params).fetch_arrow_table()
     except duckdb.Error as e:
         raise ValueError(str(e)) from e
 
@@ -303,7 +303,11 @@ def import_file_to_table(
     encoding: str = "utf-8",
 ) -> int:
     file_format_handler = {
-        ImportFileFormatEnum.csv: lambda f, d, e: pd.read_csv(f, sep=d, encoding=e)
+        ImportFileFormatEnum.csv: lambda f, d, e: csv.read_csv(
+            f,
+            read_options=csv.ReadOptions(encoding=e),
+            parse_options=csv.ParseOptions(delimiter=d),
+        )
     }
     table = load_table(table_config)
     df = file_format_handler[file_format](file_path, delimiter, encoding)

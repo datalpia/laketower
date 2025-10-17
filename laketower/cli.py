@@ -8,6 +8,7 @@ import rich.table
 import rich.text
 import rich.tree
 import uvicorn
+import pyarrow.csv as pacsv
 
 from laketower.__about__ import __version__
 from laketower.config import load_yaml_config
@@ -135,11 +136,10 @@ def table_statistics(
         results = execute_query({table_name: table_dataset}, sql_query)
 
         out = rich.table.Table()
-        for column in results.columns:
+        for column in results.column_names:
             out.add_column(column)
-        for value_list in results.to_numpy().tolist():
-            row = [str(x) for x in value_list]
-            out.add_row(*row)
+        for row_dict in results.to_pylist():
+            out.add_row(*[str(row_dict[col]) for col in results.column_names])
     except Exception as e:
         out = rich.panel.Panel.fit(f"[red]{e}")
 
@@ -168,11 +168,10 @@ def view_table(
         results = execute_query({table_name: table_dataset}, sql_query)
 
         out = rich.table.Table()
-        for column in results.columns:
+        for column in results.column_names:
             out.add_column(column)
-        for value_list in results.to_numpy().tolist():
-            row = [str(x) for x in value_list]
-            out.add_row(*row)
+        for row_dict in results.to_pylist():
+            out.add_row(*[str(row_dict[col]) for col in results.column_names])
     except Exception as e:
         out = rich.panel.Panel.fit(f"[red]{e}")
 
@@ -198,15 +197,16 @@ def query_table(
         results = execute_query(tables_dataset, sql_query, sql_params=query_params)
 
         out = rich.table.Table()
-        for column in results.columns:
+        for column in results.column_names:
             out.add_column(column)
-        for value_list in results.values.tolist():
-            row = [str(x) for x in value_list]
-            out.add_row(*row)
+        for row_dict in results.to_pylist():
+            out.add_row(*[str(row_dict[col]) for col in results.column_names])
 
         if output_path is not None:
-            results.to_csv(
-                output_path, header=True, index=False, sep=",", encoding="utf-8"
+            pacsv.write_csv(
+                results,
+                output_path,
+                pacsv.WriteOptions(include_header=True, delimiter=","),
             )
             out = rich.text.Text(f"Query results written to: {output_path}")
     except ValueError as e:
@@ -271,11 +271,10 @@ def view_query(
         results = execute_query(tables_dataset, sql_query, sql_params=sql_params)
 
         out = rich.table.Table()
-        for column in results.columns:
+        for column in results.column_names:
             out.add_column(column)
-        for value_list in results.values.tolist():
-            row = [str(x) for x in value_list]
-            out.add_row(*row)
+        for row_dict in results.to_pylist():
+            out.add_row(*[str(row_dict[col]) for col in results.column_names])
     except ValueError as e:
         out = rich.panel.Panel.fit(f"[red]{e}")
 

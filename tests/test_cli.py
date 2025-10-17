@@ -6,6 +6,7 @@ from typing import Any
 import deltalake
 import pandas as pd
 import pyarrow as pa
+import pyarrow.csv as pacsv
 import pytest
 import yaml
 
@@ -744,7 +745,7 @@ def test_tables_query_output_csv(
     delta_table: deltalake.DeltaTable,
 ) -> None:
     selected_column = delta_table.schema().fields[0].name
-    selected_limit = 1
+    selected_limit = 3
 
     output_csv_path = tmp_path / "output.csv"
 
@@ -774,8 +775,12 @@ def test_tables_query_output_csv(
     df = delta_table.to_pandas()
     expected_output = df[[selected_column]][0:selected_limit]
     expected_csv_path = tmp_path / "expected.csv"
-    expected_output.to_csv(
-        expected_csv_path, header=True, index=False, sep=",", encoding="utf-8"
+
+    expected_table = pa.Table.from_pandas(expected_output)
+    pacsv.write_csv(
+        expected_table,
+        expected_csv_path,
+        pacsv.WriteOptions(include_header=True, delimiter=","),
     )
     assert output_csv_path.read_text() == expected_csv_path.read_text()
 
