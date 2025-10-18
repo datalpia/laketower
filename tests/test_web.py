@@ -84,7 +84,7 @@ def test_index(client: TestClient, sample_config: dict[str, Any]) -> None:
     assert response.status_code == HTTPStatus.OK
 
     html = response.content.decode()
-    assert "Laketower" in html
+    assert "🗼 Laketower" in html
     assert f"v{__about__.__version__}" in html
     assert (
         f"https://github.com/datalpia/laketower/releases/tag/{__about__.__version__}"
