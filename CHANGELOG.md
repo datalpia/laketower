@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Misc
 - replace usage of `pandas.DataFrame` with `pyarrow.Table`
+- web: update application name
 
 ## [0.6.2] - 2025-09-28
 Patch release fixing a bug when registering Arrow Datasets as tables instead of

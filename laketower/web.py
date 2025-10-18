@@ -420,7 +420,7 @@ def create_app() -> FastAPI:
     )
     app.include_router(router)
     app.state.app_metadata = AppMetadata(
-        app_name="Laketower", app_version=__about__.__version__
+        app_name="🗼 Laketower", app_version=__about__.__version__
     )
     app.state.config = config
 
