@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.3] - 2025-10-19
+Patch release removing unnecessary `pandas` dependency and updating the displayed
+application name in the web application.
+
 ### Fixed
 - web: update application name
 - web: move application details to about modal window
@@ -144,7 +148,8 @@ Initial release of `laketower`.
     - View a given table with simple query builder
     - Query all registered tables with DuckDB SQL dialect
 
-[Unreleased]: https://github.com/datalpia/laketower/compare/0.6.2...HEAD
+[Unreleased]: https://github.com/datalpia/laketower/compare/0.6.3...HEAD
+[0.6.3]: https://github.com/datalpia/laketower/compare/0.6.2...0.6.3
 [0.6.2]: https://github.com/datalpia/laketower/compare/0.6.1...0.6.2
 [0.6.1]: https://github.com/datalpia/laketower/compare/0.6.0...0.6.1
 [0.6.0]: https://github.com/datalpia/laketower/compare/0.5.1...0.6.0
