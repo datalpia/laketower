@@ -68,14 +68,12 @@
         </ul>
 
         <div class="mt-auto pt-3 border-top flex-shrink-0">
-          <small class="text-muted px-3 d-block">
-            <a href="https://github.com/datalpia/laketower/releases/tag/{{ app_metadata.app_version }}"
-               target="_blank"
-               class="text-muted text-decoration-none">
-              v{{ app_metadata.app_version }}
-              <i class="bi-box-arrow-up-right ms-1" style="font-size: 0.7em;"></i>
-            </a>
-          </small>
+          <div class="px-3 d-block">
+            <button type="button" class="btn btn-link btn-sm text-muted text-decoration-none p-0" data-bs-toggle="modal" data-bs-target="#creditsModal">
+              <i class="bi-info-circle me-1"></i>
+              About
+            </button>
+          </div>
         </div>
       </div>
     </nav>
@@ -98,6 +96,72 @@
       {% block body %}{% endblock %}
     </div>
   </main>
+
+  <div class="modal fade" id="creditsModal" tabindex="-1" aria-labelledby="creditsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="creditsModalLabel">About</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="text-center mb-3">
+            <h4>{{ app_metadata.app_name }}</h4>
+            <p class="text-muted mb-0">Oversee your lakehouse</p>
+          </div>
+
+          <dl class="row mb-3">
+            <dt class="col-sm-4">Version</dt>
+            <dd class="col-sm-8">
+              <a href="https://github.com/datalpia/laketower/releases/tag/{{ app_metadata.app_version }}"
+                 target="_blank"
+                 class="text-decoration-none">
+                {{ app_metadata.app_version }}
+                <i class="bi-box-arrow-up-right ms-1" style="font-size: 0.8em;"></i>
+              </a>
+            </dd>
+
+            <dt class="col-sm-4">Repository</dt>
+            <dd class="col-sm-8">
+              <a href="https://github.com/datalpia/laketower"
+                 target="_blank"
+                 class="text-decoration-none">
+                github.com/datalpia/laketower
+                <i class="bi-box-arrow-up-right ms-1" style="font-size: 0.8em;"></i>
+              </a>
+            </dd>
+
+            <dt class="col-sm-4">Issue Tracker</dt>
+            <dd class="col-sm-8">
+              <a href="https://github.com/datalpia/laketower/issues"
+                 target="_blank"
+                 class="text-decoration-none">
+                Report an issue
+                <i class="bi-box-arrow-up-right ms-1" style="font-size: 0.8em;"></i>
+              </a>
+            </dd>
+
+            <dt class="col-sm-4">License</dt>
+            <dd class="col-sm-8">
+              <a href="https://github.com/datalpia/laketower/blob/main/LICENSE"
+                 target="_blank"
+                 class="text-decoration-none">
+                Apache License 2.0
+                <i class="bi-box-arrow-up-right ms-1" style="font-size: 0.8em;"></i>
+              </a>
+            </dd>
+          </dl>
+
+          <div class="text-center text-muted">
+            <small>Copyright © 2025 Romain Clement / Datalpia</small>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script src="{{ url_for('static', path='/vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
   {% block extra_scripts %}{% endblock %}
