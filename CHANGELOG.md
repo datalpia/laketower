@@ -7,9 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- web: update application name
+- web: move application details to about modal window
+
 ### Misc
 - replace usage of `pandas.DataFrame` with `pyarrow.Table`
-- web: update application name
 
 ## [0.6.2] - 2025-09-28
 Patch release fixing a bug when registering Arrow Datasets as tables instead of
