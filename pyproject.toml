@@ -21,6 +21,7 @@ dependencies = [
     "pyyaml",
     "rich",
     "sqlglot",
+    "tzdata",
     "uvicorn",
 ]
 keywords = ["data", "lakehouse", "sql", "delta-lake"]
