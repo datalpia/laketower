@@ -549,6 +549,7 @@ dependencies = [
     { name = "pyyaml" },
     { name = "rich" },
     { name = "sqlglot" },
+    { name = "tzdata" },
     { name = "uvicorn" },
 ]
 
@@ -587,6 +588,7 @@ requires-dist = [
     { name = "pyyaml" },
     { name = "rich" },
     { name = "sqlglot" },
+    { name = "tzdata" },
     { name = "uvicorn" },
 ]
 

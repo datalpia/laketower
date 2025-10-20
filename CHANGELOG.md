@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- add missing `tzdata` dependency from previous `pandas` dependency removal
+
 ## [0.6.3] - 2025-10-19
 Patch release removing unnecessary `pandas` dependency and updating the displayed
 application name in the web application.
