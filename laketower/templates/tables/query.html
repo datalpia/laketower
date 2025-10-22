@@ -1,6 +1,9 @@
 {% extends "_base.html" %}
 {% import 'tables/_macros.html' as table_macros %}
 
+{% block extra_styles %}
+{% endblock %}
+
 {% block body %}
 <div class="row">
   <div class="col">
@@ -44,7 +47,7 @@
       </a>
     </div>
     <div class="table-responsive">
-      <table class="table table-sm table-bordered table-striped table-hover">
+      <table id="resultsTable" class="table table-sm table-bordered table-striped table-hover">
         <thead>
           <tr>
             {% for column in table_results.column_names %}
@@ -52,7 +55,7 @@
             {% endfor %}
           </tr>
         </thead>
-        <tbody class="table-group-divider">
+        <tbody>
           {% for row in table_results.to_pylist() %}
           <tr>
             {% for column in table_results.column_names %}
@@ -73,9 +76,15 @@
 <script>
   window.addEventListener("DOMContentLoaded", () => {
     const textArea = document.querySelector("textarea#sql-editor")
-    textArea.style.display = "none";
+    textArea.style.display = "none"
     const sqlSchema = {{ sql_schema | tojson }}
     const sqlEditor = editor.createEditor(textArea, { readOnly: false, dialect: 'duckdb', schema: sqlSchema})
+
+    {% if not error %}
+    const arrowTypes = {{ table_results.schema.types | map('string') | list | tojson }}
+    const columnTypes = datatables.arrowTypesToDataTables(arrowTypes)
+    const dataTable = datatables.createDataTable('#resultsTable', {columnTypes})
+    {% endif %}
   })
 </script>
 {% endblock %}

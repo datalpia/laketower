@@ -1,5 +1,8 @@
 {% extends "_base.html" %}
 
+{% block extra_styles %}
+{% endblock %}
+
 {% block body %}
 <div class="row">
   <div class="col">
@@ -55,7 +58,7 @@
       </a>
     </div>
     <div class="table-responsive">
-      <table class="table table-sm table-bordered table-striped table-hover">
+      <table id="resultsTable" class="table table-sm table-bordered table-striped table-hover">
         <thead>
           <tr>
             {% for column in query_results.column_names %}
@@ -77,4 +80,16 @@
     {% endif %}
   </div>
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    {% if not error %}
+    const arrowTypes = {{ query_results.schema.types | map('string') | list | tojson }}
+    const columnTypes = datatables.arrowTypesToDataTables(arrowTypes)
+    const dataTable = datatables.createDataTable('#resultsTable', {columnTypes})
+    {% endif %}
+  })
+</script>
 {% endblock %}
