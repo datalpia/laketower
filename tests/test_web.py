@@ -462,7 +462,7 @@ def test_tables_query_parameters(
     start_date: str,
     end_date: str,
 ) -> None:
-    sql_query = f"select * from {sample_config['tables'][0]['name']} where day between $start_date and $end_date"
+    sql_query = f"select * from {sample_config['tables'][0]['name']} where time between $start_date and $end_date"
 
     response = client.get(
         "/tables/query",

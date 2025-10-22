@@ -8,6 +8,15 @@
   <link href="{{ url_for('static', path='/vendor/bootstrap-icons/bootstrap-icons.min.css') }}" rel="stylesheet">
   <link href="{{ url_for('static', path='/vendor/halfmoon/halfmoon.min.css') }}" rel="stylesheet">
   <link href="{{ url_for('static', path='/vendor/halfmoon/halfmoon.modern.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', path='/vendor/datatables.net-bs5/dataTables.bootstrap5.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', path='/vendor/datatables.net-columncontrol-bs5/columnControl.bootstrap5.min.css') }}" rel="stylesheet">
+  <style>
+    /* Only override overflow when DataTables is initialized */
+    .table-responsive:has(table.dataTable) {
+      overflow: visible !important;
+    }
+  </style>
+  {% block extra_styles %}{% endblock %}
 </head>
 
 <body class="ps-md-sbwidth">
@@ -164,6 +173,7 @@
   </div>
 
   <script src="{{ url_for('static', path='/vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', path='/datatables.bundle.js') }}"></script>
   {% block extra_scripts %}{% endblock %}
 </body>
 

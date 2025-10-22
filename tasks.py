@@ -135,22 +135,42 @@ def vendor_static_assets(ctx: Context) -> None:
             "bootstrap-icons/font/bootstrap-icons.min.css",
             "bootstrap-icons/font/fonts",
         ],
+        "datatables.net-bs5": [
+            "datatables.net-bs5/css/dataTables.bootstrap5.css",
+        ],
+        "datatables.net-columncontrol-bs5": [
+            "datatables.net-columncontrol-bs5/css/columnControl.bootstrap5.min.css",
+        ],
         "halfmoon": [
             "halfmoon/css/halfmoon.min.css",
             "halfmoon/css/cores/halfmoon.modern.css",
         ],
     }
 
+    bundles = [
+        {
+            "src": "laketower/static/datatables.js",
+            "dest": "laketower/static/datatables.bundle.js",
+            "name": "datatables",
+        },
+        {
+            "src": "laketower/static/editor.js",
+            "dest": "laketower/static/editor.bundle.js",
+            "name": "editor",
+        },
+    ]
+
     ctx.run("npm install", echo=True, pty=True)
 
-    print("build codemirror editor")
-    ctx.run(
-        "node_modules/.bin/rollup laketower/static/editor.js \
-            -o laketower/static/editor.bundle.js \
-            -f iife \
-            -n editor \
-            -p @rollup/plugin-node-resolve"
-    )
+    for bundle in bundles:
+        ctx.run(
+            f"node_modules/.bin/rollup {bundle['src']} \
+                -o {bundle['dest']} \
+                -f iife \
+                -n {bundle['name']} \
+                -p @rollup/plugin-node-resolve \
+                -p @rollup/plugin-commonjs"
+        )
 
     for package_name, package_files in node_packages.items():
         print("vendoring package:", package_name)
