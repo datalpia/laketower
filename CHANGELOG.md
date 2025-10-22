@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Fixed
 - web: make tables query results table vertically scrollable
+- web: exclude actions from table data view horizontal scrolling
 
 ## [0.6.4] - 2025-10-20
 ### Fixed
