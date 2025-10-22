@@ -1,6 +1,34 @@
 {% extends "_base.html" %}
 {% import 'tables/_macros.html' as table_macros %}
 
+{% block extra_styles %}
+<style>
+  .table-scrollable {
+    max-height: 400px;
+    overflow-y: auto;
+    display: block;
+  }
+
+  .table-scrollable thead,
+  .table-scrollable tbody {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+  }
+
+  .table-scrollable thead {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    border-bottom: var(--bs-border-width-2) solid currentcolor;
+  }
+
+  .table-scrollable thead th {
+    background-color: var(--bs-secondary-bg);
+  }
+</style>
+{% endblock %}
+
 {% block body %}
 <div class="row">
   <div class="col">
@@ -43,8 +71,8 @@
         <i class="bi-download" aria-hidden="true"></i> Export CSV
       </a>
     </div>
-    <div class="table-responsive">
-      <table class="table table-sm table-bordered table-striped table-hover">
+    <div class="table-responsive table-scrollable">
+      <table class="table table-sm table-bordered table-hover">
         <thead>
           <tr>
             {% for column in table_results.column_names %}
@@ -52,7 +80,7 @@
             {% endfor %}
           </tr>
         </thead>
-        <tbody class="table-group-divider">
+        <tbody>
           {% for row in table_results.to_pylist() %}
           <tr>
             {% for column in table_results.column_names %}
