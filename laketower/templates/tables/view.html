@@ -53,48 +53,48 @@
           {% endfor %}
         </tbody>
       </table>
+    </div>
 
-      <div class="d-flex justify-content-between">
-        <div class="row">
-          <form class="col" action="{{ request.url.path }}" method="get">
-            {% for param_name, param_val in request.query_params.multi_items() %}
-            {% if param_name != 'limit' %}
-            <input type="hidden" name="{{ param_name }}" value="{{ param_val }}">
-            {% endif %}
-            {% endfor %}
+    <div class="d-flex justify-content-between">
+      <div class="row">
+        <form class="col" action="{{ request.url.path }}" method="get">
+          {% for param_name, param_val in request.query_params.multi_items() %}
+          {% if param_name != 'limit' %}
+          <input type="hidden" name="{{ param_name }}" value="{{ param_val }}">
+          {% endif %}
+          {% endfor %}
 
-            <div class="input-group">
-              <input id="limit-input" name="limit" type="number" class="form-control" min="1" max="10000" value="{{ request.query_params.limit or default_limit }}">
-              <button type="submit" class="btn btn-primary">Limit</button>
-            </div>
-          </form>
+          <div class="input-group">
+            <input id="limit-input" name="limit" type="number" class="form-control" min="1" max="10000" value="{{ request.query_params.limit or default_limit }}">
+            <button type="submit" class="btn btn-primary">Limit</button>
+          </div>
+        </form>
 
-          <form class="col" ="{{ request.url.path }}" method="get">
-            {% for param_name, param_val in request.query_params.multi_items() %}
-            {% if param_name != 'version' %}
-            <input type="hidden" name="{{ param_name }}" value="{{ param_val }}">
-            {% endif %}
-            {% endfor %}
+        <form class="col" ="{{ request.url.path }}" method="get">
+          {% for param_name, param_val in request.query_params.multi_items() %}
+          {% if param_name != 'version' %}
+          <input type="hidden" name="{{ param_name }}" value="{{ param_val }}">
+          {% endif %}
+          {% endfor %}
 
-            <div class="input-group">
-              <input
-                id="version-input"
-                name="version"
-                type="number"
-                class="form-control"
-                min="0"
-                max="{{ table_metadata.version }}"
-                value="{{ request.query_params.version or table_metadata.version }}"
-              >
-              <button type="submit" class="btn btn-primary">Version</button>
-            </div>
-          </form>
-        </div>
-
-        <a href="/tables/query?sql={{ sql_query | urlencode }}" class="btn btn-primary" role="button">
-          <i class="bi-code" aria-hidden="true"></i> SQL Query
-        </a>
+          <div class="input-group">
+            <input
+              id="version-input"
+              name="version"
+              type="number"
+              class="form-control"
+              min="0"
+              max="{{ table_metadata.version }}"
+              value="{{ request.query_params.version or table_metadata.version }}"
+            >
+            <button type="submit" class="btn btn-primary">Version</button>
+          </div>
+        </form>
       </div>
+
+      <a href="/tables/query?sql={{ sql_query | urlencode }}" class="btn btn-primary" role="button">
+        <i class="bi-code" aria-hidden="true"></i> SQL Query
+      </a>
     </div>
   </div>
 </div>
