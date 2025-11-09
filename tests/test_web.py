@@ -452,6 +452,38 @@ def test_tables_query(
     assert not all(str(row) in all_td for row in df[selected_column][selected_limit:])
 
 
+def test_tables_query_max_rows_limit(
+    monkeypatch: pytest.MonkeyPatch,
+    sample_config: dict[str, Any],
+    sample_config_path: Path,
+    delta_table: deltalake.DeltaTable,
+) -> None:
+    max_query_rows = 3
+    sample_config["settings"]["max_query_rows"] = max_query_rows
+    sample_config_path.write_text(yaml.dump(sample_config))
+    monkeypatch.setenv("LAKETOWER_CONFIG_PATH", str(sample_config_path.absolute()))
+    client = TestClient(web.create_app())
+
+    selected_column = delta_table.schema().fields[0].name
+    sql_query = f"select {selected_column} from {sample_config['tables'][0]['name']}"
+
+    response = client.get("/tables/query", params={"sql": sql_query})
+    assert response.status_code == HTTPStatus.OK
+
+    html = response.content.decode()
+    soup = BeautifulSoup(html, "html.parser")
+
+    assert next(
+        filter(
+            lambda a: a.get_text().strip()
+            == f"{max_query_rows} rows returned (truncated)",
+            soup.find_all("p"),
+        )
+    )
+    assert (table := soup.find("tbody"))
+    assert len(table.find_all("tr", recursive=False)) == max_query_rows
+
+
 @pytest.mark.parametrize(
     ("start_date", "end_date"),
     [("", ""), ("2025-01-01", ""), ("", "2025-01-31"), ("2025-01-01", "2025-01-31")],
@@ -740,6 +772,36 @@ def test_queries_view(client: TestClient, sample_config: dict[str, Any]) -> None
 
     all_th = [th.get_text().strip() for th in soup.find_all("th")]
     assert all(col in all_th for col in {"day", "avg_temperature"})
+
+
+def test_queries_view_max_row_limit(
+    monkeypatch: pytest.MonkeyPatch,
+    sample_config: dict[str, Any],
+    sample_config_path: Path,
+) -> None:
+    max_query_rows = 3
+    sample_config["settings"]["max_query_rows"] = max_query_rows
+    sample_config_path.write_text(yaml.dump(sample_config))
+    monkeypatch.setenv("LAKETOWER_CONFIG_PATH", str(sample_config_path.absolute()))
+    client = TestClient(web.create_app())
+
+    query = sample_config["queries"][0]
+
+    response = client.get(f"/queries/{query['name']}/view")
+    assert response.status_code == HTTPStatus.OK
+
+    html = response.content.decode()
+    soup = BeautifulSoup(html, "html.parser")
+
+    assert next(
+        filter(
+            lambda a: a.get_text().strip()
+            == f"{max_query_rows} rows returned (truncated)",
+            soup.find_all("p"),
+        )
+    )
+    assert (table := soup.find("tbody"))
+    assert len(table.find_all("tr", recursive=False)) == max_query_rows
 
 
 def test_queries_view_parameters_default(

@@ -51,6 +51,9 @@ Laketower configuration is based on a static YAML configuration file allowing to
 Format:
 
 ```yaml
+settings:
+  max_query_rows: 1000
+
 tables:
   - name: <table_name>
     uri: <local path to table>
@@ -490,6 +493,7 @@ $ laketower -c demo/laketower.yml tables query "select date_trunc('day', time) a
 │ 2025-02-11 00:00:00+01:00 │ 4.833333373069763  │
 │ 2025-02-10 00:00:00+01:00 │ 2.1083333243926368 │
 └───────────────────────────┴────────────────────┘
+3 rows returned
 ```
 
 Use named parameters within a giving query (note: escape `$` prefixes properly!):
@@ -504,6 +508,7 @@ $ laketower -c demo/laketower.yml tables query "select date_trunc('day', time) a
 │ 2025-01-30 00:00:00+01:00 │ 8.900000015894571  │
 │ 2025-01-29 00:00:00+01:00 │ 7.770833313465118  │
 └───────────────────────────┴────────────────────┘
+4 rows returned
 ```
 
 Export query results to CSV:
@@ -551,6 +556,7 @@ $ laketower -c demo/laketower.yml queries view daily_avg_temperature
 │ 2025-02-11 00:00:00+01:00 │ 5.0             │
 │ 2025-02-12 00:00:00+01:00 │ 5.0             │
 └───────────────────────────┴─────────────────┘
+18 rows returned
 ```
 
 Executing a predefined query with parameters (here `start_date` and `end_date`):
@@ -567,6 +573,7 @@ $ laketower -c demo/laketower.yml queries view daily_avg_temperature_params -p s
 │ 2025-02-04 00:00:00+01:00 │ 3.0             │
 │ 2025-02-05 00:00:00+01:00 │ 3.0             │
 └───────────────────────────┴─────────────────┘
+6 rows returned
 ```
 
 ## License

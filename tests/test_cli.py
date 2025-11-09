@@ -680,12 +680,43 @@ def test_tables_query(
 
     captured = capsys.readouterr()
     output = captured.out
+    assert f"{selected_limit} rows returned" in output
     assert selected_column in output
     assert not all(col in output for col in filtered_columns)
 
     df = delta_table.to_pandas()
     assert all(str(row) in output for row in df[selected_column][0:selected_limit])
     assert not all(str(row) in output for row in df[selected_column][selected_limit:])
+
+
+def test_tables_query_max_rows_limit(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    sample_config: dict[str, Any],
+    sample_config_path: Path,
+) -> None:
+    max_query_rows = 3
+    sample_config["settings"]["max_query_rows"] = max_query_rows
+    sample_config_path.write_text(yaml.dump(sample_config))
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "laketower",
+            "--config",
+            str(sample_config_path),
+            "tables",
+            "query",
+            f"select * from {sample_config['tables'][0]['name']}",
+        ],
+    )
+
+    cli.cli()
+
+    captured = capsys.readouterr()
+    output = captured.out
+    assert f"{max_query_rows} rows returned (truncated)" in output
 
 
 def test_tables_query_parameters(
@@ -877,6 +908,39 @@ def test_queries_view(
 
     captured = capsys.readouterr()
     output = captured.out
+    assert f" rows returned" in output
+    assert "(truncated)" not in output
+    assert all(col in output for col in {"day", "avg_temperature"})
+
+
+def test_queries_view_max_row_limit(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    sample_config: dict[str, Any],
+    sample_config_path: Path,
+) -> None:
+    max_query_rows = 3
+    sample_config["settings"]["max_query_rows"] = max_query_rows
+    sample_config_path.write_text(yaml.dump(sample_config))
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "laketower",
+            "--config",
+            str(sample_config_path),
+            "queries",
+            "view",
+            sample_config["queries"][0]["name"],
+        ],
+    )
+
+    cli.cli()
+
+    captured = capsys.readouterr()
+    output = captured.out
+    assert f"{max_query_rows} rows returned (truncated)" in output
     assert all(col in output for col in {"day", "avg_temperature"})
 
 

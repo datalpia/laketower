@@ -89,6 +89,10 @@ class ConfigTableConnection(pydantic.BaseModel):
         return self
 
 
+class ConfigSettings(pydantic.BaseModel):
+    max_query_rows: int = 1_000
+
+
 class ConfigTable(pydantic.BaseModel):
     name: str
     uri: str
@@ -109,6 +113,7 @@ class ConfigQuery(pydantic.BaseModel):
 
 
 class Config(pydantic.BaseModel):
+    settings: ConfigSettings = ConfigSettings()
     tables: list[ConfigTable] = []
     queries: list[ConfigQuery] = []
 
