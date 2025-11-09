@@ -24,6 +24,7 @@ from laketower.tables import (
     generate_table_statistics_query,
     generate_table_query,
     import_file_to_table,
+    limit_query,
     load_datasets,
     load_table,
 )
@@ -93,11 +94,17 @@ def get_tables_query(request: Request, sql: str) -> HTMLResponse:
     }
 
     try:
-        results = execute_query(tables_dataset, sql, sql_params=sql_params)
+        sql_query = limit_query(sql, config.settings.max_query_rows + 1)
+        results = execute_query(tables_dataset, sql_query, sql_params=sql_params)
+        truncated = results.num_rows > config.settings.max_query_rows
+        results = results.slice(
+            0, min(results.num_rows, config.settings.max_query_rows)
+        )
         error = None
     except ValueError as e:
         error = {"message": str(e)}
         results = None
+        truncated = False
 
     return templates.TemplateResponse(
         request=request,
@@ -107,6 +114,7 @@ def get_tables_query(request: Request, sql: str) -> HTMLResponse:
             "tables": config.tables,
             "queries": config.queries,
             "table_results": results,
+            "truncated_results": truncated,
             "sql_query": sql,
             "sql_schema": sql_schema,
             "sql_params": sql_params,
@@ -387,11 +395,17 @@ def get_query_view(request: Request, query_id: str) -> Response:
     }
 
     try:
-        results = execute_query(tables_dataset, query_config.sql, sql_params=sql_params)
+        sql_query = limit_query(query_config.sql, config.settings.max_query_rows + 1)
+        results = execute_query(tables_dataset, sql_query, sql_params=sql_params)
+        truncated = results.num_rows > config.settings.max_query_rows
+        results = results.slice(
+            0, min(results.num_rows, config.settings.max_query_rows)
+        )
         error = None
     except ValueError as e:
         error = {"message": str(e)}
         results = None
+        truncated = False
 
     return templates.TemplateResponse(
         request=request,
@@ -402,6 +416,7 @@ def get_query_view(request: Request, query_id: str) -> Response:
             "queries": config.queries,
             "query": query_config,
             "query_results": results,
+            "truncated_results": truncated,
             "sql_params": sql_params,
             "error": error,
         },

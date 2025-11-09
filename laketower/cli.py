@@ -4,6 +4,7 @@ from pathlib import Path
 
 import rich.jupyter
 import rich.panel
+import rich.style
 import rich.table
 import rich.text
 import rich.tree
@@ -20,6 +21,7 @@ from laketower.tables import (
     generate_table_query,
     generate_table_statistics_query,
     import_file_to_table,
+    limit_query,
     load_datasets,
     load_table,
 )
@@ -194,9 +196,20 @@ def query_table(
         query_params = {
             name: sql_params_dict.get(name) or "" for name in query_param_names
         }
-        results = execute_query(tables_dataset, sql_query, sql_params=query_params)
+        limited_sql_query = limit_query(sql_query, config.settings.max_query_rows + 1)
+        results = execute_query(
+            tables_dataset, limited_sql_query, sql_params=query_params
+        )
+        truncated = results.num_rows > config.settings.max_query_rows
+        results = results.slice(
+            0, min(results.num_rows, config.settings.max_query_rows)
+        )
 
-        out = rich.table.Table()
+        out = rich.table.Table(
+            caption=f"{results.num_rows} rows returned{' (truncated)' if truncated else ''}",
+            caption_justify="left",
+            caption_style=rich.style.Style(dim=True),
+        )
         for column in results.column_names:
             out.add_column(column)
         for row_dict in results.to_pylist():
@@ -268,9 +281,20 @@ def view_query(
             name: query_params_dict.get(name) or default_parameters.get(name) or ""
             for name in sql_param_names
         }
-        results = execute_query(tables_dataset, sql_query, sql_params=sql_params)
+        limited_sql_query = limit_query(sql_query, config.settings.max_query_rows + 1)
+        results = execute_query(
+            tables_dataset, limited_sql_query, sql_params=sql_params
+        )
+        truncated = results.num_rows > config.settings.max_query_rows
+        results = results.slice(
+            0, min(results.num_rows, config.settings.max_query_rows)
+        )
 
-        out = rich.table.Table()
+        out = rich.table.Table(
+            caption=f"{results.num_rows} rows returned{' (truncated)' if truncated else ''}",
+            caption_justify="left",
+            caption_style=rich.style.Style(dim=True),
+        )
         for column in results.column_names:
             out.add_column(column)
         for row_dict in results.to_pylist():

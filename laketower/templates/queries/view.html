@@ -51,8 +51,12 @@
       {{ error.message }}
     </div>
     {% else %}
+    <h3>Results</h3>
     <div class="d-flex justify-content-between align-items-center mb-2">
-      <h3>Results</h3>
+      <p>
+        <i class="{% if truncated_results %}bi-database-exclamation{% else %}bi-database-check{% endif %}" aria-hidden="true"></i>
+        {{ query_results.num_rows }} rows returned{% if truncated_results %} (truncated){% endif %}
+      </p>
       <a href="/tables/query/csv?sql={{ query.sql | urlencode }}" class="btn btn-outline-secondary btn-sm">
         <i class="bi-download" aria-hidden="true"></i> Export CSV
       </a>

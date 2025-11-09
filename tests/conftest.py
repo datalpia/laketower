@@ -10,7 +10,7 @@ import yaml
 
 @pytest.fixture()
 def delta_table_data() -> pd.DataFrame:
-    periods = 24
+    periods = 24 * 7
     daterange = pd.date_range(
         start="2025-01-01T00:00:00+00:00", periods=periods, freq="1h"
     )
@@ -40,6 +40,9 @@ def delta_table(tmp_path: Path, delta_table_data: pd.DataFrame) -> deltalake.Del
 @pytest.fixture()
 def sample_config(delta_table: deltalake.DeltaTable) -> dict[str, Any]:
     return {
+        "settings": {
+            "max_query_rows": 1_000,
+        },
         "tables": [
             {"name": "delta_table", "uri": delta_table.table_uri, "format": "delta"},
             {

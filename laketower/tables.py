@@ -270,6 +270,25 @@ def generate_table_statistics_query(table_name: str) -> str:
     return query_expr.sql(dialect=sqlglot.dialects.duckdb.DuckDB, identify="always")
 
 
+def limit_query(sql_query: str, max_limit: int) -> str:
+    query_ast = sqlglot.parse(sql_query, dialect=sqlglot.dialects.duckdb.DuckDB)
+    if query_ast and isinstance(query_ast[-1], sqlglot.expressions.Select):
+        limit_wrapper = (
+            sqlglot.select("*")
+            .from_(sqlglot.expressions.Subquery(this=query_ast[-1]))
+            .limit(max_limit)
+        )
+        query_ast[-1] = limit_wrapper
+
+    return "; ".join(
+        [
+            stmt.sql(dialect=sqlglot.dialects.duckdb.DuckDB, identify="always")
+            for stmt in query_ast
+            if stmt is not None
+        ]
+    )
+
+
 def execute_query(
     tables_datasets: dict[str, padataset.Dataset],
     sql_query: str,

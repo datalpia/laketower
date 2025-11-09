@@ -109,3 +109,73 @@ def test_generate_table_statistics_query_success(table_name: str) -> None:
     expected_query = f'SELECT "column_name", "count", "avg", "std", "min", "max" FROM (SUMMARIZE "{table_name}")'
     query = tables.generate_table_statistics_query(table_name)
     assert query == expected_query
+
+
+@pytest.mark.parametrize(
+    ("sql_query", "max_limit", "expected"),
+    [
+        (
+            'SELECT * FROM "test_table"',
+            1_000,
+            'SELECT * FROM (SELECT * FROM "test_table") LIMIT 1000',
+        ),
+        (
+            'SELECT * FROM "test_table" LIMIT 100',
+            1_000,
+            'SELECT * FROM (SELECT * FROM "test_table" LIMIT 100) LIMIT 1000',
+        ),
+        (
+            'SELECT * FROM "test_table" LIMIT 2000',
+            1_000,
+            'SELECT * FROM (SELECT * FROM "test_table" LIMIT 2000) LIMIT 1000',
+        ),
+        (
+            'SELECT * FROM "test_table" LIMIT (10 + 5)',
+            1_000,
+            'SELECT * FROM (SELECT * FROM "test_table" LIMIT (10 + 5)) LIMIT 1000',
+        ),
+        (
+            'SELECT * FROM "test_table" LIMIT ALL',
+            1_000,
+            'SELECT * FROM (SELECT * FROM "test_table" LIMIT "ALL") LIMIT 1000',
+        ),
+        (
+            'SELECT * FROM "test_table" LIMIT $param',
+            1_000,
+            'SELECT * FROM (SELECT * FROM "test_table" LIMIT $param) LIMIT 1000',
+        ),
+        (
+            'SELECT * FROM "test_table" LIMIT some_var',
+            1_000,
+            'SELECT * FROM (SELECT * FROM "test_table" LIMIT "some_var") LIMIT 1000',
+        ),
+        (
+            'SELECT * FROM "test_table" LIMIT (SELECT max("id") FROM "other_table")',
+            1_000,
+            'SELECT * FROM (SELECT * FROM "test_table" LIMIT (SELECT MAX("id") FROM "other_table")) LIMIT 1000',
+        ),
+        (
+            'WITH "some_cte" AS (SELECT * FROM "other_table") SELECT * FROM "test_table"',
+            1_000,
+            'SELECT * FROM (WITH "some_cte" AS (SELECT * FROM "other_table") SELECT * FROM "test_table") LIMIT 1000',
+        ),
+        (
+            'CREATE MACRO preprocessing(s) AS trim(s); SELECT * FROM "test_table"',
+            1_000,
+            'CREATE MACRO preprocessing(s) AS trim(s); SELECT * FROM (SELECT * FROM "test_table") LIMIT 1000',
+        ),
+        (
+            "CREATE MACRO preprocessing(s) AS trim(s)",
+            1_000,
+            "CREATE MACRO preprocessing(s) AS trim(s)",
+        ),
+        (
+            "",
+            1_000,
+            "",
+        ),
+    ],
+)
+def test_limit_query(sql_query: str, max_limit: int, expected: str) -> None:
+    result = tables.limit_query(sql_query, max_limit)
+    assert result == expected
