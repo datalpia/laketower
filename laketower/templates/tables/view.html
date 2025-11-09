@@ -31,7 +31,7 @@
                 <i class="bi-arrow-down-up" aria-hidden="true"></i>
               </a>
               {% endif %}
-              {% set other_cols = table_results.columns | list | reject('equalto', column) | list %}
+              {% set other_cols = table_results.column_names | list | reject('equalto', column) | list %}
               {% set cols_args = [] %}
               {% for col in other_cols %}
                 {% set tmp = cols_args.append(('cols', col)) %}
