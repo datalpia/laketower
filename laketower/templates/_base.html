@@ -45,7 +45,7 @@
           {% set table_url = '/tables/' + table.name %}
           <li class="nav-item">
             <a
-              class="text-truncate nav-link{% if request.url.path.startswith(table_url) %} active{% endif %}"
+              class="text-truncate nav-link{% if request.url.path.startswith(table_url + '/') or request.url.path == table_url %} active{% endif %}"
               href="{{ table_url }}"
               aria-current="page"
             >
@@ -65,7 +65,7 @@
           {% set query_url = '/queries/' + query.name + '/view' %}
           <li class="nav-item">
             <a
-              class="text-truncate nav-link{% if request.url.path.startswith(query_url) %} active{% endif %}"
+              class="text-truncate nav-link{% if request.url.path.startswith(query_url + '/') or request.url.path == query_url %} active{% endif %}"
               href="{{ query_url }}"
               aria-current="page"
             >
