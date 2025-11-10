@@ -530,11 +530,13 @@ def test_tables_query_parameters(
     assert soup.find("input", attrs={"name": "end_date", "value": end_date})
 
 
+@pytest.mark.parametrize(
+    "sql_query",
+    ["select * from unknown_table", "select * from", "select *", "select", ""],
+)
 def test_tables_query_invalid(
-    client: TestClient, delta_table: deltalake.DeltaTable
+    client: TestClient, delta_table: deltalake.DeltaTable, sql_query: str
 ) -> None:
-    sql_query = "select * from unknown_table"
-
     response = client.get("/tables/query", params={"sql": sql_query})
     assert response.status_code == HTTPStatus.OK
 

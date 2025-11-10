@@ -10,6 +10,7 @@ import pyarrow.dataset as padataset
 import pydantic
 import sqlglot
 import sqlglot.dialects.duckdb
+import sqlglot.errors
 import sqlglot.expressions
 
 from laketower.config import ConfigTable, TableFormats
@@ -230,7 +231,11 @@ def load_datasets(table_configs: list[ConfigTable]) -> dict[str, padataset.Datas
 
 
 def extract_query_parameter_names(sql: str) -> set[str]:
-    parsed_sql = sqlglot.parse(sql, dialect=sqlglot.dialects.duckdb.DuckDB)
+    try:
+        parsed_sql = sqlglot.parse(sql, dialect=sqlglot.dialects.duckdb.DuckDB)
+    except sqlglot.errors.SqlglotError as e:
+        raise ValueError(f"Error: {e}") from e
+
     return {
         str(node.this)
         for statement in parsed_sql
@@ -271,7 +276,11 @@ def generate_table_statistics_query(table_name: str) -> str:
 
 
 def limit_query(sql_query: str, max_limit: int) -> str:
-    query_ast = sqlglot.parse(sql_query, dialect=sqlglot.dialects.duckdb.DuckDB)
+    try:
+        query_ast = sqlglot.parse(sql_query, dialect=sqlglot.dialects.duckdb.DuckDB)
+    except sqlglot.errors.SqlglotError as e:
+        raise ValueError(f"Error: {e}") from e
+
     if query_ast and isinstance(query_ast[-1], sqlglot.expressions.Select):
         limit_wrapper = (
             sqlglot.select("*")
@@ -310,7 +319,7 @@ def execute_query(
             conn.execute(f'create view "{table_name}" as select * from "{view_name}"')  # nosec B608
         return conn.execute(sql_query, parameters=sql_params).fetch_arrow_table()
     except duckdb.Error as e:
-        raise ValueError(str(e)) from e
+        raise ValueError(f"Error: {e}") from e
 
 
 def import_file_to_table(
