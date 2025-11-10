@@ -60,6 +60,12 @@ def test_extract_query_parameter_names(sql: str, names: set[str]) -> None:
     assert param_names == names
 
 
+@pytest.mark.parametrize("sql", ["select * from", 'select * from "t'])
+def test_extract_query_parameter_names_invalid_sql(sql: str) -> None:
+    with pytest.raises(ValueError):
+        tables.extract_query_parameter_names(sql)
+
+
 @pytest.mark.parametrize(
     ["table_name", "limit", "cols", "sort_asc", "sort_desc", "expected_query"],
     [
@@ -179,3 +185,9 @@ def test_generate_table_statistics_query_success(table_name: str) -> None:
 def test_limit_query(sql_query: str, max_limit: int, expected: str) -> None:
     result = tables.limit_query(sql_query, max_limit)
     assert result == expected
+
+
+@pytest.mark.parametrize("sql", ["select * from", 'select * from "t'])
+def test_limit_query_invalid_sql(sql: str) -> None:
+    with pytest.raises(ValueError):
+        tables.limit_query(sql, 1_000)

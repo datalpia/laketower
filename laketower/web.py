@@ -89,10 +89,14 @@ def get_tables_query(request: Request, sql: str) -> HTMLResponse:
         table_name: dataset.schema.names
         for table_name, dataset in tables_dataset.items()
     }
-    sql_param_names = extract_query_parameter_names(sql)
-    sql_params = {
-        name: request.query_params.get(name) or "" for name in sql_param_names
-    }
+
+    try:
+        sql_param_names = extract_query_parameter_names(sql)
+        sql_params = {
+            name: request.query_params.get(name) or "" for name in sql_param_names
+        }
+    except ValueError:
+        sql_params = {}
 
     try:
         sql_query = limit_query(sql, config.settings.max_query_rows + 1)
