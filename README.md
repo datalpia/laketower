@@ -494,6 +494,7 @@ $ laketower -c demo/laketower.yml tables query "select date_trunc('day', time) a
 │ 2025-02-10 00:00:00+01:00 │ 2.1083333243926368 │
 └───────────────────────────┴────────────────────┘
 3 rows returned
+Execution time: 33.72ms
 ```
 
 Use named parameters within a giving query (note: escape `$` prefixes properly!):
@@ -509,6 +510,7 @@ $ laketower -c demo/laketower.yml tables query "select date_trunc('day', time) a
 │ 2025-01-29 00:00:00+01:00 │ 7.770833313465118  │
 └───────────────────────────┴────────────────────┘
 4 rows returned
+Execution time: 30.59ms
 ```
 
 Export query results to CSV:
@@ -557,6 +559,7 @@ $ laketower -c demo/laketower.yml queries view daily_avg_temperature
 │ 2025-02-12 00:00:00+01:00 │ 5.0             │
 └───────────────────────────┴─────────────────┘
 18 rows returned
+Execution time: 39.52ms
 ```
 
 Executing a predefined query with parameters (here `start_date` and `end_date`):
@@ -574,6 +577,7 @@ $ laketower -c demo/laketower.yml queries view daily_avg_temperature_params -p s
 │ 2025-02-05 00:00:00+01:00 │ 3.0             │
 └───────────────────────────┴─────────────────┘
 6 rows returned
+Execution time: 32.08ms
 ```
 
 ## License

@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - setting `max_query_rows` to limit sql query results
+- query execution time indicator
 
 ### Changed
 - web: use `datatables.js` for interactive query results

@@ -1,4 +1,5 @@
 import io
+import time
 import urllib.parse
 from dataclasses import dataclass
 from pathlib import Path
@@ -95,7 +96,11 @@ def get_tables_query(request: Request, sql: str) -> HTMLResponse:
 
     try:
         sql_query = limit_query(sql, config.settings.max_query_rows + 1)
+
+        start_time = time.perf_counter()
         results = execute_query(tables_dataset, sql_query, sql_params=sql_params)
+        execution_time_ms = (time.perf_counter() - start_time) * 1000
+
         truncated = results.num_rows > config.settings.max_query_rows
         results = results.slice(
             0, min(results.num_rows, config.settings.max_query_rows)
@@ -105,6 +110,7 @@ def get_tables_query(request: Request, sql: str) -> HTMLResponse:
         error = {"message": str(e)}
         results = None
         truncated = False
+        execution_time_ms = None
 
     return templates.TemplateResponse(
         request=request,
@@ -115,6 +121,7 @@ def get_tables_query(request: Request, sql: str) -> HTMLResponse:
             "queries": config.queries,
             "table_results": results,
             "truncated_results": truncated,
+            "execution_time_ms": execution_time_ms,
             "sql_query": sql,
             "sql_schema": sql_schema,
             "sql_params": sql_params,
@@ -396,7 +403,11 @@ def get_query_view(request: Request, query_id: str) -> Response:
 
     try:
         sql_query = limit_query(query_config.sql, config.settings.max_query_rows + 1)
+
+        start_time = time.perf_counter()
         results = execute_query(tables_dataset, sql_query, sql_params=sql_params)
+        execution_time_ms = (time.perf_counter() - start_time) * 1000
+
         truncated = results.num_rows > config.settings.max_query_rows
         results = results.slice(
             0, min(results.num_rows, config.settings.max_query_rows)
@@ -406,6 +417,7 @@ def get_query_view(request: Request, query_id: str) -> Response:
         error = {"message": str(e)}
         results = None
         truncated = False
+        execution_time_ms = None
 
     return templates.TemplateResponse(
         request=request,
@@ -417,6 +429,7 @@ def get_query_view(request: Request, query_id: str) -> Response:
             "query": query_config,
             "query_results": results,
             "truncated_results": truncated,
+            "execution_time_ms": execution_time_ms,
             "sql_params": sql_params,
             "error": error,
         },
