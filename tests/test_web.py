@@ -434,6 +434,18 @@ def test_tables_query(
         filter(lambda a: a.get_text().strip() == "Execute", soup.find_all("button"))
     )
 
+    assert next(
+        filter(
+            lambda p: f"{selected_limit} rows returned" in p.get_text().strip(),
+            soup.find_all("p"),
+        )
+    )
+    assert next(
+        filter(
+            lambda p: "Query execution time: " in p.get_text().strip(),
+            soup.find_all("p"),
+        )
+    )
     export_csv_a = next(
         filter(lambda a: a.get_text().strip() == "Export CSV", soup.find_all("a"))
     )
@@ -475,8 +487,14 @@ def test_tables_query_max_rows_limit(
 
     assert next(
         filter(
-            lambda a: a.get_text().strip()
-            == f"{max_query_rows} rows returned (truncated)",
+            lambda a: f"{max_query_rows} rows returned (truncated)"
+            in a.get_text().strip(),
+            soup.find_all("p"),
+        )
+    )
+    assert next(
+        filter(
+            lambda p: "Query execution time: " in p.get_text().strip(),
             soup.find_all("p"),
         )
     )
@@ -762,6 +780,18 @@ def test_queries_view(client: TestClient, sample_config: dict[str, Any]) -> None
         filter(lambda a: a.get_text().strip() == "Execute", soup.find_all("button"))
     )
 
+    assert next(
+        filter(
+            lambda a: "rows returned" in a.get_text().strip(),
+            soup.find_all("p"),
+        )
+    )
+    assert next(
+        filter(
+            lambda p: "Query execution time: " in p.get_text().strip(),
+            soup.find_all("p"),
+        )
+    )
     export_csv_a = next(
         filter(lambda a: a.get_text().strip() == "Export CSV", soup.find_all("a"))
     )
@@ -795,8 +825,14 @@ def test_queries_view_max_row_limit(
 
     assert next(
         filter(
-            lambda a: a.get_text().strip()
-            == f"{max_query_rows} rows returned (truncated)",
+            lambda a: f"{max_query_rows} rows returned (truncated)"
+            in a.get_text().strip(),
+            soup.find_all("p"),
+        )
+    )
+    assert next(
+        filter(
+            lambda p: "Query execution time: " in p.get_text().strip(),
             soup.find_all("p"),
         )
     )

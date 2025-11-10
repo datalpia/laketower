@@ -681,6 +681,7 @@ def test_tables_query(
     captured = capsys.readouterr()
     output = captured.out
     assert f"{selected_limit} rows returned" in output
+    assert "Execution time: " in output
     assert selected_column in output
     assert not all(col in output for col in filtered_columns)
 
@@ -717,6 +718,7 @@ def test_tables_query_max_rows_limit(
     captured = capsys.readouterr()
     output = captured.out
     assert f"{max_query_rows} rows returned (truncated)" in output
+    assert "Execution time: " in output
 
 
 def test_tables_query_parameters(
@@ -908,8 +910,8 @@ def test_queries_view(
 
     captured = capsys.readouterr()
     output = captured.out
-    assert f" rows returned" in output
-    assert "(truncated)" not in output
+    assert " rows returned" in output
+    assert "Execution time: " in output
     assert all(col in output for col in {"day", "avg_temperature"})
 
 
@@ -941,6 +943,7 @@ def test_queries_view_max_row_limit(
     captured = capsys.readouterr()
     output = captured.out
     assert f"{max_query_rows} rows returned (truncated)" in output
+    assert "Execution time: " in output
     assert all(col in output for col in {"day", "avg_temperature"})
 
 

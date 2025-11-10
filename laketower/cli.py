@@ -1,5 +1,6 @@
 import argparse
 import os
+import time
 from pathlib import Path
 
 import rich.jupyter
@@ -197,16 +198,23 @@ def query_table(
             name: sql_params_dict.get(name) or "" for name in query_param_names
         }
         limited_sql_query = limit_query(sql_query, config.settings.max_query_rows + 1)
+
+        start_time = time.perf_counter()
         results = execute_query(
             tables_dataset, limited_sql_query, sql_params=query_params
         )
+        execution_time_ms = (time.perf_counter() - start_time) * 1000
+
         truncated = results.num_rows > config.settings.max_query_rows
         results = results.slice(
             0, min(results.num_rows, config.settings.max_query_rows)
         )
 
         out = rich.table.Table(
-            caption=f"{results.num_rows} rows returned{' (truncated)' if truncated else ''}",
+            caption=(
+                f"{results.num_rows} rows returned{' (truncated)' if truncated else ''}"
+                f"\nExecution time: {execution_time_ms:.2f}ms"
+            ),
             caption_justify="left",
             caption_style=rich.style.Style(dim=True),
         )
@@ -282,16 +290,23 @@ def view_query(
             for name in sql_param_names
         }
         limited_sql_query = limit_query(sql_query, config.settings.max_query_rows + 1)
+
+        start_time = time.perf_counter()
         results = execute_query(
             tables_dataset, limited_sql_query, sql_params=sql_params
         )
+        execution_time_ms = (time.perf_counter() - start_time) * 1000
+
         truncated = results.num_rows > config.settings.max_query_rows
         results = results.slice(
             0, min(results.num_rows, config.settings.max_query_rows)
         )
 
         out = rich.table.Table(
-            caption=f"{results.num_rows} rows returned{' (truncated)' if truncated else ''}",
+            caption=(
+                f"{results.num_rows} rows returned{' (truncated)' if truncated else ''}"
+                f"\nExecution time: {execution_time_ms:.2f}ms"
+            ),
             caption_justify="left",
             caption_style=rich.style.Style(dim=True),
         )

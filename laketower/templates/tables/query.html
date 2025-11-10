@@ -42,10 +42,13 @@
     {% else %}
     <h3>Results</h3>
     <div class="d-flex justify-content-between align-items-center mb-2">
-      <p>
-        <i class="{% if truncated_results %}bi-database-exclamation{% else %}bi-database-check{% endif %}" aria-hidden="true"></i>
-        {{ table_results.num_rows }} rows returned{% if truncated_results %} (truncated){% endif %}
-      </p>
+        <p>
+          <i class="{% if truncated_results %}bi-database-exclamation{% else %}bi-database-check{% endif %}" aria-hidden="true"></i>
+          {{ table_results.num_rows }} rows returned{% if truncated_results %} (truncated){% endif %}
+          <br>
+          <i class="bi-speedometer" aria-hidden="true"></i>
+          Query execution time: {{ execution_time_ms | round(2) }}ms
+        </p>
       <a href="/tables/query/csv?sql={{ sql_query | urlencode }}" class="btn btn-outline-secondary btn-sm">
         <i class="bi-download" aria-hidden="true"></i> Export CSV
       </a>
