@@ -100,6 +100,44 @@ def test_index(client: TestClient, sample_config: dict[str, Any]) -> None:
         assert query["sql"] not in html
 
 
+def test_index_hide_tables(
+    monkeypatch: pytest.MonkeyPatch,
+    sample_config: dict[str, Any],
+    sample_config_path: Path,
+) -> None:
+    sample_config["settings"]["web"]["hide_tables"] = True
+    sample_config_path.write_text(yaml.dump(sample_config))
+    monkeypatch.setenv("LAKETOWER_CONFIG_PATH", str(sample_config_path.absolute()))
+    client = TestClient(web.create_app())
+
+    response = client.get("/")
+    assert response.status_code == HTTPStatus.OK
+
+    html = response.content.decode()
+    soup = BeautifulSoup(html, "html.parser")
+
+    assert not soup.find("h6", string="Tables")  # type: ignore[call-overload]
+    assert soup.find("h6", string="Queries")  # type: ignore[call-overload]
+
+    for table in sample_config["tables"]:
+        assert not next(
+            filter(
+                lambda a: a.get("href") == f"/tables/{table['name']}",
+                soup.find_all("a"),
+            ),
+            None,
+        )
+
+    for query in sample_config["queries"]:
+        assert next(
+            filter(
+                lambda a: a.get("href") == f"/queries/{query['name']}/view",
+                soup.find_all("a"),
+            ),
+            None,
+        )
+
+
 def test_table_index(
     client: TestClient, sample_config: dict[str, Any], delta_table: deltalake.DeltaTable
 ) -> None:
