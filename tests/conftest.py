@@ -42,6 +42,9 @@ def sample_config(delta_table: deltalake.DeltaTable) -> dict[str, Any]:
     return {
         "settings": {
             "max_query_rows": 1_000,
+            "web": {
+                "hide_tables": False,
+            },
         },
         "tables": [
             {"name": "delta_table", "uri": delta_table.table_uri, "format": "delta"},

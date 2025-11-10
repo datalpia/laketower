@@ -53,6 +53,8 @@ Format:
 ```yaml
 settings:
   max_query_rows: 1000
+  web:
+    hide_tables: false
 
 tables:
   - name: <table_name>

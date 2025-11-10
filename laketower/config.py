@@ -89,8 +89,13 @@ class ConfigTableConnection(pydantic.BaseModel):
         return self
 
 
+class ConfigSettingsWeb(pydantic.BaseModel):
+    hide_tables: bool = False
+
+
 class ConfigSettings(pydantic.BaseModel):
     max_query_rows: int = 1_000
+    web: ConfigSettingsWeb = ConfigSettingsWeb()
 
 
 class ConfigTable(pydantic.BaseModel):

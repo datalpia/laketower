@@ -14,6 +14,9 @@ def test_load_yaml_config(
     conf = config.load_yaml_config(sample_config_path)
 
     assert conf.settings.max_query_rows == sample_config["settings"]["max_query_rows"]
+    assert (
+        conf.settings.web.hide_tables == sample_config["settings"]["web"]["hide_tables"]
+    )
 
     for table, expected_table in zip(conf.tables, sample_config["tables"], strict=True):
         assert table.name == expected_table["name"]

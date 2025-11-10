@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- new `settings` section in YAML configuration
 - setting `max_query_rows` to limit sql query results
+- setting `web.hide_tables` to hide the tables section for the web application
 - query execution time indicator
 
 ### Changed

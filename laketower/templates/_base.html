@@ -37,6 +37,7 @@
       </div>
       <div class="offcanvas-body d-flex flex-column">
         <ul class="sidebar-nav flex-grow-1 overflow-auto">
+          {% if not request.app.state.config.settings.web.hide_tables %}
           <li>
             <h6 class="sidebar-header">Tables</h6>
           </li>
@@ -56,6 +57,7 @@
           {% endfor %}
 
           <li><hr class="sidebar-divider"></li>
+          {% endif %}
 
           <li>
             <h6 class="sidebar-header">Queries</h6>
