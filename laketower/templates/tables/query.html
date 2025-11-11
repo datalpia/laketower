@@ -16,7 +16,7 @@
 
       {% if sql_params|length %}
       <h3 class="mb-3">Parameters</h3>
-      {% for param_name, param_value in sql_params.items() %}
+      {% for param_name, param_value in sql_params | dictsort(by='key') %}
       <div class="row mb-3">
         <label for="param-{{ param_name }}" class="col-form-label col-sm-2">{{ param_name }}</label>
         <div class="col-sm-4">
