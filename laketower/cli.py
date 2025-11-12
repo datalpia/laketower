@@ -28,9 +28,13 @@ from laketower.tables import (
 )
 
 
-def run_web(config_path: Path, reload: bool) -> None:  # pragma: no cover
+def run_web(
+    config_path: Path, host: str, port: int, reload: bool
+) -> None:  # pragma: no cover
     os.environ["LAKETOWER_CONFIG_PATH"] = str(config_path.absolute())
-    uvicorn.run("laketower.web:create_app", factory=True, reload=reload)
+    uvicorn.run(
+        "laketower.web:create_app", factory=True, host=host, port=port, reload=reload
+    )
 
 
 def validate_config(config_path: Path) -> None:
@@ -339,12 +343,23 @@ def cli() -> None:
         "web", help="Launch the web application", add_help=True
     )
     parser_web.add_argument(
+        "--host",
+        help="Web server host",
+        default="127.0.0.1",
+    )
+    parser_web.add_argument(
+        "--port",
+        help="Web server port number",
+        type=int,
+        default=8000,
+    )
+    parser_web.add_argument(
         "--reload",
         help="Reload the web server on changes",
         action="store_true",
         required=False,
     )
-    parser_web.set_defaults(func=lambda x: run_web(x.config, x.reload))
+    parser_web.set_defaults(func=lambda x: run_web(x.config, x.host, x.port, x.reload))
 
     parser_config = subparsers.add_parser(
         "config", help="Work with configuration", add_help=True
