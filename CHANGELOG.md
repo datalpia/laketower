@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [0.6.7] - 2025-11-12
 ### Added
 - web: add `--host` and `--port` options for custom network configuration
 
@@ -181,7 +182,8 @@ Initial release of `laketower`.
     - View a given table with simple query builder
     - Query all registered tables with DuckDB SQL dialect
 
-[Unreleased]: https://github.com/datalpia/laketower/compare/0.6.6...HEAD
+[Unreleased]: https://github.com/datalpia/laketower/compare/0.6.7...HEAD
+[0.6.7]: https://github.com/datalpia/laketower/compare/0.6.6...0.6.7
 [0.6.6]: https://github.com/datalpia/laketower/compare/0.6.5...0.6.6
 [0.6.5]: https://github.com/datalpia/laketower/compare/0.6.4...0.6.5
 [0.6.4]: https://github.com/datalpia/laketower/compare/0.6.3...0.6.4
