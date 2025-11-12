@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - cli: display args default values for all sub-parsers
+- ensure `laketower` python package is detected as typed
 
 ## [0.6.6] - 2025-11-12
 ### Fixed
