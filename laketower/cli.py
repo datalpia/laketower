@@ -340,7 +340,10 @@ def cli() -> None:
     subparsers = parser.add_subparsers(title="commands", required=True)
 
     parser_web = subparsers.add_parser(
-        "web", help="Launch the web application", add_help=True
+        "web",
+        help="Launch the web application",
+        add_help=True,
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser_web.add_argument(
         "--host",
@@ -362,25 +365,38 @@ def cli() -> None:
     parser_web.set_defaults(func=lambda x: run_web(x.config, x.host, x.port, x.reload))
 
     parser_config = subparsers.add_parser(
-        "config", help="Work with configuration", add_help=True
+        "config",
+        help="Work with configuration",
+        add_help=True,
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     subsparsers_config = parser_config.add_subparsers(required=True)
 
     parser_config_validate = subsparsers_config.add_parser(
-        "validate", help="Validate YAML configuration"
+        "validate",
+        help="Validate YAML configuration",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser_config_validate.set_defaults(func=lambda x: validate_config(x.config))
 
-    parser_tables = subparsers.add_parser("tables", help="Work with tables")
+    parser_tables = subparsers.add_parser(
+        "tables",
+        help="Work with tables",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
     subsparsers_tables = parser_tables.add_subparsers(required=True)
 
     parser_tables_list = subsparsers_tables.add_parser(
-        "list", help="List all registered tables"
+        "list",
+        help="List all registered tables",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser_tables_list.set_defaults(func=lambda x: list_tables(x.config))
 
     parser_tables_metadata = subsparsers_tables.add_parser(
-        "metadata", help="Display a given table metadata"
+        "metadata",
+        help="Display a given table metadata",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser_tables_metadata.add_argument("table", help="Name of the table")
     parser_tables_metadata.set_defaults(
@@ -388,19 +404,25 @@ def cli() -> None:
     )
 
     parser_tables_schema = subsparsers_tables.add_parser(
-        "schema", help="Display a given table schema"
+        "schema",
+        help="Display a given table schema",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser_tables_schema.add_argument("table", help="Name of the table")
     parser_tables_schema.set_defaults(func=lambda x: table_schema(x.config, x.table))
 
     parser_tables_history = subsparsers_tables.add_parser(
-        "history", help="Display the history of a given table schema"
+        "history",
+        help="Display the history of a given table schema",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser_tables_history.add_argument("table", help="Name of the table")
     parser_tables_history.set_defaults(func=lambda x: table_history(x.config, x.table))
 
     parser_tables_statistics = subsparsers_tables.add_parser(
-        "statistics", help="Display summary statistics of a given table schema"
+        "statistics",
+        help="Display summary statistics of a given table schema",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser_tables_statistics.add_argument("table", help="Name of the table")
     parser_tables_statistics.add_argument(
@@ -411,7 +433,9 @@ def cli() -> None:
     )
 
     parser_tables_view = subsparsers_tables.add_parser(
-        "view", help="View a given table"
+        "view",
+        help="View a given table",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser_tables_view.add_argument("table", help="Name of the table")
     parser_tables_view.add_argument(
@@ -435,7 +459,9 @@ def cli() -> None:
     )
 
     parser_tables_query = subsparsers_tables.add_parser(
-        "query", help="Query registered tables"
+        "query",
+        help="Query registered tables",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser_tables_query.add_argument(
         "--output", help="Output query results to a file (default format: CSV)"
@@ -454,7 +480,9 @@ def cli() -> None:
     )
 
     parser_tables_import = subsparsers_tables.add_parser(
-        "import", help="Import data into a table"
+        "import",
+        help="Import data into a table",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser_tables_import.add_argument("table", help="Name of the table")
     parser_tables_import.add_argument(
@@ -486,16 +514,24 @@ def cli() -> None:
         )
     )
 
-    parser_queries = subparsers.add_parser("queries", help="Work with queries")
+    parser_queries = subparsers.add_parser(
+        "queries",
+        help="Work with queries",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
     subsparsers_queries = parser_queries.add_subparsers(required=True)
 
     parser_queries_list = subsparsers_queries.add_parser(
-        "list", help="List all registered queries"
+        "list",
+        help="List all registered queries",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser_queries_list.set_defaults(func=lambda x: list_queries(x.config))
 
     parser_queries_view = subsparsers_queries.add_parser(
-        "view", help="View a given query"
+        "view",
+        help="View a given query",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser_queries_view.add_argument("query", help="Name of the query")
     parser_queries_view.add_argument(
