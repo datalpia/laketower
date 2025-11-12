@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - web: add `--host` and `--port` options for custom network configuration
 
+### Fixed
+- cli: display args default values for all sub-parsers
+
 ## [0.6.6] - 2025-11-12
 ### Fixed
 - web: sort query parameters by key name
