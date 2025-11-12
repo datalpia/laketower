@@ -219,6 +219,14 @@ The easiest way to get started is to launch the Laketower web application:
 $ laketower -c demo/laketower.yml web
 ```
 
+By default, the web application will run on host `127.0.0.1` and port `8000`.
+If some custom setup is required (especially for cloud deployment), this configuration
+can be customized at runtime:
+
+```bash
+$ laketower -c demo/laketower.yml web --host 0.0.0.0 --port 5000
+```
+
 #### Screenshots
 
 ![Laketower UI - Tables Overview](https://raw.githubusercontent.com/datalpia/laketower/refs/heads/main/docs/static/tables_overview.png)
