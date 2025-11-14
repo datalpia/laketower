@@ -31,7 +31,7 @@
         <div class="d-flex justify-content-end">
           <div class="row">
             <div class="col">
-              <a href="/tables/query?sql={{ query.sql | urlencode }}{% if request.query_params | length > 0 %}&{{ request.query_params.multi_items() | urlencode}}{% endif %}" class="btn btn-secondary" type="button">
+              <a href="/tables/query?sql={{ query.sql | urlencode }}{% if sql_params | length > 0 %}&{{ sql_params | urlencode}}{% endif %}" class="btn btn-secondary" type="button">
                 <i class="bi-code" aria-hidden="true"></i> Edit SQL
               </a>
             </div>
@@ -60,7 +60,7 @@
         <i class="bi-speedometer" aria-hidden="true"></i>
         Query execution time: {{ execution_time_ms | round(2) }}ms
       </p>
-      <a href="/tables/query/csv?sql={{ query.sql | urlencode }}" class="btn btn-outline-secondary btn-sm">
+      <a href="/tables/query/csv?sql={{ query.sql | urlencode }}{% if sql_params | length > 0 %}&{{ sql_params | urlencode}}{% endif %}" class="btn btn-outline-secondary btn-sm">
         <i class="bi-download" aria-hidden="true"></i> Export CSV
       </a>
     </div>
