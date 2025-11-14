@@ -996,3 +996,22 @@ def test_queries_view_export_csv(
     assert "avg_temperature" in csv_content
     lines = csv_content.strip().split("\n")
     assert len(lines) > 1
+
+
+def test_queries_view_export_csv_parameters(
+    client: TestClient, sample_config: dict[str, Any]
+) -> None:
+    query = sample_config["queries"][1]
+    params = {k: v["default"] for k, v in query["parameters"].items()}
+
+    response = client.get("/tables/query/csv", params={"sql": query["sql"], **params})
+    assert response.status_code == HTTPStatus.OK
+    assert response.headers["content-type"] == "text/csv; charset=utf-8"
+    assert "attachment" in response.headers["content-disposition"]
+    assert "query_results.csv" in response.headers["content-disposition"]
+
+    csv_content = response.content.decode("utf-8")
+    assert "day" in csv_content
+    assert "avg_temperature" in csv_content
+    lines = csv_content.strip().split("\n")
+    assert len(lines) > 1

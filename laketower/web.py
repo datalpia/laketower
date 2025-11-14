@@ -139,7 +139,11 @@ def export_tables_query_csv(request: Request, sql: str) -> Response:
     config: Config = request.app.state.config
     tables_dataset = load_datasets(config.tables)
 
-    results = execute_query(tables_dataset, sql)
+    sql_param_names = extract_query_parameter_names(sql)
+    sql_params = {
+        name: request.query_params.get(name) or "" for name in sql_param_names
+    }
+    results = execute_query(tables_dataset, sql, sql_params=sql_params)
     csv_content = io.BytesIO()
     pacsv.write_csv(
         results, csv_content, pacsv.WriteOptions(include_header=True, delimiter=",")

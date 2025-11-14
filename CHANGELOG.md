@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- web: handle sql parameters in csv export
+
 ## [0.6.7] - 2025-11-12
 ### Added
 - web: add `--host` and `--port` options for custom network configuration
