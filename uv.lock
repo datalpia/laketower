@@ -622,7 +622,7 @@ dev = [
     { name = "pytest", specifier = "==9.0.1" },
     { name = "pytest-cov", specifier = "==7.0.0" },
     { name = "ruff", specifier = "==0.14.5" },
-    { name = "types-bleach", specifier = "==6.3.0.20251029" },
+    { name = "types-bleach", specifier = "==6.3.0.20251115" },
     { name = "types-markdown", specifier = "==3.10.0.20251106" },
     { name = "types-pyyaml", specifier = "==6.0.12.20250915" },
     { name = "watchdog", specifier = "==6.0.0" },
@@ -1605,14 +1605,14 @@ wheels = [
 
 [[package]]
 name = "types-bleach"
-version = "6.3.0.20251029"
+version = "6.3.0.20251115"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "types-html5lib" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/59/c2/d9c3f49c158f03e68ade2fe8685f0884ecc956b9acaa7e64a3759408d590/types_bleach-6.3.0.20251029.tar.gz", hash = "sha256:58d08e829f5e678dc1c40b0cf947f2605ee4f9c7ba3d742db005242bf74899fb", size = 11234, upload-time = "2025-10-29T03:07:55.545Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/5f/54/3e0d9e2e0d7a00cf9b1a2c35160038c8bf5cb7ad80003c5d7e4e5af1e9dd/types_bleach-6.3.0.20251115.tar.gz", hash = "sha256:96911b20f169a18524d03b61fa7e98a08c411292f7cdb5dc191057f55dad9ae3", size = 11452, upload-time = "2025-11-15T03:00:28.919Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/fc/1f/cf9b0c1c90afc0a9aaaa7669ed1730c875cfbbee32257e1599f9f6ee2c53/types_bleach-6.3.0.20251029-py3-none-any.whl", hash = "sha256:5c72572e31bfba01acc3a7726d612138e395fbdf9fc17f12e4e79ab48f536ee9", size = 11986, upload-time = "2025-10-29T03:07:54.781Z" },
+    { url = "https://files.pythonhosted.org/packages/ee/fb/9f016a969603ef949a573158a58dd293948ed187c1f9f76c7cfe1bb96705/types_bleach-6.3.0.20251115-py3-none-any.whl", hash = "sha256:f81e7cf4ebac3f3d60b66b3fd5236c324e65037d1b28d22c94d5b457f0b98f42", size = 12015, upload-time = "2025-11-15T03:00:27.785Z" },
 ]
 
 [[package]]
