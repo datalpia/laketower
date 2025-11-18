@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Misc
 - update package keywords
+- update package classifiers
 
 ## [0.6.8] - 2025-11-17
 ### Fixed
