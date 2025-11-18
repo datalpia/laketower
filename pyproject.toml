@@ -55,7 +55,7 @@ build-backend = "hatchling.build"
 
 [dependency-groups]
 dev = [
-    "bandit==1.8.6",
+    "bandit==1.9.1",
     "beautifulsoup4==4.14.2",
     "httpx==0.28.1",
     "invoke==2.2.1",
