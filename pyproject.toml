@@ -24,7 +24,7 @@ dependencies = [
     "tzdata",
     "uvicorn",
 ]
-keywords = ["data", "lakehouse", "sql", "delta-lake"]
+keywords = ["data", "lakehouse", "sql", "delta-lake", "duckdb", "pyarrow"]
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
     "Programming Language :: Python :: 3.10",
