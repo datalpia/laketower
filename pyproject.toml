@@ -27,18 +27,27 @@ dependencies = [
 keywords = ["data", "lakehouse", "sql", "delta-lake", "duckdb", "pyarrow"]
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
+    "Environment :: Console",
+    "Environment :: Web Environment",
+    "Framework :: FastAPI",
+    "Framework :: Pydantic",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: Other Audience",
+    "Operating System :: OS Independent",
+    "Programming Language :: JavaScript",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
-    "Intended Audience :: Developers",
-    "Intended Audience :: End Users/Desktop",
-    "Intended Audience :: Information Technology",
-    "Intended Audience :: Other Audience",
+    "Programming Language :: SQL",
     "Topic :: Database",
+    "Topic :: Database :: Front-Ends",
     "Topic :: Software Development",
     "Topic :: Utilities",
+    "Typing :: Typed",
 ]
 dynamic = ["version"]
 
