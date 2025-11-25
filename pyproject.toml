@@ -17,6 +17,7 @@ dependencies = [
     "pyarrow!=19.0.0",
     "pydantic>=2",
     "pydantic-settings>=2",
+    "pyiceberg[sql-postgres,sql-sqlite]",
     "python-multipart",
     "pyyaml",
     "rich",
