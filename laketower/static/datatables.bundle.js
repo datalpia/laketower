@@ -27890,7 +27890,6 @@ var datatables = (function (exports) {
 	        tableId,
 	        {
 	            searching: true,
-	            scrollX: true,
 	            layout: {
 	                topStart: null,
 	                topEnd: null,
@@ -27917,7 +27916,9 @@ var datatables = (function (exports) {
 	            },
 	            order: [],
 	            paging: false,
+	            scrollX: true,
 	            scrollY: '400px',
+	            scrollCollapse: true,
 	        }
 	    )
 	}

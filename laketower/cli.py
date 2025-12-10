@@ -17,6 +17,7 @@ from laketower.config import load_yaml_config
 from laketower.tables import (
     ImportFileFormatEnum,
     ImportModeEnum,
+    compute_totals,
     execute_query,
     extract_query_parameter_names,
     generate_table_query,
@@ -314,10 +315,24 @@ def view_query(
             caption_justify="left",
             caption_style=rich.style.Style(dim=True),
         )
+        out.add_column("#")
         for column in results.column_names:
             out.add_column(column)
-        for row_dict in results.to_pylist():
-            out.add_row(*[str(row_dict[col]) for col in results.column_names])
+        for idx, row_dict in enumerate(results.to_pylist(), start=1):
+            out.add_row(str(idx), *[str(row_dict[col]) for col in results.column_names])
+
+        if query_config.totals_row:
+            totals = compute_totals(results)
+            totals_dict = totals.to_pylist()[0]
+            out.add_section()
+            out.add_row(
+                "Total",
+                *[
+                    str(totals_dict[col]) if totals_dict[col] is not None else "-"
+                    for col in results.column_names
+                ],
+                style="bold",
+            )
     except ValueError as e:
         out = rich.panel.Panel.fit(f"[red]{e}")
 

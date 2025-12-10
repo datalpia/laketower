@@ -913,6 +913,7 @@ def test_queries_view(
     assert " rows returned" in output
     assert "Execution time: " in output
     assert all(col in output for col in {"day", "avg_temperature"})
+    assert "Total" not in output
 
 
 def test_queries_view_max_row_limit(
@@ -1003,6 +1004,7 @@ def test_queries_view_parameters(
     captured = capsys.readouterr()
     output = captured.out
     assert all(col in output for col in {"day", "avg_temperature"})
+    assert "Total" in output
 
 
 def test_queries_view_invalid_sql(

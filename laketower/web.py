@@ -20,6 +20,7 @@ from laketower.tables import (
     DEFAULT_LIMIT,
     ImportFileFormatEnum,
     ImportModeEnum,
+    compute_totals,
     execute_query,
     extract_query_parameter_names,
     generate_table_statistics_query,
@@ -420,11 +421,14 @@ def get_query_view(request: Request, query_id: str) -> Response:
         results = results.slice(
             0, min(results.num_rows, config.settings.max_query_rows)
         )
+
+        totals = compute_totals(results) if query_config.totals_row else None
         error = None
     except ValueError as e:
         error = {"message": str(e)}
         results = None
         truncated = False
+        totals = None
         execution_time_ms = None
 
     return templates.TemplateResponse(
@@ -436,6 +440,7 @@ def get_query_view(request: Request, query_id: str) -> Response:
             "queries": config.queries,
             "query": query_config,
             "query_results": results,
+            "query_totals": totals,
             "truncated_results": truncated,
             "execution_time_ms": execution_time_ms,
             "sql_params": sql_params,

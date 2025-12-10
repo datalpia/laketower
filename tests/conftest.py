@@ -69,6 +69,7 @@ def sample_config(delta_table: deltalake.DeltaTable) -> dict[str, Any]:
                 "name": "daily_average_temperature_params",
                 "title": "Daily average temperature with parameters",
                 "description": "Display daily average temperature values from `weather` table, with dynamic filters for start and end dates",
+                "totals_row": True,
                 "parameters": {
                     "start_date": {"default": "2025-01-01"},
                     "end_date": {"default": "2025-01-31"},
