@@ -1,6 +1,7 @@
 from typing import Any
 from unittest import mock
 
+import pyarrow as pa
 import pytest
 
 from laketower import config, tables
@@ -191,3 +192,14 @@ def test_limit_query(sql_query: str, max_limit: int, expected: str) -> None:
 def test_limit_query_invalid_sql(sql: str) -> None:
     with pytest.raises(ValueError):
         tables.limit_query(sql, 1_000)
+
+
+def test_compute_totals() -> None:
+    data = pa.table({"col1": ["cat1", "cat2", "cat3"], "col2": [1, 2, 3]})
+
+    totals = tables.compute_totals(data)
+
+    assert totals.num_rows == 1
+    assert totals.schema == data.schema
+    assert totals["col1"][0].as_py() is None
+    assert totals["col2"][0].as_py() == 6

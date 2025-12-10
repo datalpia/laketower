@@ -113,6 +113,7 @@ class ConfigQuery(pydantic.BaseModel):
     name: str
     title: str
     description: str | None = None
+    totals_row: bool = False
     parameters: dict[str, ConfigQueryParameter] = {}
     sql: str
 

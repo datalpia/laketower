@@ -843,6 +843,8 @@ def test_queries_view(client: TestClient, sample_config: dict[str, Any]) -> None
     all_th = [th.get_text().strip() for th in soup.find_all("th")]
     assert all(col in all_th for col in {"day", "avg_temperature"})
 
+    assert soup.find("tfoot") is None
+
 
 def test_queries_view_max_row_limit(
     monkeypatch: pytest.MonkeyPatch,
@@ -925,6 +927,11 @@ def test_queries_view_parameters(
         assert soup.find(
             "input", attrs={"name": param_name, "value": param_data["default"]}
         )
+
+    assert (tfoot := soup.find("tfoot"))
+    totals_row = tfoot.find("tr")
+    assert totals_row
+    assert totals_row.find("th", string="Total")  # type: ignore[call-overload]
 
 
 def test_queries_view_invalid(

@@ -22,7 +22,6 @@ export function createDataTable(tableId, options = {}) {
         tableId,
         {
             searching: true,
-            scrollX: true,
             layout: {
                 topStart: null,
                 topEnd: null,
@@ -49,7 +48,9 @@ export function createDataTable(tableId, options = {}) {
             },
             order: [],
             paging: false,
+            scrollX: true,
             scrollY: '400px',
+            scrollCollapse: true,
         }
     )
 }

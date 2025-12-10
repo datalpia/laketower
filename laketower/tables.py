@@ -5,6 +5,7 @@ from typing import Any, BinaryIO, Protocol, TextIO
 import deltalake
 import duckdb
 import pyarrow as pa
+import pyarrow.compute as pc
 import pyarrow.csv as csv
 import pyarrow.dataset as padataset
 import pydantic
@@ -320,6 +321,18 @@ def execute_query(
         return conn.execute(sql_query, parameters=sql_params).fetch_arrow_table()
     except duckdb.Error as e:
         raise ValueError(f"Error: {e}") from e
+
+
+def compute_totals(results: pa.Table) -> pa.RecordBatch:
+    return pa.record_batch(
+        [
+            pa.array([pc.sum(results.column(i))])
+            if pa.types.is_integer(field.type) or pa.types.is_floating(field.type)
+            else pa.array([None], type=field.type)
+            for i, field in enumerate(results.schema)
+        ],
+        schema=results.schema,
+    )
 
 
 def import_file_to_table(
