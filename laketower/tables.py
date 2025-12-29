@@ -262,7 +262,7 @@ def generate_table_query(
         query_expr = query_expr.order_by(f"{sort_asc} asc")
     elif sort_desc:
         query_expr = query_expr.order_by(f"{sort_desc} desc")
-    return query_expr.sql(dialect=sqlglot.dialects.duckdb.DuckDB, identify="always")
+    return query_expr.sql(dialect=sqlglot.dialects.duckdb.DuckDB, identify=True)
 
 
 def generate_table_statistics_query(table_name: str) -> str:
@@ -273,7 +273,7 @@ def generate_table_statistics_query(table_name: str) -> str:
     query_expr = sqlglot.select(
         "column_name", "count", "avg", "std", "min", "max"
     ).from_(subquery_expr)
-    return query_expr.sql(dialect=sqlglot.dialects.duckdb.DuckDB, identify="always")
+    return query_expr.sql(dialect=sqlglot.dialects.duckdb.DuckDB, identify=True)
 
 
 def limit_query(sql_query: str, max_limit: int) -> str:
@@ -292,7 +292,7 @@ def limit_query(sql_query: str, max_limit: int) -> str:
 
     return "; ".join(
         [
-            stmt.sql(dialect=sqlglot.dialects.duckdb.DuckDB, identify="always")
+            stmt.sql(dialect=sqlglot.dialects.duckdb.DuckDB, identify=True)
             for stmt in query_ast
             if stmt is not None
         ]
