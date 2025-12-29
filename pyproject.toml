@@ -20,7 +20,7 @@ dependencies = [
     "python-multipart",
     "pyyaml",
     "rich",
-    "sqlglot",
+    "sqlglot[rs]",
     "tzdata",
     "uvicorn",
 ]
