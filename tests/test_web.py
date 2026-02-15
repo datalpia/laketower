@@ -799,7 +799,7 @@ def test_tables_import_post_csv_schema_mismatch(
     assert response.status_code == HTTPStatus.OK
 
     html = response.content.decode()
-    assert "Invariant violations" in html
+    assert "Invalid data found" in html
 
 
 def test_queries_view(client: TestClient, sample_config: dict[str, Any]) -> None:

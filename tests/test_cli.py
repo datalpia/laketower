@@ -1267,4 +1267,4 @@ def test_tables_import_csv_schema_mismatch(
 
     captured = capsys.readouterr()
     output = captured.out
-    assert "Invariant violations" in output
+    assert "Invalid data found" in output
