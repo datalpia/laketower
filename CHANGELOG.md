@@ -6,8 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.6.11] - 2026-02-15
+Patch release to improve compatibility with latest `sqlglot` versions.
+
+### Fixed
+- compatibility with `sqlglot` >= 28.3.0
+
 ### Changed
 - use `sqlglot[rs]` with faster Rust SQL parser
+- update dependencies
 
 ## [0.6.10] - 2025-12-11
 Introduce an optional customization of adding a footer totals row to predefined
@@ -204,7 +212,8 @@ Initial release of `laketower`.
     - View a given table with simple query builder
     - Query all registered tables with DuckDB SQL dialect
 
-[Unreleased]: https://github.com/datalpia/laketower/compare/0.6.10...HEAD
+[Unreleased]: https://github.com/datalpia/laketower/compare/0.6.11...HEAD
+[0.6.11]: https://github.com/datalpia/laketower/compare/0.6.10...0.6.11
 [0.6.10]: https://github.com/datalpia/laketower/compare/0.6.9...0.6.10
 [0.6.9]: https://github.com/datalpia/laketower/compare/0.6.8...0.6.9
 [0.6.8]: https://github.com/datalpia/laketower/compare/0.6.7...0.6.8
