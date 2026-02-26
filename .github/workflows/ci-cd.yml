@@ -30,7 +30,7 @@ jobs:
         run: uv run inv qa
       - name: Upload coverage artifacts
         if: ${{ matrix.python-version == 3.14 }}
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: coverage
           path: .coverage
@@ -60,7 +60,7 @@ jobs:
           cache-dependency-glob: "uv.lock"
       - name: Install dependencies
         run: uv sync --all-extras --dev
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           name: coverage
       - name: Generate Markdown code coverage report
@@ -137,7 +137,7 @@ jobs:
       - name: Build package
         run: uv build
       - name: Upload package build artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: build
           path: dist
@@ -155,7 +155,7 @@ jobs:
       id-token: write
     steps:
       - name: Download package build artifacts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: build
           path: dist/
@@ -181,7 +181,7 @@ jobs:
       id-token: write
     steps:
       - name: Download package build artifacts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: build
           path: dist/
@@ -205,7 +205,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Download package build artifacts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: build
           path: dist/
