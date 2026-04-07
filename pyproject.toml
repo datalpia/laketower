@@ -68,7 +68,7 @@ dev = [
     "bandit==1.9.4",
     "beautifulsoup4==4.14.3",
     "httpx==0.28.1",
-    "invoke==2.2.1",
+    "invoke==3.0.3",
     "mypy==1.20.0",
     "pandas==2.3.3",
     "pandas-stubs==2.3.3.260113",
