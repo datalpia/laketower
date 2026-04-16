@@ -84,11 +84,11 @@ def sample_config(delta_table: deltalake.DeltaTable) -> dict[str, Any]:
 def sample_storage_credential_s3() -> dict[str, Any]:
     return {
         "s3": {
-            "s3_access_key_id": "s3-access-key-id",
-            "s3_secret_access_key": "s3-secret-access-key",
-            "s3_region": "s3-region",
-            "s3_endpoint_url": "https://s3.domain.com/",
-            "s3_allow_http": False,
+            "access_key_id": "s3-access-key-id",
+            "secret_access_key": "s3-secret-access-key",
+            "region": "s3-region",
+            "endpoint_url": "https://s3.domain.com/",
+            "allow_http": False,
         },
     }
 
@@ -97,13 +97,13 @@ def sample_storage_credential_s3() -> dict[str, Any]:
 def sample_storage_credential_adls() -> dict[str, Any]:
     return {
         "adls": {
-            "adls_account_name": "adls-account-name",
-            "adls_access_key": "adls-access-key",
-            "adls_sas_key": "adls-sas-key",
-            "adls_tenant_id": "adls-tenant-id",
-            "adls_client_id": "adls-client-id",
-            "adls_client_secret": "adls-client-secret",
-            "azure_msi_endpoint": "https://msi.azure.com/",
+            "account_name": "adls-account-name",
+            "access_key": "adls-access-key",
+            "sas_key": "adls-sas-key",
+            "tenant_id": "adls-tenant-id",
+            "client_id": "adls-client-id",
+            "client_secret": "adls-client-secret",
+            "msi_endpoint": "https://msi.azure.com/",
             "use_azure_cli": False,
         },
     }

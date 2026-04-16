@@ -59,19 +59,19 @@ settings:
 storage_credentials:
   <credential_name>:
     s3:               # mutually exclusive with adls
-      s3_access_key_id: <access-key-id>
-      s3_secret_access_key: <secret-access-key>
-      s3_region: <region>
-      s3_endpoint_url: <endpoint-url>
-      s3_allow_http: false
+      access_key_id: <access-key-id>
+      secret_access_key: <secret-access-key>
+      region: <region>
+      endpoint_url: <endpoint-url>
+      allow_http: false
     adls:             # mutually exclusive with s3
-      adls_account_name: <account-name>
-      adls_access_key: <access-key>
-      adls_sas_key: <sas-key>
-      adls_tenant_id: <tenant-id>
-      adls_client_id: <client-id>
-      adls_client_secret: <client-secret>
-      azure_msi_endpoint: <msi-endpoint>
+      account_name: <account-name>
+      access_key: <access-key>
+      sas_key: <sas-key>
+      tenant_id: <tenant-id>
+      client_id: <client-id>
+      client_secret: <client-secret>
+      msi_endpoint: <msi-endpoint>
       use_azure_cli: false
 
 tables:
@@ -164,11 +164,11 @@ Configuring S3 tables (AWS, MinIO, Cloudflare R2, Scaleway Object Storage, …):
 storage_credentials:
   my_s3:
     s3:
-      s3_access_key_id: access-key-id
-      s3_secret_access_key: secret-access-key
-      s3_region: s3-region
-      s3_endpoint_url: http://s3.domain.com
-      s3_allow_http: false
+      access_key_id: access-key-id
+      secret_access_key: secret-access-key
+      region: s3-region
+      endpoint_url: http://s3.domain.com
+      allow_http: false
 
 tables:
   - name: delta_table_s3
@@ -179,7 +179,7 @@ tables:
 
 Depending on your object storage location and configuration, one might have to
 set part or all the available `s3` parameters. The only required ones
-are `s3_access_key_id` and `s3_secret_access_key`.
+are `access_key_id` and `secret_access_key`.
 
 As a security best practice, avoid writing secrets directly in static
 configuration files. Use environment variable substitution instead:
@@ -188,12 +188,12 @@ configuration files. Use environment variable substitution instead:
 storage_credentials:
   my_s3:
     s3:
-      s3_access_key_id: access-key-id
-      s3_secret_access_key:
+      access_key_id: access-key-id
+      secret_access_key:
         env: S3_SECRET_ACCESS_KEY
-      s3_region: s3-region
-      s3_endpoint_url: http://s3.domain.com
-      s3_allow_http: false
+      region: s3-region
+      endpoint_url: http://s3.domain.com
+      allow_http: false
 
 tables:
   - name: delta_table_s3
@@ -210,13 +210,13 @@ Configuring Azure ADLS tables:
 storage_credentials:
   my_adls:
     adls:
-      adls_account_name: adls-account-name
-      adls_access_key: adls-access-key
-      adls_sas_key: adls-sas-key
-      adls_tenant_id: adls-tenant-id
-      adls_client_id: adls-client-id
-      adls_client_secret: adls-client-secret
-      azure_msi_endpoint: https://msi.azure.com
+      account_name: adls-account-name
+      access_key: adls-access-key
+      sas_key: adls-sas-key
+      tenant_id: adls-tenant-id
+      client_id: adls-client-id
+      client_secret: adls-client-secret
+      msi_endpoint: https://msi.azure.com
       use_azure_cli: false
 
 tables:
@@ -228,7 +228,7 @@ tables:
 
 Depending on your object storage location and configuration, one might have to
 set part or all the available `adls` parameters. The only required one
-is `adls_account_name`.
+is `account_name`.
 
 As a security best practice, avoid writing secrets directly in static
 configuration files. Use environment variable substitution instead:
@@ -237,8 +237,8 @@ configuration files. Use environment variable substitution instead:
 storage_credentials:
   my_adls:
     adls:
-      adls_account_name: adls-account-name
-      adls_access_key:
+      account_name: adls-account-name
+      access_key:
         env: ADLS_ACCESS_KEY
 
 tables:

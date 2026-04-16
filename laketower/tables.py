@@ -97,59 +97,55 @@ class DeltaTable:
         if conn_s3:
             storage_options = (
                 {
-                    "aws_access_key_id": conn_s3.s3_access_key_id,
-                    "aws_secret_access_key": conn_s3.s3_secret_access_key.get_secret_value(),
-                    "aws_allow_http": str(conn_s3.s3_allow_http).lower(),
+                    "aws_access_key_id": conn_s3.access_key_id,
+                    "aws_secret_access_key": conn_s3.secret_access_key.get_secret_value(),
+                    "aws_allow_http": str(conn_s3.allow_http).lower(),
                 }
-                | ({"aws_region": conn_s3.s3_region} if conn_s3.s3_region else {})
+                | ({"aws_region": conn_s3.region} if conn_s3.region else {})
                 | (
-                    {"aws_endpoint_url": str(conn_s3.s3_endpoint_url).rstrip("/")}
-                    if conn_s3.s3_endpoint_url
+                    {"aws_endpoint_url": str(conn_s3.endpoint_url).rstrip("/")}
+                    if conn_s3.endpoint_url
                     else {}
                 )
             )
         elif conn_adls:
             storage_options = (
                 {
-                    "azure_storage_account_name": conn_adls.adls_account_name,
+                    "azure_storage_account_name": conn_adls.account_name,
                     "azure_use_azure_cli": str(conn_adls.use_azure_cli).lower(),
                 }
                 | (
                     {
-                        "azure_storage_access_key": conn_adls.adls_access_key.get_secret_value()
+                        "azure_storage_access_key": conn_adls.access_key.get_secret_value()
                     }
-                    if conn_adls.adls_access_key
+                    if conn_adls.access_key
                     else {}
                 )
                 | (
-                    {"azure_storage_sas_key": conn_adls.adls_sas_key.get_secret_value()}
-                    if conn_adls.adls_sas_key
+                    {"azure_storage_sas_key": conn_adls.sas_key.get_secret_value()}
+                    if conn_adls.sas_key
                     else {}
                 )
                 | (
-                    {"azure_storage_tenant_id": conn_adls.adls_tenant_id}
-                    if conn_adls.adls_tenant_id
+                    {"azure_storage_tenant_id": conn_adls.tenant_id}
+                    if conn_adls.tenant_id
                     else {}
                 )
                 | (
-                    {"azure_storage_client_id": conn_adls.adls_client_id}
-                    if conn_adls.adls_client_id
+                    {"azure_storage_client_id": conn_adls.client_id}
+                    if conn_adls.client_id
                     else {}
                 )
                 | (
                     {
-                        "azure_storage_client_secret": conn_adls.adls_client_secret.get_secret_value()
+                        "azure_storage_client_secret": conn_adls.client_secret.get_secret_value()
                     }
-                    if conn_adls.adls_client_secret
+                    if conn_adls.client_secret
                     else {}
                 )
                 | (
-                    {
-                        "azure_msi_endpoint": str(conn_adls.azure_msi_endpoint).rstrip(
-                            "/"
-                        )
-                    }
-                    if conn_adls.azure_msi_endpoint
+                    {"azure_msi_endpoint": str(conn_adls.msi_endpoint).rstrip("/")}
+                    if conn_adls.msi_endpoint
                     else {}
                 )
             )
