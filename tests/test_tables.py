@@ -18,11 +18,11 @@ def test_load_table_deltatable_s3(
     expected_s3_conn = sample_config_table_delta_s3["storage_credential"]["s3"]
     assert mock_deltatable.call_count == 1
     assert mock_deltatable.call_args.kwargs["storage_options"] == {
-        "aws_access_key_id": expected_s3_conn["s3_access_key_id"],
-        "aws_secret_access_key": expected_s3_conn["s3_secret_access_key"],
-        "aws_region": expected_s3_conn["s3_region"],
-        "aws_endpoint_url": str(expected_s3_conn["s3_endpoint_url"]).rstrip("/"),
-        "aws_allow_http": str(expected_s3_conn["s3_allow_http"]).lower(),
+        "aws_access_key_id": expected_s3_conn["access_key_id"],
+        "aws_secret_access_key": expected_s3_conn["secret_access_key"],
+        "aws_region": expected_s3_conn["region"],
+        "aws_endpoint_url": str(expected_s3_conn["endpoint_url"]).rstrip("/"),
+        "aws_allow_http": str(expected_s3_conn["allow_http"]).lower(),
     }
 
 
@@ -37,13 +37,13 @@ def test_load_table_deltatable_adls(
     expected_adls_conn = sample_config_table_delta_adls["storage_credential"]["adls"]
     assert mock_deltatable.call_count == 1
     assert mock_deltatable.call_args.kwargs["storage_options"] == {
-        "azure_storage_account_name": expected_adls_conn["adls_account_name"],
-        "azure_storage_access_key": expected_adls_conn["adls_access_key"],
-        "azure_storage_sas_key": expected_adls_conn["adls_sas_key"],
-        "azure_storage_tenant_id": expected_adls_conn["adls_tenant_id"],
-        "azure_storage_client_id": expected_adls_conn["adls_client_id"],
-        "azure_storage_client_secret": expected_adls_conn["adls_client_secret"],
-        "azure_msi_endpoint": str(expected_adls_conn["azure_msi_endpoint"]).rstrip("/"),
+        "azure_storage_account_name": expected_adls_conn["account_name"],
+        "azure_storage_access_key": expected_adls_conn["access_key"],
+        "azure_storage_sas_key": expected_adls_conn["sas_key"],
+        "azure_storage_tenant_id": expected_adls_conn["tenant_id"],
+        "azure_storage_client_id": expected_adls_conn["client_id"],
+        "azure_storage_client_secret": expected_adls_conn["client_secret"],
+        "azure_msi_endpoint": str(expected_adls_conn["msi_endpoint"]).rstrip("/"),
         "azure_use_azure_cli": str(expected_adls_conn["use_azure_cli"]).lower(),
     }
 

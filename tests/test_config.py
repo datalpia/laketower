@@ -61,14 +61,13 @@ def test_load_yaml_config_storage_credentials_s3(
 
     expected_s3 = sample_storage_credential_s3["s3"]
     cred_s3 = table.storage_credential.s3
-    assert cred_s3.s3_access_key_id == expected_s3["s3_access_key_id"]
+    assert cred_s3.access_key_id == expected_s3["access_key_id"]
     assert (
-        cred_s3.s3_secret_access_key.get_secret_value()
-        == expected_s3["s3_secret_access_key"]
+        cred_s3.secret_access_key.get_secret_value() == expected_s3["secret_access_key"]
     )
-    assert cred_s3.s3_region == expected_s3["s3_region"]
-    assert str(cred_s3.s3_endpoint_url) == expected_s3["s3_endpoint_url"]
-    assert cred_s3.s3_allow_http == expected_s3["s3_allow_http"]
+    assert cred_s3.region == expected_s3["region"]
+    assert str(cred_s3.endpoint_url) == expected_s3["endpoint_url"]
+    assert cred_s3.allow_http == expected_s3["allow_http"]
 
 
 def test_load_yaml_config_storage_credentials_adls(
@@ -98,20 +97,19 @@ def test_load_yaml_config_storage_credentials_adls(
 
     expected_adls = sample_storage_credential_adls["adls"]
     cred_adls = table.storage_credential.adls
-    assert cred_adls.adls_account_name == expected_adls["adls_account_name"]
-    assert cred_adls.adls_access_key and (
-        cred_adls.adls_access_key.get_secret_value() == expected_adls["adls_access_key"]
+    assert cred_adls.account_name == expected_adls["account_name"]
+    assert cred_adls.access_key and (
+        cred_adls.access_key.get_secret_value() == expected_adls["access_key"]
     )
-    assert cred_adls.adls_sas_key and (
-        cred_adls.adls_sas_key.get_secret_value() == expected_adls["adls_sas_key"]
+    assert cred_adls.sas_key and (
+        cred_adls.sas_key.get_secret_value() == expected_adls["sas_key"]
     )
-    assert cred_adls.adls_tenant_id == expected_adls["adls_tenant_id"]
-    assert cred_adls.adls_client_id == expected_adls["adls_client_id"]
-    assert cred_adls.adls_client_secret and (
-        cred_adls.adls_client_secret.get_secret_value()
-        == expected_adls["adls_client_secret"]
+    assert cred_adls.tenant_id == expected_adls["tenant_id"]
+    assert cred_adls.client_id == expected_adls["client_id"]
+    assert cred_adls.client_secret and (
+        cred_adls.client_secret.get_secret_value() == expected_adls["client_secret"]
     )
-    assert str(cred_adls.azure_msi_endpoint) == expected_adls["azure_msi_endpoint"]
+    assert str(cred_adls.msi_endpoint) == expected_adls["msi_endpoint"]
     assert cred_adls.use_azure_cli == expected_adls["use_azure_cli"]
 
 
@@ -213,11 +211,11 @@ def test_load_yaml_config_storage_credentials_shared(
     conf = config.load_yaml_config(sample_config_path)
     assert len(conf.tables) == 2
 
-    expected_key = sample_storage_credential_s3["s3"]["s3_access_key_id"]
+    expected_key = sample_storage_credential_s3["s3"]["access_key_id"]
     for table in conf.tables:
         assert table.storage_credential is not None
         assert table.storage_credential.s3 is not None
-        assert table.storage_credential.s3.s3_access_key_id == expected_key
+        assert table.storage_credential.s3.access_key_id == expected_key
 
 
 @pytest.mark.parametrize(

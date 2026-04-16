@@ -56,21 +56,21 @@ class TableFormats(str, enum.Enum):
 
 
 class ConfigStorageCredentialS3(pydantic.BaseModel):
-    s3_access_key_id: str
-    s3_secret_access_key: pydantic.SecretStr
-    s3_region: str | None = None
-    s3_endpoint_url: pydantic.AnyHttpUrl | None = None
-    s3_allow_http: bool = False
+    access_key_id: str
+    secret_access_key: pydantic.SecretStr
+    region: str | None = None
+    endpoint_url: pydantic.AnyHttpUrl | None = None
+    allow_http: bool = False
 
 
 class ConfigStorageCredentialADLS(pydantic.BaseModel):
-    adls_account_name: str
-    adls_access_key: pydantic.SecretStr | None = None
-    adls_sas_key: pydantic.SecretStr | None = None
-    adls_tenant_id: str | None = None
-    adls_client_id: str | None = None
-    adls_client_secret: pydantic.SecretStr | None = None
-    azure_msi_endpoint: pydantic.AnyHttpUrl | None = None
+    account_name: str
+    access_key: pydantic.SecretStr | None = None
+    sas_key: pydantic.SecretStr | None = None
+    tenant_id: str | None = None
+    client_id: str | None = None
+    client_secret: pydantic.SecretStr | None = None
+    msi_endpoint: pydantic.AnyHttpUrl | None = None
     use_azure_cli: bool = False
 
 
