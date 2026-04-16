@@ -318,7 +318,7 @@ def execute_query(
             view_name = f"{table_name}_view"
             conn.register(view_name, table_dataset)
             conn.execute(f'create view "{table_name}" as select * from "{view_name}"')  # nosec B608
-        return conn.execute(sql_query, parameters=sql_params).fetch_arrow_table()
+        return conn.execute(sql_query, parameters=sql_params).to_arrow_table()
     except duckdb.Error as e:
         raise ValueError(f"Error: {e}") from e
 
