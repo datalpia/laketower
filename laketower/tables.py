@@ -63,7 +63,7 @@ class TableProtocol(Protocol):  # pragma: no cover
     def history(self) -> TableHistory: ...
     def dataset(self, version: int | str | None = None) -> padataset.Dataset: ...
     def import_data(
-        self, data: pa.Table, mode: ImportModeEnum = ImportModeEnum.append
+        self, data: pa.Table, mode: ImportModeEnum = ImportModeEnum.overwrite
     ) -> None: ...
 
 
@@ -204,7 +204,7 @@ class DeltaTable:
         return self._impl.to_pyarrow_dataset()
 
     def import_data(
-        self, data: pa.Table, mode: ImportModeEnum = ImportModeEnum.append
+        self, data: pa.Table, mode: ImportModeEnum = ImportModeEnum.overwrite
     ) -> None:
         deltalake.write_deltalake(
             self.table_config.uri, data, mode=mode.value, schema_mode="merge"
@@ -338,7 +338,7 @@ def compute_totals(results: pa.Table) -> pa.RecordBatch:
 def import_file_to_table(
     table_config: ConfigTable,
     file_path: BinaryIO | TextIO,
-    mode: ImportModeEnum = ImportModeEnum.append,
+    mode: ImportModeEnum = ImportModeEnum.overwrite,
     file_format: ImportFileFormatEnum = ImportFileFormatEnum.csv,
     delimiter: str = ",",
     encoding: str = "utf-8",

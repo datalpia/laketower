@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### BREAKING CHANGES
+- `overwrite` is now the default table import mode (previously `append`) for both CLI and web
+
 ### Fixed
 - replace `duckdb` connection `fetch_arrow_table` with `to_arrow_table`
 
