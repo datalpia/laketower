@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- replace `duckdb` connection `fetch_arrow_table` with `to_arrow_table`
+
 ### Changed
 - replace now deprecated `sqlglot[rs]` with `sqlglot[c]`
 - update dependencies
