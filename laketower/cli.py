@@ -506,9 +506,9 @@ def cli() -> None:
     parser_tables_import.add_argument(
         "--mode",
         choices=[mode.value for mode in ImportModeEnum],
-        default=ImportModeEnum.append.value,
+        default=ImportModeEnum.overwrite.value,
         type=ImportModeEnum,
-        help=f"Import mode (default: {ImportModeEnum.append.value})",
+        help=f"Import mode (default: {ImportModeEnum.overwrite.value})",
     )
     parser_tables_import.add_argument(
         "--format",

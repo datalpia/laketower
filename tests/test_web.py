@@ -631,7 +631,7 @@ def test_tables_import(client: TestClient, sample_config: dict[str, Any]) -> Non
     assert file_input.get("accept") == ".csv"
     assert file_input.has_attr("required")
 
-    expected_mode_inputs = [("append", True), ("overwrite", False)]
+    expected_mode_inputs = [("append", False), ("overwrite", True)]
     mode_inputs = soup.find_all("input", {"name": "mode"})
     for mode_input, expected_mode_input in zip(
         mode_inputs, expected_mode_inputs, strict=True
