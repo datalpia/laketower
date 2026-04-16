@@ -85,13 +85,13 @@ class DeltaTable:
         # - adls: https://docs.rs/object_store/latest/object_store/azure/enum.AzureConfigKey.html
         storage_options = None
         conn_s3 = (
-            table_config.connection.s3
-            if table_config.connection and table_config.connection.s3
+            table_config.storage_credential.s3
+            if table_config.storage_credential and table_config.storage_credential.s3
             else None
         )
         conn_adls = (
-            table_config.connection.adls
-            if table_config.connection and table_config.connection.adls
+            table_config.storage_credential.adls
+            if table_config.storage_credential and table_config.storage_credential.adls
             else None
         )
         if conn_s3:

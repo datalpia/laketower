@@ -56,10 +56,29 @@ settings:
   web:
     hide_tables: false
 
+storage_credentials:
+  <credential_name>:
+    s3:               # mutually exclusive with adls
+      s3_access_key_id: <access-key-id>
+      s3_secret_access_key: <secret-access-key>
+      s3_region: <region>
+      s3_endpoint_url: <endpoint-url>
+      s3_allow_http: false
+    adls:             # mutually exclusive with s3
+      adls_account_name: <account-name>
+      adls_access_key: <access-key>
+      adls_sas_key: <sas-key>
+      adls_tenant_id: <tenant-id>
+      adls_client_id: <client-id>
+      adls_client_secret: <client-secret>
+      azure_msi_endpoint: <msi-endpoint>
+      use_azure_cli: false
+
 tables:
   - name: <table_name>
-    uri: <local path to table>
+    uri: <local or remote path to table>
     format: {delta}
+    storage_credential: <credential_name>   # optional, references storage_credentials
 
 queries:
   - name: <query_name>
@@ -130,86 +149,103 @@ tables:
     format: delta
 ```
 
-#### Remote S3 Tables
+#### Storage Credentials
 
-Configuring S3 tables (AWS, MinIO, Cloudflare R2):
+Storage credentials are defined once under the top-level `storage_credentials`
+key as a named registry, then referenced by name from each table via the
+`storage_credential` field. This avoids repeating the same credentials across
+multiple tables.
+
+##### Remote S3 Tables
+
+Configuring S3 tables (AWS, MinIO, Cloudflare R2, Scaleway Object Storage, …):
 
 ```yaml
+storage_credentials:
+  my_s3:
+    s3:
+      s3_access_key_id: access-key-id
+      s3_secret_access_key: secret-access-key
+      s3_region: s3-region
+      s3_endpoint_url: http://s3.domain.com
+      s3_allow_http: false
+
 tables:
   - name: delta_table_s3
     uri: s3://<bucket>/path/to/table
     format: delta
-    connection:
-      s3:
-        s3_access_key_id: access-key-id
-        s3_secret_access_key: secret-access-key
-        s3_region: s3-region
-        s3_endpoint_url: http://s3.domain.com
-        s3_allow_http: false
+    storage_credential: my_s3
 ```
 
 Depending on your object storage location and configuration, one might have to
-set part or all the available `connection.s3` parameters. The only required ones
+set part or all the available `s3` parameters. The only required ones
 are `s3_access_key_id` and `s3_secret_access_key`.
 
-Also as a security best practice, it is best not to write secrets directly in
-static configuration files, so one can use environment variables to all dynamic substitution,
-e.g.
+As a security best practice, avoid writing secrets directly in static
+configuration files. Use environment variable substitution instead:
 
 ```yaml
+storage_credentials:
+  my_s3:
+    s3:
+      s3_access_key_id: access-key-id
+      s3_secret_access_key:
+        env: S3_SECRET_ACCESS_KEY
+      s3_region: s3-region
+      s3_endpoint_url: http://s3.domain.com
+      s3_allow_http: false
+
 tables:
   - name: delta_table_s3
     uri: s3://<bucket>/path/to/table
     format: delta
-    connection:
-      s3:
-        s3_access_key_id: access-key-id
-        s3_secret_access_key:
-          env: S3_SECRET_ACCESS_KEY
-        s3_region: s3-region
-        s3_endpoint_url: http://s3.domain.com
-        s3_allow_http: false
+    storage_credential: my_s3
 ```
 
-#### Remote ADLS Tables
+##### Remote ADLS Tables
 
 Configuring Azure ADLS tables:
 
 ```yaml
+storage_credentials:
+  my_adls:
+    adls:
+      adls_account_name: adls-account-name
+      adls_access_key: adls-access-key
+      adls_sas_key: adls-sas-key
+      adls_tenant_id: adls-tenant-id
+      adls_client_id: adls-client-id
+      adls_client_secret: adls-client-secret
+      azure_msi_endpoint: https://msi.azure.com
+      use_azure_cli: false
+
 tables:
   - name: delta_table_adls
     uri: abfss://<container>/path/to/table
     format: delta
-    connection:
-      adls:
-        adls_account_name: adls-account-name
-        adls_access_key: adls-access-key
-        adls_sas_key: adls-sas-key
-        adls_tenant_id: adls-tenant-id
-        adls_client_id: adls-client-id
-        adls_client_secret: adls-client-secret
-        azure_msi_endpoint: https://msi.azure.com
-        use_azure_cli: false
+    storage_credential: my_adls
 ```
 
 Depending on your object storage location and configuration, one might have to
-set part or all the available `connection.adls` parameters. The only required one
+set part or all the available `adls` parameters. The only required one
 is `adls_account_name`.
 
-Also as a security best practice, it is best not to write secrets directly in
-static configuration files, so one can use environment variables to all dynamic substitution,
-e.g.
+As a security best practice, avoid writing secrets directly in static
+configuration files. Use environment variable substitution instead:
 
 ```yaml
+storage_credentials:
+  my_adls:
+    adls:
+      adls_account_name: adls-account-name
+      adls_access_key:
+        env: ADLS_ACCESS_KEY
+
 tables:
   - name: delta_table_adls
     uri: abfss://<container>/path/to/table
     format: delta
-    connection:
-      adls:
-        adls_account_name: adls-account-name
-        adls_access_key:
-          env: ADLS_ACCESS_KEY
+    storage_credential: my_adls
 ```
 
 ### Web Application

@@ -55,7 +55,7 @@ class TableFormats(str, enum.Enum):
     delta = "delta"
 
 
-class ConfigTableConnectionS3(pydantic.BaseModel):
+class ConfigStorageCredentialS3(pydantic.BaseModel):
     s3_access_key_id: str
     s3_secret_access_key: pydantic.SecretStr
     s3_region: str | None = None
@@ -63,7 +63,7 @@ class ConfigTableConnectionS3(pydantic.BaseModel):
     s3_allow_http: bool = False
 
 
-class ConfigTableConnectionADLS(pydantic.BaseModel):
+class ConfigStorageCredentialADLS(pydantic.BaseModel):
     adls_account_name: str
     adls_access_key: pydantic.SecretStr | None = None
     adls_sas_key: pydantic.SecretStr | None = None
@@ -74,17 +74,23 @@ class ConfigTableConnectionADLS(pydantic.BaseModel):
     use_azure_cli: bool = False
 
 
-class ConfigTableConnection(pydantic.BaseModel):
-    s3: ConfigTableConnectionS3 | None = None
-    adls: ConfigTableConnectionADLS | None = None
+class ConfigStorageCredential(pydantic.BaseModel):
+    s3: ConfigStorageCredentialS3 | None = None
+    adls: ConfigStorageCredentialADLS | None = None
 
     @pydantic.model_validator(mode="after")
-    def mutually_exclusive_connectors(self) -> "ConfigTableConnection":
-        connectors = [self.s3, self.adls]
-        non_null_connectors = list(filter(None, connectors))
-        if len(non_null_connectors) > 1:
+    def at_least_one_storage_type(self) -> "ConfigStorageCredential":
+        if not any([self.s3, self.adls]):
             raise ValueError(
-                "only one connection type can be specified among: 's3', 'adls'"
+                "at least one storage type must be specified among: 's3', 'adls'"
+            )
+        return self
+
+    @pydantic.model_validator(mode="after")
+    def mutually_exclusive_storage_types(self) -> "ConfigStorageCredential":
+        if len(list(filter(None, [self.s3, self.adls]))) > 1:
+            raise ValueError(
+                "only one storage type can be specified among: 's3', 'adls'"
             )
         return self
 
@@ -102,7 +108,7 @@ class ConfigTable(pydantic.BaseModel):
     name: str
     uri: str
     table_format: TableFormats = pydantic.Field(alias="format")
-    connection: ConfigTableConnection | None = None
+    storage_credential: ConfigStorageCredential | None = None
 
 
 class ConfigQueryParameter(pydantic.BaseModel):
@@ -120,8 +126,23 @@ class ConfigQuery(pydantic.BaseModel):
 
 class Config(pydantic.BaseModel):
     settings: ConfigSettings = ConfigSettings()
+    storage_credentials: dict[str, ConfigStorageCredential] = {}
     tables: list[ConfigTable] = []
     queries: list[ConfigQuery] = []
+
+    @pydantic.model_validator(mode="before")
+    @classmethod
+    def resolve_storage_credential_refs(cls, data: dict[str, Any]) -> dict[str, Any]:
+        credentials: dict[str, Any] = data.get("storage_credentials", {})
+        for table in data.get("tables", []):
+            ref = table.get("storage_credential")
+            if isinstance(ref, str):
+                if ref not in credentials:
+                    raise ValueError(
+                        f"table '{table.get('name')}' references unknown storage credential '{ref}'"
+                    )
+                table["storage_credential"] = credentials[ref]
+        return data
 
 
 def load_yaml_config(config_path: Path) -> Config:

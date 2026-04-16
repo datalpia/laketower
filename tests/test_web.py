@@ -525,8 +525,9 @@ def test_tables_query_max_rows_limit(
 
     assert next(
         filter(
-            lambda a: f"{max_query_rows} rows returned (truncated)"
-            in a.get_text().strip(),
+            lambda a: (
+                f"{max_query_rows} rows returned (truncated)" in a.get_text().strip()
+            ),
             soup.find_all("p"),
         )
     )
@@ -867,8 +868,9 @@ def test_queries_view_max_row_limit(
 
     assert next(
         filter(
-            lambda a: f"{max_query_rows} rows returned (truncated)"
-            in a.get_text().strip(),
+            lambda a: (
+                f"{max_query_rows} rows returned (truncated)" in a.get_text().strip()
+            ),
             soup.find_all("p"),
         )
     )

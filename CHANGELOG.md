@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### BREAKING CHANGES
 - `overwrite` is now the default table import mode (previously `append`) for both CLI and web
+- replace per-table `connection` block with global `storage_credentials` registry
+
+### Added
+- new top-level `storage_credentials` registry for defining named S3/ADLS credentials once and
+  reusing them across multiple tables
 
 ### Fixed
 - replace `duckdb` connection `fetch_arrow_table` with `to_arrow_table`

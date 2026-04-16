@@ -22,7 +22,7 @@ def test_load_yaml_config(
         assert table.name == expected_table["name"]
         assert table.uri == expected_table["uri"]
         assert table.table_format.value == expected_table["format"]
-        assert table.connection is None
+        assert table.storage_credential is None
 
     for query, expected_query in zip(
         conf.queries, sample_config["queries"], strict=True
@@ -34,12 +34,20 @@ def test_load_yaml_config(
         assert query.sql == expected_query["sql"]
 
 
-def test_load_yaml_config_table_delta_s3(
+def test_load_yaml_config_storage_credentials_s3(
     tmp_path: Path,
     sample_config: dict[str, Any],
-    sample_config_table_delta_s3: dict[str, Any],
+    sample_storage_credential_s3: dict[str, Any],
 ) -> None:
-    sample_config["tables"] = [sample_config_table_delta_s3]
+    sample_config["storage_credentials"] = {"my_s3": sample_storage_credential_s3}
+    sample_config["tables"] = [
+        {
+            "name": "delta_table_s3",
+            "uri": "s3://bucket/path/to/table",
+            "format": "delta",
+            "storage_credential": "my_s3",
+        }
+    ]
     sample_config_path = tmp_path / "laketower.yml"
     sample_config_path.write_text(yaml.dump(sample_config))
 
@@ -47,30 +55,36 @@ def test_load_yaml_config_table_delta_s3(
     assert len(conf.tables) == 1
 
     table = conf.tables[0]
-    assert table.name == sample_config_table_delta_s3["name"]
-    assert table.uri == sample_config_table_delta_s3["uri"]
-    assert table.table_format.value == sample_config_table_delta_s3["format"]
-    assert table.connection is not None
-    assert table.connection.s3 is not None
+    assert table.name == "delta_table_s3"
+    assert table.storage_credential is not None
+    assert table.storage_credential.s3 is not None
 
-    expected_s3_conn = sample_config_table_delta_s3["connection"]["s3"]
-    table_s3_conn = table.connection.s3
-    assert table_s3_conn.s3_access_key_id == expected_s3_conn["s3_access_key_id"]
+    expected_s3 = sample_storage_credential_s3["s3"]
+    cred_s3 = table.storage_credential.s3
+    assert cred_s3.s3_access_key_id == expected_s3["s3_access_key_id"]
     assert (
-        table_s3_conn.s3_secret_access_key.get_secret_value()
-        == expected_s3_conn["s3_secret_access_key"]
+        cred_s3.s3_secret_access_key.get_secret_value()
+        == expected_s3["s3_secret_access_key"]
     )
-    assert table_s3_conn.s3_region == expected_s3_conn["s3_region"]
-    assert str(table_s3_conn.s3_endpoint_url) == expected_s3_conn["s3_endpoint_url"]
-    assert table_s3_conn.s3_allow_http == expected_s3_conn["s3_allow_http"]
+    assert cred_s3.s3_region == expected_s3["s3_region"]
+    assert str(cred_s3.s3_endpoint_url) == expected_s3["s3_endpoint_url"]
+    assert cred_s3.s3_allow_http == expected_s3["s3_allow_http"]
 
 
-def test_load_yaml_config_table_delta_adls(
+def test_load_yaml_config_storage_credentials_adls(
     tmp_path: Path,
     sample_config: dict[str, Any],
-    sample_config_table_delta_adls: dict[str, Any],
+    sample_storage_credential_adls: dict[str, Any],
 ) -> None:
-    sample_config["tables"] = [sample_config_table_delta_adls]
+    sample_config["storage_credentials"] = {"my_adls": sample_storage_credential_adls}
+    sample_config["tables"] = [
+        {
+            "name": "delta_table_adls",
+            "uri": "abfss://container/path/to/table",
+            "format": "delta",
+            "storage_credential": "my_adls",
+        }
+    ]
     sample_config_path = tmp_path / "laketower.yml"
     sample_config_path.write_text(yaml.dump(sample_config))
 
@@ -78,58 +92,132 @@ def test_load_yaml_config_table_delta_adls(
     assert len(conf.tables) == 1
 
     table = conf.tables[0]
-    assert table.name == sample_config_table_delta_adls["name"]
-    assert table.uri == sample_config_table_delta_adls["uri"]
-    assert table.table_format.value == sample_config_table_delta_adls["format"]
-    assert table.connection is not None
-    assert table.connection.adls is not None
+    assert table.name == "delta_table_adls"
+    assert table.storage_credential is not None
+    assert table.storage_credential.adls is not None
 
-    expected_adls_conn = sample_config_table_delta_adls["connection"]["adls"]
-    table_adls_conn = table.connection.adls
-    assert table_adls_conn.adls_account_name == expected_adls_conn["adls_account_name"]
-    assert table_adls_conn.adls_access_key and (
-        table_adls_conn.adls_access_key.get_secret_value()
-        == expected_adls_conn["adls_access_key"]
+    expected_adls = sample_storage_credential_adls["adls"]
+    cred_adls = table.storage_credential.adls
+    assert cred_adls.adls_account_name == expected_adls["adls_account_name"]
+    assert cred_adls.adls_access_key and (
+        cred_adls.adls_access_key.get_secret_value() == expected_adls["adls_access_key"]
     )
-    assert table_adls_conn.adls_sas_key and (
-        table_adls_conn.adls_sas_key.get_secret_value()
-        == expected_adls_conn["adls_sas_key"]
+    assert cred_adls.adls_sas_key and (
+        cred_adls.adls_sas_key.get_secret_value() == expected_adls["adls_sas_key"]
     )
-    assert table_adls_conn.adls_tenant_id == expected_adls_conn["adls_tenant_id"]
-    assert table_adls_conn.adls_client_id == expected_adls_conn["adls_client_id"]
-    assert table_adls_conn.adls_client_secret and (
-        table_adls_conn.adls_client_secret.get_secret_value()
-        == expected_adls_conn["adls_client_secret"]
+    assert cred_adls.adls_tenant_id == expected_adls["adls_tenant_id"]
+    assert cred_adls.adls_client_id == expected_adls["adls_client_id"]
+    assert cred_adls.adls_client_secret and (
+        cred_adls.adls_client_secret.get_secret_value()
+        == expected_adls["adls_client_secret"]
     )
-    assert (
-        str(table_adls_conn.azure_msi_endpoint)
-        == expected_adls_conn["azure_msi_endpoint"]
-    )
-    assert table_adls_conn.use_azure_cli == expected_adls_conn["use_azure_cli"]
+    assert str(cred_adls.azure_msi_endpoint) == expected_adls["azure_msi_endpoint"]
+    assert cred_adls.use_azure_cli == expected_adls["use_azure_cli"]
 
 
-def test_load_yaml_config_table_connection_mutually_exclusive(
+def test_load_yaml_config_storage_credentials_unknown_ref(
     tmp_path: Path,
     sample_config: dict[str, Any],
-    sample_config_table_delta_s3: dict[str, Any],
-    sample_config_table_delta_adls: dict[str, Any],
 ) -> None:
-    sample_config_table_delta_remote = {
-        "name": "remote_delta_table",
-        "uri": "somewhere",
-        "format": "delta",
-        "connection": sample_config_table_delta_s3["connection"]
-        | sample_config_table_delta_adls["connection"],
-    }
-    sample_config["tables"] = [sample_config_table_delta_remote]
+    sample_config["tables"] = [
+        {
+            "name": "delta_table_s3",
+            "uri": "s3://bucket/path/to/table",
+            "format": "delta",
+            "storage_credential": "nonexistent",
+        }
+    ]
     sample_config_path = tmp_path / "laketower.yml"
     sample_config_path.write_text(yaml.dump(sample_config))
 
     with pytest.raises(
         pydantic.ValidationError,
-        match="only one connection type can be specified among: 's3', 'adls'",
+        match="references unknown storage credential 'nonexistent'",
     ):
         config.load_yaml_config(sample_config_path)
+
+
+def test_load_yaml_config_storage_credentials_mutually_exclusive(
+    tmp_path: Path,
+    sample_config: dict[str, Any],
+    sample_storage_credential_s3: dict[str, Any],
+    sample_storage_credential_adls: dict[str, Any],
+) -> None:
+    sample_config["storage_credentials"] = {
+        "both": sample_storage_credential_s3 | sample_storage_credential_adls
+    }
+    sample_config["tables"] = [
+        {
+            "name": "delta_table",
+            "uri": "somewhere",
+            "format": "delta",
+            "storage_credential": "both",
+        }
+    ]
+    sample_config_path = tmp_path / "laketower.yml"
+    sample_config_path.write_text(yaml.dump(sample_config))
+
+    with pytest.raises(
+        pydantic.ValidationError,
+        match="only one storage type can be specified among: 's3', 'adls'",
+    ):
+        config.load_yaml_config(sample_config_path)
+
+
+def test_load_yaml_config_storage_credentials_empty(
+    tmp_path: Path,
+    sample_config: dict[str, Any],
+) -> None:
+    sample_config["storage_credentials"] = {"empty": {}}
+    sample_config["tables"] = [
+        {
+            "name": "delta_table",
+            "uri": "somewhere",
+            "format": "delta",
+            "storage_credential": "empty",
+        }
+    ]
+    sample_config_path = tmp_path / "laketower.yml"
+    sample_config_path.write_text(yaml.dump(sample_config))
+
+    with pytest.raises(
+        pydantic.ValidationError,
+        match="at least one storage type must be specified among: 's3', 'adls'",
+    ):
+        config.load_yaml_config(sample_config_path)
+
+
+def test_load_yaml_config_storage_credentials_shared(
+    tmp_path: Path,
+    sample_config: dict[str, Any],
+    sample_storage_credential_s3: dict[str, Any],
+) -> None:
+    sample_config["storage_credentials"] = {"shared_s3": sample_storage_credential_s3}
+    sample_config["tables"] = [
+        {
+            "name": "table_a",
+            "uri": "s3://bucket/table_a",
+            "format": "delta",
+            "storage_credential": "shared_s3",
+        },
+        {
+            "name": "table_b",
+            "uri": "s3://bucket/table_b",
+            "format": "delta",
+            "storage_credential": "shared_s3",
+        },
+    ]
+    sample_config_path = tmp_path / "laketower.yml"
+    sample_config_path.write_text(yaml.dump(sample_config))
+
+    conf = config.load_yaml_config(sample_config_path)
+    assert len(conf.tables) == 2
+
+    expected_key = sample_storage_credential_s3["s3"]["s3_access_key_id"]
+    for table in conf.tables:
+        assert table.storage_credential is not None
+        assert table.storage_credential.s3 is not None
+        assert table.storage_credential.s3.s3_access_key_id == expected_key
 
 
 @pytest.mark.parametrize(
