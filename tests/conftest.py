@@ -81,41 +81,55 @@ def sample_config(delta_table: deltalake.DeltaTable) -> dict[str, Any]:
 
 
 @pytest.fixture()
-def sample_config_table_delta_s3() -> dict[str, Any]:
+def sample_storage_credential_s3() -> dict[str, Any]:
     return {
-        "name": "delta_table_s3",
-        "uri": "s3://bucket/path/to/table",
-        "format": "delta",
-        "connection": {
-            "s3": {
-                "s3_access_key_id": "s3-access-key-id",
-                "s3_secret_access_key": "s3-secret-access-key",
-                "s3_region": "s3-region",
-                "s3_endpoint_url": "https://s3.domain.com/",
-                "s3_allow_http": False,
-            },
+        "s3": {
+            "s3_access_key_id": "s3-access-key-id",
+            "s3_secret_access_key": "s3-secret-access-key",
+            "s3_region": "s3-region",
+            "s3_endpoint_url": "https://s3.domain.com/",
+            "s3_allow_http": False,
         },
     }
 
 
 @pytest.fixture()
-def sample_config_table_delta_adls() -> dict[str, Any]:
+def sample_storage_credential_adls() -> dict[str, Any]:
+    return {
+        "adls": {
+            "adls_account_name": "adls-account-name",
+            "adls_access_key": "adls-access-key",
+            "adls_sas_key": "adls-sas-key",
+            "adls_tenant_id": "adls-tenant-id",
+            "adls_client_id": "adls-client-id",
+            "adls_client_secret": "adls-client-secret",
+            "azure_msi_endpoint": "https://msi.azure.com/",
+            "use_azure_cli": False,
+        },
+    }
+
+
+@pytest.fixture()
+def sample_config_table_delta_s3(
+    sample_storage_credential_s3: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "name": "delta_table_s3",
+        "uri": "s3://bucket/path/to/table",
+        "format": "delta",
+        "storage_credential": sample_storage_credential_s3,
+    }
+
+
+@pytest.fixture()
+def sample_config_table_delta_adls(
+    sample_storage_credential_adls: dict[str, Any],
+) -> dict[str, Any]:
     return {
         "name": "delta_table_adls",
         "uri": "abfss://container/path/to/table",
         "format": "delta",
-        "connection": {
-            "adls": {
-                "adls_account_name": "adls-account-name",
-                "adls_access_key": "adls-access-key",
-                "adls_sas_key": "adls-sas-key",
-                "adls_tenant_id": "adls-tenant-id",
-                "adls_client_id": "adls-client-id",
-                "adls_client_secret": "adls-client-secret",
-                "azure_msi_endpoint": "https://msi.azure.com/",
-                "use_azure_cli": False,
-            },
-        },
+        "storage_credential": sample_storage_credential_adls,
     }
 
 

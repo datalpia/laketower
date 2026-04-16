@@ -15,7 +15,7 @@ def test_load_table_deltatable_s3(
 
     _ = tables.load_table(table_config)
 
-    expected_s3_conn = sample_config_table_delta_s3["connection"]["s3"]
+    expected_s3_conn = sample_config_table_delta_s3["storage_credential"]["s3"]
     assert mock_deltatable.call_count == 1
     assert mock_deltatable.call_args.kwargs["storage_options"] == {
         "aws_access_key_id": expected_s3_conn["s3_access_key_id"],
@@ -34,7 +34,7 @@ def test_load_table_deltatable_adls(
 
     _ = tables.load_table(table_config)
 
-    expected_adls_conn = sample_config_table_delta_adls["connection"]["adls"]
+    expected_adls_conn = sample_config_table_delta_adls["storage_credential"]["adls"]
     assert mock_deltatable.call_count == 1
     assert mock_deltatable.call_args.kwargs["storage_options"] == {
         "azure_storage_account_name": expected_adls_conn["adls_account_name"],
