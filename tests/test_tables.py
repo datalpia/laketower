@@ -7,6 +7,20 @@ import pytest
 from laketower import config, tables
 
 
+@mock.patch(
+    "laketower.tables.deltalake.DeltaTable.is_deltatable",
+    side_effect=OSError("Generic S3 error"),
+)
+def test_is_valid_deltatable_os_error(
+    mock_is_deltatable: mock.MagicMock, sample_config_table_delta_s3: dict[str, Any]
+) -> None:
+    table_config = config.ConfigTable.model_validate(sample_config_table_delta_s3)
+
+    result = tables.DeltaTable.is_valid(table_config)
+
+    assert result is False
+
+
 @mock.patch("laketower.tables.deltalake.DeltaTable")
 def test_load_table_deltatable_s3(
     mock_deltatable: mock.MagicMock, sample_config_table_delta_s3: dict[str, Any]

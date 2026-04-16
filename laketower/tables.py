@@ -154,9 +154,12 @@ class DeltaTable:
     @classmethod
     def is_valid(cls, table_config: ConfigTable) -> bool:
         storage_options = cls._generate_storage_options(table_config)
-        return deltalake.DeltaTable.is_deltatable(
-            table_config.uri, storage_options=storage_options
-        )
+        try:
+            return deltalake.DeltaTable.is_deltatable(
+                table_config.uri, storage_options=storage_options
+            )
+        except OSError:
+            return False
 
     def metadata(self) -> TableMetadata:
         metadata = self._impl.metadata()
