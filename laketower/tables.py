@@ -62,8 +62,12 @@ class TableProtocol(Protocol):  # pragma: no cover
     def schema(self) -> pa.Schema: ...
     def history(self) -> TableHistory: ...
     def dataset(self, version: int | str | None = None) -> padataset.Dataset: ...
+    @classmethod
     def import_data(
-        self, data: pa.Table, mode: ImportModeEnum = ImportModeEnum.overwrite
+        cls,
+        table_config: ConfigTable,
+        data: pa.Table,
+        mode: ImportModeEnum = ImportModeEnum.overwrite,
     ) -> None: ...
 
 
@@ -202,22 +206,32 @@ class DeltaTable:
             self._impl.load_as_version(version)
         return self._impl.to_pyarrow_dataset()
 
+    @classmethod
     def import_data(
-        self, data: pa.Table, mode: ImportModeEnum = ImportModeEnum.overwrite
+        cls,
+        table_config: ConfigTable,
+        data: pa.Table,
+        mode: ImportModeEnum = ImportModeEnum.overwrite,
     ) -> None:
+        storage_options = cls._generate_storage_options(table_config)
         deltalake.write_deltalake(
-            self.table_config.uri, data, mode=mode.value, schema_mode="merge"
+            table_config.uri,
+            data,
+            mode=mode.value,
+            schema_mode="merge",
+            storage_options=storage_options,
         )
 
 
+def resolve_table(table_config: ConfigTable) -> type[TableProtocol]:
+    return {TableFormats.delta: DeltaTable}[table_config.table_format]
+
+
 def load_table(table_config: ConfigTable) -> TableProtocol:
-    format_handler: dict[TableFormats, type[TableProtocol]] = {
-        TableFormats.delta: DeltaTable
-    }
-    table_handler = format_handler[table_config.table_format]
-    if not table_handler.is_valid(table_config):
+    handler_class = resolve_table(table_config)
+    if not handler_class.is_valid(table_config):
         raise ValueError(f"Invalid table: {table_config.uri}")
-    return table_handler(table_config)
+    return handler_class(table_config)
 
 
 def load_datasets(table_configs: list[ConfigTable]) -> dict[str, padataset.Dataset]:
@@ -349,7 +363,7 @@ def import_file_to_table(
             parse_options=csv.ParseOptions(delimiter=d),
         )
     }
-    table = load_table(table_config)
     df = file_format_handler[file_format](file_path, delimiter, encoding)
-    table.import_data(df, mode=mode)
+    handler_class = resolve_table(table_config)
+    handler_class.import_data(table_config, df, mode)
     return len(df)

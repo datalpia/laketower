@@ -39,6 +39,7 @@ def delta_table(tmp_path: Path, delta_table_data: pd.DataFrame) -> deltalake.Del
 
 @pytest.fixture()
 def sample_config(delta_table: deltalake.DeltaTable) -> dict[str, Any]:
+    new_table_uri = str(Path(delta_table.table_uri).parent / "new_table")
     return {
         "settings": {
             "max_query_rows": 1_000,
@@ -54,8 +55,8 @@ def sample_config(delta_table: deltalake.DeltaTable) -> dict[str, Any]:
                 "format": "delta",
             },
             {
-                "name": "invalid_uri_table",
-                "uri": "path/to/invalid_uri_table",
+                "name": "nonexistent_table",
+                "uri": new_table_uri,
                 "format": "delta",
             },
         ],

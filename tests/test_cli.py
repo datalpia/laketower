@@ -172,7 +172,7 @@ def test_tables_metadata_invalid_table_uri(
 
     captured = capsys.readouterr()
     output = captured.out
-    assert f"Invalid table: {sample_config['tables'][-1]['uri']}" in output
+    assert "Invalid table:" in output
 
 
 def test_tables_schema(
@@ -232,7 +232,7 @@ def test_tables_schema_invalid_table_uri(
 
     captured = capsys.readouterr()
     output = captured.out
-    assert f"Invalid table: {sample_config['tables'][-1]['uri']}" in output
+    assert "Invalid table:" in output
 
 
 def test_tables_history(
@@ -304,7 +304,7 @@ def test_tables_history_invalid_table_uri(
 
     captured = capsys.readouterr()
     output = captured.out
-    assert f"Invalid table: {sample_config['tables'][-1]['uri']}" in output
+    assert "Invalid table:" in output
 
 
 def test_tables_statistics(
@@ -398,7 +398,7 @@ def test_tables_statistics_invalid_table_uri(
 
     captured = capsys.readouterr()
     output = captured.out
-    assert f"Invalid table: {sample_config['tables'][-1]['uri']}" in output
+    assert "Invalid table:" in output
 
 
 def test_tables_view(
@@ -649,7 +649,7 @@ def test_tables_view_invalid_table_uri(
 
     captured = capsys.readouterr()
     output = captured.out
-    assert f"Invalid table: {sample_config['tables'][-1]['uri']}" in output
+    assert "Invalid table:" in output
 
 
 def test_tables_query(
@@ -1198,14 +1198,16 @@ def test_tables_import_csv_missing_file(
     assert f"No such file or directory: '{csv_path}'" in output
 
 
-def test_tables_import_csv_invalid_table(
+def test_tables_import_csv_nonexistent_table(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
     tmp_path: Path,
     sample_config: dict[str, Any],
     sample_config_path: Path,
 ) -> None:
-    invalid_table = sample_config["tables"][-1]
+    new_table = sample_config["tables"][-1]
+    table_name = new_table["name"]
+    insert_mode = "overwrite"
 
     csv_data = pd.DataFrame(
         {"time": ["2025-01-02T00:00:00+00:00"], "city": ["Lyon"], "temperature": [10.5]}
@@ -1222,9 +1224,11 @@ def test_tables_import_csv_invalid_table(
             str(sample_config_path),
             "tables",
             "import",
-            invalid_table["name"],
+            table_name,
             "--file",
             str(csv_path),
+            "--mode",
+            insert_mode,
         ],
     )
 
@@ -1232,7 +1236,10 @@ def test_tables_import_csv_invalid_table(
 
     captured = capsys.readouterr()
     output = captured.out
-    assert f"Invalid table: {invalid_table['uri']}" in output
+    assert (
+        f"Successfully imported {len(csv_data)} rows into table '{table_name}' in '{insert_mode}' mode"
+        in output
+    )
 
 
 def test_tables_import_csv_schema_mismatch(

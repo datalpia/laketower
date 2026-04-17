@@ -194,14 +194,24 @@ def test_table_index_invalid_table_uri(
 ) -> None:
     table = sample_config["tables"][-1]
 
+    response = client.get(f"/tables/{table['name']}", follow_redirects=False)
+    assert response.status_code == HTTPStatus.FOUND
+    assert response.headers["location"] == f"/tables/{table['name']}/import"
+
+
+@patch("laketower.web.load_table", side_effect=OSError("S3 auth failure"))
+def test_table_index_load_error(
+    mock_load_table: Any,
+    client: TestClient,
+    sample_config: dict[str, Any],
+) -> None:
+    table = sample_config["tables"][0]
+
     response = client.get(f"/tables/{table['name']}")
     assert response.status_code == HTTPStatus.OK
 
     html = response.content.decode()
-    for table in sample_config["tables"]:
-        assert table["name"] in html
-
-    assert f"Invalid table: {table['uri']}" in html
+    assert "S3 auth failure" in html
 
 
 def test_table_history(
@@ -683,7 +693,49 @@ def test_tables_import_invalid_table_uri(
     assert response.status_code == HTTPStatus.OK
 
     html = response.content.decode()
-    assert f"Invalid table: {table['uri']}" in html
+    assert f"Invalid table: {table['uri']}" not in html
+
+    soup = BeautifulSoup(html, "html.parser")
+    assert soup.find("form") is not None
+
+    nav_links = [a.get_text().strip() for a in soup.find_all("a", class_="nav-link")]
+    assert "Import" in nav_links
+    assert not any(
+        tab in nav_links for tab in ["Overview", "Data", "Statistics", "History"]
+    )
+
+
+@patch("laketower.tables.deltalake.write_deltalake")
+def test_tables_import_post_nonexistent_table(
+    mock_write_deltalake: Any,
+    client: TestClient,
+    sample_config: dict[str, Any],
+    tmp_path: Path,
+) -> None:
+    table = sample_config["tables"][-1]
+    url = f"/tables/{table['name']}/import"
+
+    csv_data = pd.DataFrame(
+        {"time": ["2025-01-02T00:00:00+00:00"], "city": ["Lyon"], "temperature": [10.5]}
+    )
+    csv_path = tmp_path / "test_data.csv"
+    csv_data.to_csv(csv_path, index=False)
+
+    response = client.post(
+        url,
+        files={"input_file": csv_path.read_bytes()},
+        data={
+            "mode": "overwrite",
+            "file_format": "csv",
+            "delimiter": ",",
+            "encoding": "utf-8",
+        },
+    )
+    assert response.status_code == HTTPStatus.OK
+
+    html = response.content.decode()
+    assert f"Successfully imported {len(csv_data)} rows" in html
+    assert mock_write_deltalake.call_count == 1
 
 
 @pytest.mark.parametrize("delimiter", [",", ";"])
@@ -714,7 +766,7 @@ def test_tables_import_post_csv_append(
 
     response = client.post(
         f"/tables/{table['name']}/import",
-        files={"input_file": open(csv_path, "rb")},
+        files={"input_file": csv_path.read_bytes()},
         data={
             "mode": "append",
             "file_format": "csv",
@@ -758,7 +810,7 @@ def test_tables_import_post_csv_overwrite(
 
     response = client.post(
         f"/tables/{table['name']}/import",
-        files={"input_file": open(csv_path, "rb")},
+        files={"input_file": csv_path.read_bytes()},
         data={
             "mode": "overwrite",
             "file_format": "csv",
@@ -789,7 +841,7 @@ def test_tables_import_post_csv_schema_mismatch(
 
     response = client.post(
         f"/tables/{table['name']}/import",
-        files={"input_file": open(csv_path, "rb")},
+        files={"input_file": csv_path.read_bytes()},
         data={
             "file_format": "csv",
             "mode": "append",
