@@ -60,9 +60,7 @@ def render_markdown(md_text: str) -> str:
     )
 
 
-templates = Jinja2Templates(directory=Path(__file__).parent / "templates")
-templates.env.filters["current_path_with_args"] = current_path_with_args
-templates.env.filters["render_markdown"] = render_markdown
+TEMPLATES_DIR = Path(__file__).parent / "templates"
 
 router = APIRouter()
 
@@ -71,6 +69,7 @@ router = APIRouter()
 def index(request: Request) -> HTMLResponse:
     app_metadata: AppMetadata = request.app.state.app_metadata
     config: Config = request.app.state.config
+    templates: Jinja2Templates = request.app.state.templates
     return templates.TemplateResponse(
         request=request,
         name="index.html",
@@ -86,6 +85,7 @@ def index(request: Request) -> HTMLResponse:
 def get_tables_query(request: Request, sql: str) -> HTMLResponse:
     app_metadata: AppMetadata = request.app.state.app_metadata
     config: Config = request.app.state.config
+    templates: Jinja2Templates = request.app.state.templates
     tables_dataset = load_datasets(config.tables)
     sql_schema = {
         table_name: dataset.schema.names
@@ -162,6 +162,7 @@ def export_tables_query_csv(request: Request, sql: str) -> Response:
 def get_table_index(request: Request, table_id: str) -> HTMLResponse | RedirectResponse:
     app_metadata: AppMetadata = request.app.state.app_metadata
     config: Config = request.app.state.config
+    templates: Jinja2Templates = request.app.state.templates
     table_config = next(
         filter(lambda table_config: table_config.name == table_id, config.tables)
     )
@@ -198,6 +199,7 @@ def get_table_index(request: Request, table_id: str) -> HTMLResponse | RedirectR
 def get_table_history(request: Request, table_id: str) -> HTMLResponse:
     app_metadata: AppMetadata = request.app.state.app_metadata
     config: Config = request.app.state.config
+    templates: Jinja2Templates = request.app.state.templates
     table_config = next(
         filter(lambda table_config: table_config.name == table_id, config.tables)
     )
@@ -231,6 +233,7 @@ def get_table_statistics(
 ) -> HTMLResponse:
     app_metadata: AppMetadata = request.app.state.app_metadata
     config: Config = request.app.state.config
+    templates: Jinja2Templates = request.app.state.templates
     table_config = next(
         filter(lambda table_config: table_config.name == table_id, config.tables)
     )
@@ -274,6 +277,7 @@ def get_table_view(
 ) -> HTMLResponse:
     app_metadata: AppMetadata = request.app.state.app_metadata
     config: Config = request.app.state.config
+    templates: Jinja2Templates = request.app.state.templates
     table_config = next(
         filter(lambda table_config: table_config.name == table_id, config.tables)
     )
@@ -317,6 +321,7 @@ def get_table_import(
 ) -> HTMLResponse:
     app_metadata: AppMetadata = request.app.state.app_metadata
     config: Config = request.app.state.config
+    templates: Jinja2Templates = request.app.state.templates
     table_config = next(
         filter(lambda table_config: table_config.name == table_id, config.tables)
     )
@@ -349,6 +354,7 @@ def post_table_import(
 ) -> HTMLResponse:
     app_metadata: AppMetadata = request.app.state.app_metadata
     config: Config = request.app.state.config
+    templates: Jinja2Templates = request.app.state.templates
     table_config = next(
         filter(lambda table_config: table_config.name == table_id, config.tables)
     )
@@ -393,6 +399,7 @@ def post_table_import(
 def get_query_view(request: Request, query_id: str) -> Response:
     app_metadata: AppMetadata = request.app.state.app_metadata
     config: Config = request.app.state.config
+    templates: Jinja2Templates = request.app.state.templates
     query_config = next(
         filter(lambda query_config: query_config.name == query_id, config.queries)
     )
@@ -462,6 +469,10 @@ def create_app() -> FastAPI:
     settings = Settings()  # type: ignore[call-arg]
     config = load_yaml_config(settings.laketower_config_path)
 
+    templates = Jinja2Templates(directory=TEMPLATES_DIR)
+    templates.env.filters["current_path_with_args"] = current_path_with_args
+    templates.env.filters["render_markdown"] = render_markdown
+
     app = FastAPI(title="laketower")
     app.mount(
         "/static",
@@ -473,5 +484,6 @@ def create_app() -> FastAPI:
         app_name="🗼 Laketower", app_version=__about__.__version__
     )
     app.state.config = config
+    app.state.templates = templates
 
     return app

@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - replace now deprecated `sqlglot[rs]` with `sqlglot[c]`
 - update dependencies
+- move Jinja2 templates instance to app state
 
 ## [0.6.11] - 2026-02-15
 Patch release to improve compatibility with latest `sqlglot` versions.
