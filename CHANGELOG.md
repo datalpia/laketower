@@ -7,14 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-04-17
+Introduces a global `storage_credentials` registry to centralise S3/ADLS
+credentials and reuse them across tables, replacing per-table `connection`
+blocks. Includes breaking changes to credential field naming, the default table
+import mode, and adds support for importing data to tables that don't yet exist
+in storage.
+
 ### BREAKING CHANGES
 - `overwrite` is now the default table import mode (previously `append`) for both CLI and web
 - replace per-table `connection` block with global `storage_credentials` registry
 - strip redundant type prefixes from storage credential fields (`s3_*`, `adls_*`, `azure_*`)
 
 ### Added
-- new top-level `storage_credentials` registry for defining named S3/ADLS credentials once and
-  reusing them across multiple tables
+- top-level `storage_credentials` registry for defining named S3/ADLS credentials
 - allow importing data to tables that do not exist yet in storage
 
 ### Fixed
@@ -232,7 +238,8 @@ Initial release of `laketower`.
     - View a given table with simple query builder
     - Query all registered tables with DuckDB SQL dialect
 
-[Unreleased]: https://github.com/datalpia/laketower/compare/0.6.11...HEAD
+[Unreleased]: https://github.com/datalpia/laketower/compare/0.7.0...HEAD
+[0.7.0]: https://github.com/datalpia/laketower/compare/0.6.11...0.7.0
 [0.6.11]: https://github.com/datalpia/laketower/compare/0.6.10...0.6.11
 [0.6.10]: https://github.com/datalpia/laketower/compare/0.6.9...0.6.10
 [0.6.9]: https://github.com/datalpia/laketower/compare/0.6.8...0.6.9
