@@ -1,5 +1,6 @@
-{% macro table_nav(table_id, current) -%}
+{% macro table_nav(table_id, current, table_exists=True) -%}
 <ul class="nav nav-pills justify-content-center mb-3">
+  {% if table_exists %}
   <li class="nav-item">
     <a class="nav-link{% if current == 'overview' %} active{% endif %}"{% if current == 'overview' %} aria-current="true"{% endif %} href="/tables/{{ table_id }}">Overview</a>
   </li>
@@ -12,6 +13,7 @@
   <li class="nav-item">
     <a class="nav-link{% if current == 'history' %} active{% endif %}"{% if current == 'history' %} aria-current="true"{% endif %} href="/tables/{{ table_id }}/history">History</a>
   </li>
+  {% endif %}
   <li class="nav-item">
     <a class="nav-link{% if current == 'import' %} active{% endif %}"{% if current == 'import' %} aria-current="true"{% endif %} href="/tables/{{ table_id }}/import">Import</a>
   </li>

@@ -29,6 +29,7 @@ from laketower.tables import (
     limit_query,
     load_datasets,
     load_table,
+    resolve_table,
 )
 
 
@@ -157,22 +158,26 @@ def export_tables_query_csv(request: Request, sql: str) -> Response:
     )
 
 
-@router.get("/tables/{table_id}", response_class=HTMLResponse)
-def get_table_index(request: Request, table_id: str) -> HTMLResponse:
+@router.get("/tables/{table_id}", response_class=HTMLResponse, response_model=None)
+def get_table_index(request: Request, table_id: str) -> HTMLResponse | RedirectResponse:
     app_metadata: AppMetadata = request.app.state.app_metadata
     config: Config = request.app.state.config
     table_config = next(
         filter(lambda table_config: table_config.name == table_id, config.tables)
     )
+    handler_class = resolve_table(table_config)
+    if not handler_class.is_valid(table_config):
+        return RedirectResponse(url=f"/tables/{table_id}/import", status_code=302)
+
     try:
         table = load_table(table_config)
         table_metadata = table.metadata()
         table_schema = table.schema()
         error = None
-    except ValueError as e:
-        error = {"message": str(e)}
+    except Exception as e:
         table_metadata = None
         table_schema = None
+        error = {"message": str(e)}
 
     return templates.TemplateResponse(
         request=request,
@@ -315,13 +320,8 @@ def get_table_import(
     table_config = next(
         filter(lambda table_config: table_config.name == table_id, config.tables)
     )
-    try:
-        table = load_table(table_config)
-        table_metadata = table.metadata()
-        message = None
-    except ValueError as e:
-        message = {"type": "error", "body": str(e)}
-        table_metadata = None
+    handler_class = resolve_table(table_config)
+    table_exists = handler_class.is_valid(table_config)
 
     return templates.TemplateResponse(
         request=request,
@@ -331,8 +331,8 @@ def get_table_import(
             "tables": config.tables,
             "queries": config.queries,
             "table_id": table_id,
-            "table_metadata": table_metadata,
-            "message": message,
+            "table_exists": table_exists,
+            "message": None,
         },
     )
 
@@ -352,9 +352,11 @@ def post_table_import(
     table_config = next(
         filter(lambda table_config: table_config.name == table_id, config.tables)
     )
+    message = None
+    table_metadata = None
+    table_exists = False
+
     try:
-        table = load_table(table_config)
-        table_metadata = table.metadata()
         rows_imported = import_file_to_table(
             table_config, input_file.file, mode, file_format, delimiter, encoding
         )
@@ -364,7 +366,13 @@ def post_table_import(
         }
     except Exception as e:
         message = {"type": "error", "body": str(e)}
-        table_metadata = None
+
+    try:
+        table = load_table(table_config)
+        table_metadata = table.metadata()
+        table_exists = True
+    except ValueError:
+        pass
 
     return templates.TemplateResponse(
         request=request,
@@ -374,6 +382,7 @@ def post_table_import(
             "tables": config.tables,
             "queries": config.queries,
             "table_id": table_id,
+            "table_exists": table_exists,
             "table_metadata": table_metadata,
             "message": message,
         },

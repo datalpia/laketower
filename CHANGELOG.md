@@ -15,9 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - new top-level `storage_credentials` registry for defining named S3/ADLS credentials once and
   reusing them across multiple tables
+- allow importing data to tables that do not exist yet in storage
 
 ### Fixed
 - replace `duckdb` connection `fetch_arrow_table` with `to_arrow_table`
+- pass storage credentials to `write_deltalake` when importing data to remote tables (S3, ADLS)
 
 ### Changed
 - replace now deprecated `sqlglot[rs]` with `sqlglot[c]`

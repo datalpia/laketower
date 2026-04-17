@@ -1,3 +1,5 @@
+import io
+from pathlib import Path
 from typing import Any
 from unittest import mock
 
@@ -5,6 +7,95 @@ import pyarrow as pa
 import pytest
 
 from laketower import config, tables
+
+
+def test_resolve_table_delta(sample_config_table_delta_s3: dict[str, Any]) -> None:
+    table_config = config.ConfigTable.model_validate(sample_config_table_delta_s3)
+
+    handler_class = tables.resolve_table(table_config)
+
+    assert handler_class is tables.DeltaTable
+
+
+@mock.patch("laketower.tables.deltalake.write_deltalake")
+def test_deltatable_import_data_local(
+    mock_write_deltalake: mock.MagicMock,
+    tmp_path: Path,
+) -> None:
+    table_config = config.ConfigTable.model_validate(
+        {"name": "local_table", "uri": str(tmp_path / "table"), "format": "delta"}
+    )
+    data = pa.table({"col1": [1, 2], "col2": ["a", "b"]})
+
+    tables.DeltaTable.import_data(table_config, data, tables.ImportModeEnum.overwrite)
+
+    assert mock_write_deltalake.call_count == 1
+    assert mock_write_deltalake.call_args.kwargs["storage_options"] is None
+    assert mock_write_deltalake.call_args.kwargs["mode"] == "overwrite"
+
+
+@mock.patch("laketower.tables.deltalake.write_deltalake")
+def test_deltatable_import_data_s3(
+    mock_write_deltalake: mock.MagicMock,
+    sample_config_table_delta_s3: dict[str, Any],
+) -> None:
+    table_config = config.ConfigTable.model_validate(sample_config_table_delta_s3)
+    data = pa.table({"col1": [1, 2], "col2": ["a", "b"]})
+
+    tables.DeltaTable.import_data(table_config, data, tables.ImportModeEnum.overwrite)
+
+    expected_s3_conn = sample_config_table_delta_s3["storage_credential"]["s3"]
+    assert mock_write_deltalake.call_count == 1
+    assert mock_write_deltalake.call_args.kwargs["storage_options"] == {
+        "aws_access_key_id": expected_s3_conn["access_key_id"],
+        "aws_secret_access_key": expected_s3_conn["secret_access_key"],
+        "aws_region": expected_s3_conn["region"],
+        "aws_endpoint_url": str(expected_s3_conn["endpoint_url"]).rstrip("/"),
+        "aws_allow_http": str(expected_s3_conn["allow_http"]).lower(),
+    }
+    assert mock_write_deltalake.call_args.kwargs["mode"] == "overwrite"
+
+
+@mock.patch("laketower.tables.deltalake.write_deltalake")
+def test_deltatable_import_data_adls(
+    mock_write_deltalake: mock.MagicMock,
+    sample_config_table_delta_adls: dict[str, Any],
+) -> None:
+    table_config = config.ConfigTable.model_validate(sample_config_table_delta_adls)
+    data = pa.table({"col1": [1, 2], "col2": ["a", "b"]})
+
+    tables.DeltaTable.import_data(table_config, data, tables.ImportModeEnum.append)
+
+    expected_adls_conn = sample_config_table_delta_adls["storage_credential"]["adls"]
+    assert mock_write_deltalake.call_count == 1
+    assert mock_write_deltalake.call_args.kwargs["storage_options"] == {
+        "azure_storage_account_name": expected_adls_conn["account_name"],
+        "azure_storage_access_key": expected_adls_conn["access_key"],
+        "azure_storage_sas_key": expected_adls_conn["sas_key"],
+        "azure_storage_tenant_id": expected_adls_conn["tenant_id"],
+        "azure_storage_client_id": expected_adls_conn["client_id"],
+        "azure_storage_client_secret": expected_adls_conn["client_secret"],
+        "azure_msi_endpoint": str(expected_adls_conn["msi_endpoint"]).rstrip("/"),
+        "azure_use_azure_cli": str(expected_adls_conn["use_azure_cli"]).lower(),
+    }
+    assert mock_write_deltalake.call_args.kwargs["mode"] == "append"
+
+
+@mock.patch("laketower.tables.deltalake.write_deltalake")
+def test_import_file_to_table_nonexistent_table(
+    mock_write_deltalake: mock.MagicMock,
+    tmp_path: Path,
+) -> None:
+    table_config = config.ConfigTable.model_validate(
+        {"name": "new_table", "uri": str(tmp_path / "new_table"), "format": "delta"}
+    )
+    csv_content = b"col1,col2\n1,a\n2,b\n"
+
+    rows = tables.import_file_to_table(table_config, io.BytesIO(csv_content))
+
+    assert rows == 2
+    assert mock_write_deltalake.call_count == 1
+    assert mock_write_deltalake.call_args.args[0] == str(tmp_path / "new_table")
 
 
 @mock.patch(

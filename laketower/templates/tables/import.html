@@ -2,7 +2,7 @@
 {% import 'tables/_macros.html' as table_macros %}
 
 {% block body %}
-{{ table_macros.table_nav(table_id, 'import') }}
+{{ table_macros.table_nav(table_id, 'import', table_exists) }}
 
 {% if message %}
 {% if message.type == 'success' %}{% set alert_type = 'success' %}
