@@ -35,6 +35,7 @@ Patch release to improve compatibility with latest `sqlglot` versions.
 ### Changed
 - use `sqlglot[rs]` with faster Rust SQL parser
 - update dependencies
+- update js dependencies and vendored static assets
 
 ## [0.6.10] - 2025-12-11
 Introduce an optional customization of adding a footer totals row to predefined
