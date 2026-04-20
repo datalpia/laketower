@@ -149,6 +149,22 @@ tables:
     format: delta
 ```
 
+For string values that only need partial substitution, use the `${VAR_NAME}`
+inline syntax instead. Multiple variables in a single value are supported:
+
+```yaml
+# export BUCKET=my-bucket
+# export PREFIX=my-prefix
+
+tables:
+  - name: sample_table
+    uri: s3://${BUCKET}/${PREFIX}/sample_table
+    format: delta
+```
+
+The two syntaxes are independent: `{env: VAR}` replaces the entire value (any
+type), while `${VAR}` interpolates within a string.
+
 #### Storage Credentials
 
 Storage credentials are defined once under the top-level `storage_credentials`
