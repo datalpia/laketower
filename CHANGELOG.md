@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- support for inline interpolation of environment variables in YAML configuration (`${VAR_NAME}`)
+
 ## [0.7.0] - 2026-04-17
 Introduces a global `storage_credentials` registry to centralise S3/ADLS
 credentials and reuse them across tables, replacing per-table `connection`

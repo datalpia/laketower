@@ -282,6 +282,37 @@ def test_substitute_env_vars_dict_with_other_keys(
     assert result == {"env": "TEST_VAR", "other": "key"}
 
 
+def test_substitute_env_vars_inline_single(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("BUCKET_NAME", "my-bucket")
+    result = config.substitute_env_vars("s3://${BUCKET_NAME}/tables/my_table")
+    assert result == "s3://my-bucket/tables/my_table"
+
+
+def test_substitute_env_vars_inline_multiple(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("BUCKET", "my-bucket")
+    monkeypatch.setenv("PREFIX", "my-prefix")
+    result = config.substitute_env_vars("s3://${BUCKET}/${PREFIX}/table")
+    assert result == "s3://my-bucket/my-prefix/table"
+
+
+def test_substitute_env_vars_inline_missing_raises() -> None:
+    with pytest.raises(
+        ValueError, match="environment variable 'MISSING_VAR' is not set"
+    ):
+        config.substitute_env_vars("s3://${MISSING_VAR}/table")
+
+
+def test_substitute_env_vars_inline_in_nested_dict(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("BUCKET", "my-bucket")
+    monkeypatch.setenv("WHOLE_NAME", "my-table")
+    result = config.substitute_env_vars(
+        {"uri": "s3://${BUCKET}/table", "name": {"env": "WHOLE_NAME"}}
+    )
+    assert result == {"uri": "s3://my-bucket/table", "name": "my-table"}
+
+
 def test_substitute_env_vars_no_changes_needed() -> None:
     input_dict = {
         "tables": [{"name": "test", "uri": "path/to/table", "format": "delta"}],

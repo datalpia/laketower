@@ -1,6 +1,7 @@
 import enum
 import json
 import os
+import re
 from pathlib import Path
 from typing import Any
 
@@ -45,6 +46,18 @@ def substitute_env_vars(config_data: Any) -> Any:
         case list() as config_list:
             # Process list recursively
             return [substitute_env_vars(item) for item in config_list]
+
+        case str() as s if re.search(r"\$\{[^}]+\}", s):
+            # Inline ${VAR_NAME} interpolation within string values
+
+            def _replace(m: re.Match[str]) -> str:
+                var_name = m.group("var_name")
+                value = os.getenv(var_name)
+                if value is None:
+                    raise ValueError(f"environment variable '{var_name}' is not set")
+                return value
+
+            return re.sub(r"\$\{(?P<var_name>[^}]+)\}", _replace, s)
 
         case _:
             # Return primitive values unchanged
