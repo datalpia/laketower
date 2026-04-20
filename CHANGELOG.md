@@ -7,10 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-04-20
+Extends YAML configuration with environment variable interpolation, multi-file
+includes, and a new `config show` CLI subcommand to inspect the fully resolved
+configuration.
+
 ### Added
 - support for inline interpolation of environment variables in YAML configuration (`${VAR_NAME}`)
 - support for `include` directive in YAML configuration to deep-merge external config files
 - `config show` CLI subcommand to print the fully resolved configuration as YAML, with optional `--with-env-vars-substitution` flag
+
+### Changed
+- update dependencies
 
 ## [0.7.0] - 2026-04-17
 Introduces a global `storage_credentials` registry to centralise S3/ADLS
@@ -243,7 +251,8 @@ Initial release of `laketower`.
     - View a given table with simple query builder
     - Query all registered tables with DuckDB SQL dialect
 
-[Unreleased]: https://github.com/datalpia/laketower/compare/0.7.0...HEAD
+[Unreleased]: https://github.com/datalpia/laketower/compare/0.8.0...HEAD
+[0.8.0]: https://github.com/datalpia/laketower/compare/0.7.0...0.8.0
 [0.7.0]: https://github.com/datalpia/laketower/compare/0.6.11...0.7.0
 [0.6.11]: https://github.com/datalpia/laketower/compare/0.6.10...0.6.11
 [0.6.10]: https://github.com/datalpia/laketower/compare/0.6.9...0.6.10
