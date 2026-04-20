@@ -27,6 +27,7 @@ class ImportModeEnum(str, enum.Enum):
 
 class ImportFileFormatEnum(str, enum.Enum):
     csv = "csv"
+    xlsx = "xlsx"
 
 
 class TableMetadata(pydantic.BaseModel):
@@ -348,6 +349,16 @@ def compute_totals(results: pa.Table) -> pa.RecordBatch:
     )
 
 
+def _read_xlsx(data: bytes) -> pa.Table:
+    try:
+        import fastexcel
+    except ImportError:
+        raise ImportError(
+            "Excel support requires the 'excel' extra. Install laketower[excel]"
+        )
+    return pa.Table.from_batches([fastexcel.read_excel(data).load_sheet(0).to_arrow()])
+
+
 def import_file_to_table(
     table_config: ConfigTable,
     file_path: BinaryIO | TextIO,
@@ -361,7 +372,8 @@ def import_file_to_table(
             f,
             read_options=csv.ReadOptions(encoding=e),
             parse_options=csv.ParseOptions(delimiter=d),
-        )
+        ),
+        ImportFileFormatEnum.xlsx: lambda f, *_: _read_xlsx(f.read()),
     }
     df = file_format_handler[file_format](file_path, delimiter, encoding)
     handler_class = resolve_table(table_config)
