@@ -529,6 +529,7 @@ $ laketower -c demo/laketower.yml tables import weather --file data.csv --mode a
 
 `--format` argument can be one of:
 - `csv`: CSV file format (default)
+- `xlsx`: Excel file format (requires `laketower[excel]`, imports the first sheet)
 
 `--delimiter` argument can be:
 - Any single character (only valid for CSV file format)
@@ -537,6 +538,7 @@ $ laketower -c demo/laketower.yml tables import weather --file data.csv --mode a
 `--encoding` argument can be:
 - Any [standard Python encoding](https://docs.python.org/3/library/codecs.html#standard-encodings),
 - Default is `'utf-8'`
+- Only applies to CSV file format
 
 #### View a given table
 

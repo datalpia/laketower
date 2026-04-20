@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Any
 from unittest import mock
 
+import openpyxl
 import pyarrow as pa
 import pytest
 
@@ -96,6 +97,50 @@ def test_import_file_to_table_nonexistent_table(
     assert rows == 2
     assert mock_write_deltalake.call_count == 1
     assert mock_write_deltalake.call_args.args[0] == str(tmp_path / "new_table")
+
+
+@mock.patch("laketower.tables.deltalake.write_deltalake")
+def test_import_file_to_table_xlsx(
+    mock_write_deltalake: mock.MagicMock,
+    tmp_path: Path,
+) -> None:
+    table_config = config.ConfigTable.model_validate(
+        {"name": "new_table", "uri": str(tmp_path / "new_table"), "format": "delta"}
+    )
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    assert ws is not None
+    ws.append(["col1", "col2"])
+    ws.append([1, "a"])
+    ws.append([2, "b"])
+    xlsx_buffer = io.BytesIO()
+    wb.save(xlsx_buffer)
+    xlsx_buffer.seek(0)
+
+    rows = tables.import_file_to_table(
+        table_config,
+        xlsx_buffer,
+        file_format=tables.ImportFileFormatEnum.xlsx,
+    )
+
+    assert rows == 2
+    assert mock_write_deltalake.call_count == 1
+
+
+def test_import_file_to_table_xlsx_missing_extra(tmp_path: Path) -> None:
+    table_config = config.ConfigTable.model_validate(
+        {"name": "new_table", "uri": str(tmp_path / "new_table"), "format": "delta"}
+    )
+    with mock.patch.dict("sys.modules", {"fastexcel": None}):
+        with pytest.raises(
+            ImportError,
+            match="Excel support requires the 'excel' extra. Install laketower\\[excel\\]",
+        ):
+            tables.import_file_to_table(
+                table_config,
+                io.BytesIO(b""),
+                file_format=tables.ImportFileFormatEnum.xlsx,
+            )
 
 
 @mock.patch(

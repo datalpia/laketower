@@ -1,8 +1,10 @@
+import io
 from pathlib import Path
 from typing import Any
 
 import deltalake
 import numpy as np
+import openpyxl
 import pandas as pd
 import pytest
 import yaml
@@ -132,6 +134,19 @@ def sample_config_table_delta_adls(
         "format": "delta",
         "storage_credential": sample_storage_credential_adls,
     }
+
+
+@pytest.fixture()
+def sample_xlsx_bytes() -> bytes:
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    assert ws is not None
+    ws.append(["time", "city", "temperature"])
+    ws.append(["2025-01-02T00:00:00+00:00", "Lyon", 10.5])
+    ws.append(["2025-01-02T01:00:00+00:00", "Lyon", 11.0])
+    buf = io.BytesIO()
+    wb.save(buf)
+    return buf.getvalue()
 
 
 @pytest.fixture()

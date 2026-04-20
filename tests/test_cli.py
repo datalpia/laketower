@@ -1396,3 +1396,53 @@ def test_tables_import_csv_schema_mismatch(
     captured = capsys.readouterr()
     output = captured.out
     assert "Invalid data found" in output
+
+
+def test_tables_import_xlsx_append(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    tmp_path: Path,
+    sample_config: dict[str, Any],
+    sample_config_path: Path,
+    delta_table: deltalake.DeltaTable,
+    sample_xlsx_bytes: bytes,
+) -> None:
+    table_name = sample_config["tables"][0]["name"]
+    insert_mode = "append"
+
+    xlsx_path = tmp_path / "test_data.xlsx"
+    xlsx_path.write_bytes(sample_xlsx_bytes)
+    new_data_count = 2
+    original_count = len(delta_table.to_pandas())
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "laketower",
+            "--config",
+            str(sample_config_path),
+            "tables",
+            "import",
+            table_name,
+            "--file",
+            str(xlsx_path),
+            "--mode",
+            insert_mode,
+            "--format",
+            "xlsx",
+        ],
+    )
+
+    cli.cli()
+
+    captured = capsys.readouterr()
+    output = captured.out
+    assert (
+        f"Successfully imported {new_data_count} rows into table '{table_name}' in '{insert_mode}' mode"
+        in output
+    )
+
+    updated_table = deltalake.DeltaTable(delta_table.table_uri)
+    updated_count = len(updated_table.to_pandas())
+    assert updated_count == original_count + new_data_count

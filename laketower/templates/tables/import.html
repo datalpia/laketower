@@ -20,7 +20,7 @@
     <form action="{{ request.url.path }}" method="post" enctype="multipart/form-data">
       <div class="mb-3">
         <label for="import-file-input" class="form-label">Input file</label>
-        <input id="import-file-input" class="form-control" name="input_file" type="file" accept=".csv" required>
+        <input id="import-file-input" class="form-control" name="input_file" type="file" accept=".csv,.xlsx" required>
       </div>
 
       <div class="mb-3">
@@ -38,25 +38,30 @@
 
       <div class="mb-3">
         <label for="import-file-format" class="form-label">File format</label>
-        <select id="import-file-format" class="form-select" name="file_format">
+        <select id="import-file-format" class="form-select" name="file_format" onchange="toggleFormatOptions(this.value)">
           <option value="csv" selected>CSV</option>
+          <option value="xlsx">Excel (XLSX)</option>
         </select>
       </div>
 
-      <div class="mb-3">
-        <label for="import-delimiter" class="form-label">Delimiter</label>
-        <input id="import-delimiter" class="form-control" name="delimiter" value="," required>
-      </div>
+      <fieldset id="import-csv-options" class="border rounded p-3 mb-3">
+        <legend class="form-label fs-6 float-none w-auto px-2">CSV options</legend>
 
-      <div class="mb-3">
-        <label for="import-encoding" class="form-label">Encoding</label>
-        <select id="import-encoding" class="form-select" name="encoding">
-          <option value="utf-8" selected>UTF-8</option>
-          <option value="utf-16">UTF-16</option>
-          <option value="utf-32">UTF-32</option>
-          <option value="latin-1">Latin-1</option>
-        </select>
-      </div>
+        <div class="mb-3">
+          <label for="import-delimiter" class="form-label">Delimiter</label>
+          <input id="import-delimiter" class="form-control" name="delimiter" value="," required>
+        </div>
+
+        <div class="mb-3">
+          <label for="import-encoding" class="form-label">Encoding</label>
+          <select id="import-encoding" class="form-select" name="encoding">
+            <option value="utf-8" selected>UTF-8</option>
+            <option value="utf-16">UTF-16</option>
+            <option value="utf-32">UTF-32</option>
+            <option value="latin-1">Latin-1</option>
+          </select>
+        </div>
+      </fieldset>
 
       <div class="mb-3">
         <div class="d-flex justify-content-end">
@@ -68,4 +73,21 @@
     </form>
   </div>
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  function toggleFormatOptions(format) {
+    const csvOptions = document.getElementById('import-csv-options');
+    const delimiterInput = document.getElementById('import-delimiter');
+    if (format === 'xlsx') {
+      csvOptions.style.display = 'none';
+      delimiterInput.removeAttribute('required');
+    } else {
+      csvOptions.style.display = '';
+      delimiterInput.setAttribute('required', '');
+    }
+  }
+  toggleFormatOptions(document.getElementById('import-file-format').value);
+</script>
 {% endblock %}

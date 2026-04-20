@@ -639,7 +639,7 @@ def test_tables_import(client: TestClient, sample_config: dict[str, Any]) -> Non
 
     file_input = soup.find("input", {"type": "file", "name": "input_file"})
     assert file_input is not None
-    assert file_input.get("accept") == ".csv"
+    assert file_input.get("accept") == ".csv,.xlsx"
     assert file_input.has_attr("required")
 
     expected_mode_inputs = [("append", False), ("overwrite", True)]
@@ -650,7 +650,7 @@ def test_tables_import(client: TestClient, sample_config: dict[str, Any]) -> Non
         assert mode_input.get("value") == expected_mode_input[0]
         assert mode_input.has_attr("checked") == expected_mode_input[1]
 
-    expected_file_formats_options = [("csv", True)]
+    expected_file_formats_options = [("csv", True), ("xlsx", False)]
     file_format_select = soup.find("select", {"name": "file_format"})
     assert file_format_select is not None
     file_format_options = file_format_select.find_all("option", recursive=False)
@@ -659,6 +659,13 @@ def test_tables_import(client: TestClient, sample_config: dict[str, Any]) -> Non
     ):
         assert file_format_option.get("value") == expected_file_format_option[0]
         assert file_format_option.has_attr("selected") == expected_file_format_option[1]
+
+    csv_options_fieldset = soup.find("fieldset", {"id": "import-csv-options"})
+    assert csv_options_fieldset is not None
+    assert csv_options_fieldset.get("style") != "display: none;"
+    csv_options_legend = csv_options_fieldset.find("legend")
+    assert csv_options_legend is not None
+    assert csv_options_legend.get_text(strip=True) == "CSV options"
 
     delimiter_input = soup.find("input", {"name": "delimiter"})
     assert delimiter_input is not None
@@ -853,6 +860,43 @@ def test_tables_import_post_csv_schema_mismatch(
 
     html = response.content.decode()
     assert "Invalid data found" in html
+
+
+def test_tables_import_post_xlsx_append(
+    client: TestClient,
+    sample_config: dict[str, Any],
+    delta_table: deltalake.DeltaTable,
+    sample_xlsx_bytes: bytes,
+) -> None:
+    table = sample_config["tables"][0]
+
+    new_data_count = 2
+    original_count = len(delta_table.to_pandas())
+
+    response = client.post(
+        f"/tables/{table['name']}/import",
+        files={
+            "input_file": (
+                "test_data.xlsx",
+                sample_xlsx_bytes,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            )
+        },
+        data={
+            "mode": "append",
+            "file_format": "xlsx",
+            "delimiter": ",",
+            "encoding": "utf-8",
+        },
+    )
+    assert response.status_code == HTTPStatus.OK
+
+    html = response.content.decode()
+    assert f"Successfully imported {new_data_count} rows" in html
+
+    updated_table = deltalake.DeltaTable(table["uri"])
+    new_count = len(updated_table.to_pandas())
+    assert new_count == original_count + new_data_count
 
 
 def test_queries_view(client: TestClient, sample_config: dict[str, Any]) -> None:
