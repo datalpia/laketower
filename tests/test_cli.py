@@ -32,6 +32,127 @@ def test_version(
     assert __version__ in output
 
 
+def test_config_show(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    sample_config: dict[str, Any],
+    sample_config_path: Path,
+    tmp_path: Path,
+) -> None:
+    sample_config["queries"][0]["sql"] = "select *\nfrom delta_table"
+    config_path = tmp_path / "laketower.yml"
+    config_path.write_text(yaml.dump(sample_config))
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["laketower", "--config", str(config_path), "config", "show"],
+    )
+
+    cli.cli()
+
+    captured = capsys.readouterr()
+    output = captured.out
+    assert sample_config["tables"][0]["name"] in output
+    assert sample_config["queries"][0]["name"] in output
+    assert "sql: |" in output
+
+
+def test_config_show_with_env_vars_substitution(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    tmp_path: Path,
+) -> None:
+    monkeypatch.setenv("MY_TABLE_URI", "s3://my-bucket/my-table")
+    config_path = tmp_path / "laketower.yml"
+    config_path.write_text(
+        "tables:\n- name: mytable\n  uri: ${MY_TABLE_URI}\n  format: delta\n"
+    )
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "laketower",
+            "--config",
+            str(config_path),
+            "config",
+            "show",
+            "--with-env-vars-substitution",
+        ],
+    )
+
+    cli.cli()
+
+    captured = capsys.readouterr()
+    output = captured.out
+    assert "s3://my-bucket/my-table" in output
+    assert "${MY_TABLE_URI}" not in output
+
+
+def test_config_show_without_env_vars_substitution(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    tmp_path: Path,
+) -> None:
+    config_path = tmp_path / "laketower.yml"
+    config_path.write_text(
+        "tables:\n- name: mytable\n  uri: ${MY_TABLE_URI}\n  format: delta\n"
+    )
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["laketower", "--config", str(config_path), "config", "show"],
+    )
+
+    cli.cli()
+
+    captured = capsys.readouterr()
+    output = captured.out
+    assert "${MY_TABLE_URI}" in output
+
+
+def test_config_show_unknown_path(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    monkeypatch.setattr(
+        sys, "argv", ["laketower", "--config", "unknown.yml", "config", "show"]
+    )
+
+    cli.cli()
+
+    captured = capsys.readouterr()
+    output = captured.out
+    assert "unknown.yml" in output
+
+
+def test_config_show_with_include(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    tmp_path: Path,
+) -> None:
+    included = tmp_path / "tables.yml"
+    included.write_text(
+        "tables:\n- name: included_table\n  uri: s3://bucket/table\n  format: delta\n"
+    )
+    config_path = tmp_path / "laketower.yml"
+    config_path.write_text(yaml.dump({"include": ["tables.yml"]}))
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["laketower", "--config", str(config_path), "config", "show"],
+    )
+
+    cli.cli()
+
+    captured = capsys.readouterr()
+    output = captured.out
+    assert "included_table" in output
+    assert "include:" not in output
+
+
 def test_config_validate(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],

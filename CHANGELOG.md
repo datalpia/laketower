@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - support for inline interpolation of environment variables in YAML configuration (`${VAR_NAME}`)
 - support for `include` directive in YAML configuration to deep-merge external config files
+- `config show` CLI subcommand to print the fully resolved configuration as YAML, with optional `--with-env-vars-substitution` flag
 
 ## [0.7.0] - 2026-04-17
 Introduces a global `storage_credentials` registry to centralise S3/ADLS

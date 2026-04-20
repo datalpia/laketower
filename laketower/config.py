@@ -204,8 +204,16 @@ def inline_includes(config_dict: dict[str, Any], config_dir: Path) -> dict[str, 
     return deep_merge(merged, config_dict)
 
 
-def load_yaml_config(config_path: Path) -> Config:
-    config_dict = yaml.safe_load(config_path.read_text())
+def resolve_yaml_config(
+    config_path: Path, substitute_env: bool = False
+) -> dict[str, Any]:
+    config_dict: dict[str, Any] = yaml.safe_load(config_path.read_text())
     config_dict = inline_includes(config_dict, config_path.parent)
-    config_dict = substitute_env_vars(config_dict)
+    if substitute_env:
+        config_dict = substitute_env_vars(config_dict)
+    return config_dict
+
+
+def load_yaml_config(config_path: Path) -> Config:
+    config_dict = resolve_yaml_config(config_path, substitute_env=True)
     return Config.model_validate(config_dict)
