@@ -158,7 +158,51 @@ class Config(pydantic.BaseModel):
         return data
 
 
+def inline_includes(config_dict: dict[str, Any], config_dir: Path) -> dict[str, Any]:
+    def deep_merge(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]:
+        result = dict(base)
+        for key, override_val in override.items():
+            base_val = result.get(key)
+            if isinstance(base_val, dict) and isinstance(override_val, dict):
+                result[key] = deep_merge(base_val, override_val)
+            elif isinstance(base_val, list) and isinstance(override_val, list):
+                result[key] = base_val + override_val
+            else:
+                result[key] = override_val
+        return result
+
+    include_paths = config_dict.get("include")
+    config_dict = {k: v for k, v in config_dict.items() if k != "include"}
+
+    if not include_paths:
+        return config_dict
+
+    if not isinstance(include_paths, list):
+        raise TypeError(
+            f"'include' must be a list of file paths, got {type(include_paths).__name__}"
+        )
+
+    merged: dict[str, Any] = {}
+    for rel_path in include_paths:
+        included_path = config_dir / rel_path
+        if not included_path.exists():
+            raise FileNotFoundError(f"included config file not found: {included_path}")
+        included = yaml.safe_load(included_path.read_text())
+        if not isinstance(included, dict):
+            raise TypeError(
+                f"included config file must be a YAML mapping: {included_path}"
+            )
+        if "include" in included:
+            raise ValueError(
+                f"nested 'include' is not supported in included files: {included_path}"
+            )
+        merged = deep_merge(merged, included)
+
+    return deep_merge(merged, config_dict)
+
+
 def load_yaml_config(config_path: Path) -> Config:
     config_dict = yaml.safe_load(config_path.read_text())
+    config_dict = inline_includes(config_dict, config_path.parent)
     config_dict = substitute_env_vars(config_dict)
     return Config.model_validate(config_dict)

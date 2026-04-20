@@ -323,6 +323,156 @@ def test_substitute_env_vars_no_changes_needed() -> None:
     assert result == input_dict
 
 
+def test_include_basic(tmp_path: Path) -> None:
+    included = tmp_path / "queries.yml"
+    included.write_text(
+        yaml.dump({"queries": [{"name": "q1", "title": "Q1", "sql": "select 1"}]})
+    )
+
+    main = tmp_path / "laketower.yml"
+    main.write_text(yaml.dump({"include": ["queries.yml"]}))
+
+    conf = config.load_yaml_config(main)
+    assert len(conf.queries) == 1
+    assert conf.queries[0].name == "q1"
+
+
+def test_include_list_concatenation(tmp_path: Path) -> None:
+    included = tmp_path / "base.yml"
+    included.write_text(
+        yaml.dump(
+            {"queries": [{"name": "from_include", "title": "T", "sql": "select 1"}]}
+        )
+    )
+
+    main = tmp_path / "laketower.yml"
+    main.write_text(
+        yaml.dump(
+            {
+                "include": ["base.yml"],
+                "queries": [{"name": "from_main", "title": "T2", "sql": "select 2"}],
+            }
+        )
+    )
+
+    conf = config.load_yaml_config(main)
+    assert [q.name for q in conf.queries] == ["from_include", "from_main"]
+
+
+def test_include_dict_deep_merge_main_wins(tmp_path: Path) -> None:
+    included = tmp_path / "base.yml"
+    included.write_text(
+        yaml.dump({"settings": {"max_query_rows": 500, "web": {"hide_tables": True}}})
+    )
+
+    main = tmp_path / "laketower.yml"
+    main.write_text(
+        yaml.dump(
+            {
+                "include": ["base.yml"],
+                "settings": {"max_query_rows": 999},
+            }
+        )
+    )
+
+    conf = config.load_yaml_config(main)
+    assert conf.settings.max_query_rows == 999
+    assert conf.settings.web.hide_tables is True
+
+
+def test_include_missing_file_raises(tmp_path: Path) -> None:
+    main = tmp_path / "laketower.yml"
+    main.write_text(yaml.dump({"include": ["nonexistent.yml"]}))
+
+    with pytest.raises(FileNotFoundError, match="nonexistent.yml"):
+        config.load_yaml_config(main)
+
+
+def test_include_scalar_raises(tmp_path: Path) -> None:
+    main = tmp_path / "laketower.yml"
+    main.write_text("include: queries.yml\n")
+
+    with pytest.raises(TypeError, match="'include' must be a list"):
+        config.load_yaml_config(main)
+
+
+def test_include_non_mapping_file_raises(tmp_path: Path) -> None:
+    included = tmp_path / "list.yml"
+    included.write_text("- item1\n- item2\n")
+
+    main = tmp_path / "laketower.yml"
+    main.write_text(yaml.dump({"include": ["list.yml"]}))
+
+    with pytest.raises(TypeError, match="must be a YAML mapping"):
+        config.load_yaml_config(main)
+
+
+def test_include_nested_include_raises(tmp_path: Path) -> None:
+    included = tmp_path / "base.yml"
+    included.write_text(yaml.dump({"include": ["other.yml"], "tables": []}))
+
+    main = tmp_path / "laketower.yml"
+    main.write_text(yaml.dump({"include": ["base.yml"]}))
+
+    with pytest.raises(ValueError, match="nested 'include' is not supported"):
+        config.load_yaml_config(main)
+
+
+def test_include_multiple_files_in_order(tmp_path: Path) -> None:
+    first = tmp_path / "first.yml"
+    first.write_text(
+        yaml.dump({"queries": [{"name": "first", "title": "T", "sql": "select 1"}]})
+    )
+
+    second = tmp_path / "second.yml"
+    second.write_text(
+        yaml.dump({"queries": [{"name": "second", "title": "T", "sql": "select 2"}]})
+    )
+
+    main = tmp_path / "laketower.yml"
+    main.write_text(
+        yaml.dump(
+            {
+                "include": ["first.yml", "second.yml"],
+                "queries": [{"name": "main", "title": "T", "sql": "select 3"}],
+            }
+        )
+    )
+
+    conf = config.load_yaml_config(main)
+    assert [q.name for q in conf.queries] == ["first", "second", "main"]
+
+
+def test_include_key_absent_from_validated_config(tmp_path: Path) -> None:
+    included = tmp_path / "extra.yml"
+    included.write_text(yaml.dump({"tables": []}))
+
+    main = tmp_path / "laketower.yml"
+    main.write_text(yaml.dump({"include": ["extra.yml"]}))
+
+    conf = config.load_yaml_config(main)
+    assert not hasattr(conf, "include")
+
+
+def test_include_env_var_in_included_file(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    monkeypatch.setenv("BUCKET", "my-bucket")
+
+    included = tmp_path / "tables.yml"
+    included.write_text(
+        yaml.dump(
+            {"tables": [{"name": "t", "uri": "s3://${BUCKET}/t", "format": "delta"}]}
+        )
+    )
+
+    main = tmp_path / "laketower.yml"
+    main.write_text(yaml.dump({"include": ["tables.yml"]}))
+
+    conf = config.load_yaml_config(main)
+    assert conf.tables[0].uri == "s3://my-bucket/t"
+
+
 def test_load_yaml_config_with_env_var_substitution(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
