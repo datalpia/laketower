@@ -165,6 +165,51 @@ tables:
 The two syntaxes are independent: `{env: VAR}` replaces the entire value (any
 type), while `${VAR}` interpolates within a string.
 
+#### Config Includes
+
+Large or multi-environment setups can split the configuration across multiple
+YAML files using the `include` directive. Included files are deep-merged before
+the main file, so the main file always wins on conflict.
+
+```yaml
+# queries.yml  (shared across environments)
+queries:
+  - name: all_data
+    title: All data
+    sql: "select * from my_table"
+```
+
+```yaml
+# laketower.production.yml
+include:
+  - queries.yml
+
+storage_credentials:
+  s3_creds:
+    s3:
+      access_key_id: ${AWS_ACCESS_KEY_ID}
+      secret_access_key: ${AWS_SECRET_ACCESS_KEY}
+
+tables:
+  - name: my_table
+    uri: s3://production-bucket/tables/my_table
+    format: delta
+    storage_credential: s3_creds
+```
+
+Merge semantics:
+
+- **Lists** (`tables`, `queries`, ...): included file items come first, main file items appended
+- **Dicts** (`settings`, `storage_credentials`, ...): recursively deep-merged, main file values win on conflict
+- **Scalars**: main file wins
+
+Rules:
+
+- `include` paths are relative to the directory of the file declaring them
+- Multiple files are merged in order (first listed = lowest priority)
+- Environment variable substitution works in included files
+- Included files themselves do not support `include` (no recursive includes)
+
 #### Storage Credentials
 
 Storage credentials are defined once under the top-level `storage_credentials`
