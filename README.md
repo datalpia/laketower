@@ -360,6 +360,20 @@ commands:
 By default, a YAML configuration file named `laketower.yml` will be looked for.
 A custom path can be specified with the `-c` / `--config` argument.
 
+#### Show resolved YAML configuration
+
+Print the fully resolved configuration after include merging, useful for debugging composed setups.
+
+```bash
+$ laketower -c demo/laketower.yml config show
+```
+
+Pass `--with-env-vars-substitution` to also resolve environment variable references:
+
+```bash
+$ laketower -c demo/laketower.yml config show --with-env-vars-substitution
+```
+
 #### Validate YAML configuration
 
 ```bash

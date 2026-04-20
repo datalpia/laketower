@@ -13,7 +13,9 @@ import uvicorn
 import pyarrow.csv as pacsv
 
 from laketower.__about__ import __version__
-from laketower.config import load_yaml_config
+import yaml
+
+from laketower.config import load_yaml_config, resolve_yaml_config
 from laketower.tables import (
     ImportFileFormatEnum,
     ImportModeEnum,
@@ -36,6 +38,27 @@ def run_web(
     uvicorn.run(
         "laketower.web:create_app", factory=True, host=host, port=port, reload=reload
     )
+
+
+def show_config(config_path: Path, substitute_env: bool = False) -> None:
+    class _YamlDumper(yaml.Dumper):
+        pass
+
+    _YamlDumper.add_representer(
+        str,
+        lambda dumper, data: dumper.represent_scalar(
+            "tag:yaml.org,2002:str", data, style="|" if "\n" in data else None
+        ),
+    )
+
+    console = rich.get_console()
+    try:
+        config_dict = resolve_yaml_config(config_path, substitute_env=substitute_env)
+        console.print(
+            yaml.dump(config_dict, Dumper=_YamlDumper, allow_unicode=True), end=""
+        )
+    except Exception as e:
+        console.print(rich.panel.Panel.fit(f"[red]{e}"))
 
 
 def validate_config(config_path: Path) -> None:
@@ -386,6 +409,21 @@ def cli() -> None:
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     subsparsers_config = parser_config.add_subparsers(required=True)
+
+    parser_config_show = subsparsers_config.add_parser(
+        "show",
+        help="Print fully resolved YAML configuration",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    parser_config_show.add_argument(
+        "--with-env-vars-substitution",
+        action="store_true",
+        required=False,
+        help="Substitute environment variables in the resolved configuration",
+    )
+    parser_config_show.set_defaults(
+        func=lambda x: show_config(x.config, x.with_env_vars_substitution)
+    )
 
     parser_config_validate = subsparsers_config.add_parser(
         "validate",
