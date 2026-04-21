@@ -372,6 +372,9 @@ def import_file_to_table(
             f,
             read_options=csv.ReadOptions(encoding=e),
             parse_options=csv.ParseOptions(delimiter=d),
+            convert_options=csv.ConvertOptions(
+                null_values=[], strings_can_be_null=False
+            ),
         ),
         ImportFileFormatEnum.xlsx: lambda f, *_: _read_xlsx(f.read()),
     }

@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - support for Excel (XLSX) file format as import data source, gated behind the `excel` extra
 
+### Fixed
+- preserve empty strings as-is when importing CSV files (previously coerced to `null`)
+
 ## [0.8.0] - 2026-04-20
 Extends YAML configuration with environment variable interpolation, multi-file
 includes, and a new `config show` CLI subcommand to inspect the fully resolved
