@@ -100,6 +100,23 @@ def test_import_file_to_table_nonexistent_table(
 
 
 @mock.patch("laketower.tables.deltalake.write_deltalake")
+def test_import_file_to_table_csv_empty_string_not_null(
+    mock_write_deltalake: mock.MagicMock,
+    tmp_path: Path,
+) -> None:
+    table_config = config.ConfigTable.model_validate(
+        {"name": "new_table", "uri": str(tmp_path / "new_table"), "format": "delta"}
+    )
+    csv_content = b"col1,col2\n1,\n2,b\n"
+
+    tables.import_file_to_table(table_config, io.BytesIO(csv_content))
+
+    imported: pa.Table = mock_write_deltalake.call_args.args[1]
+    assert imported.column("col2")[0].as_py() == ""
+    assert imported.column("col2")[1].as_py() == "b"
+
+
+@mock.patch("laketower.tables.deltalake.write_deltalake")
 def test_import_file_to_table_xlsx(
     mock_write_deltalake: mock.MagicMock,
     tmp_path: Path,
