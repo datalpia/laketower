@@ -143,6 +143,9 @@ def vendor_static_assets(ctx: Context) -> None:
             "halfmoon/css/halfmoon.min.css",
             "halfmoon/css/cores/halfmoon.modern.css",
         ],
+        "htmx": [
+            "htmx.org/dist/htmx.min.js",
+        ],
     }
 
     bundles = [

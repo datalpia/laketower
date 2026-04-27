@@ -8,6 +8,7 @@
     "datatables.net-bs5": "2.3.8",
     "datatables.net-columncontrol-bs5": "1.2.1",
     "halfmoon": "2.0.2",
+    "htmx.org": "2.0.10",
     "jquery": "4.0.0"
   },
   "devDependencies": {
