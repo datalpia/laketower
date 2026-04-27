@@ -1002,7 +1002,8 @@ def test_queries_view(client: TestClient, sample_config: dict[str, Any]) -> None
         next(filter(lambda a: "Export CSV" in a.get_text(), soup.find_all("a")), None)
         is None
     )
-    assert soup.find("tbody") is None
+    assert (results := soup.find(id="query-results"))
+    assert results.find("tbody") is None
 
 
 def test_queries_view_parameters_default(
@@ -1026,8 +1027,9 @@ def test_queries_view_parameters_default(
             "input", attrs={"name": param_name, "value": param_data["default"]}
         )
 
-    assert soup.find("tfoot") is None
-    assert soup.find("tbody") is None
+    assert (results := soup.find(id="query-results"))
+    assert results.find("tfoot") is None
+    assert results.find("tbody") is None
 
 
 def test_queries_view_parameters(
@@ -1050,8 +1052,9 @@ def test_queries_view_parameters(
         assert soup.find("label", string=param_name)
         assert soup.find("input", attrs={"name": param_name, "value": "2025-06-01"})
 
-    assert soup.find("tfoot") is None
-    assert soup.find("tbody") is None
+    assert (results := soup.find(id="query-results"))
+    assert results.find("tfoot") is None
+    assert results.find("tbody") is None
 
 
 def test_queries_run(client: TestClient, sample_config: dict[str, Any]) -> None:
@@ -1098,6 +1101,36 @@ def test_queries_run(client: TestClient, sample_config: dict[str, Any]) -> None:
     assert soup.find("tfoot") is None
 
 
+def test_queries_run_htmx(client: TestClient, sample_config: dict[str, Any]) -> None:
+    query = sample_config["queries"][0]
+
+    response = client.get(
+        f"/queries/{query['name']}/run",
+        headers={"HX-Request": "true"},
+    )
+    assert response.status_code == HTTPStatus.OK
+
+    html = response.content.decode()
+    soup = BeautifulSoup(html, "html.parser")
+
+    # Fragment: no full page structure
+    assert soup.find("html") is None
+    assert soup.find("nav") is None
+
+    # Results div is the root of the fragment
+    results_div = soup.find("div", attrs={"id": "query-results"})
+    assert results_div is not None
+
+    assert next(
+        filter(
+            lambda p: "rows returned" in p.get_text().strip(),
+            soup.find_all("p"),
+        )
+    )
+    all_th = [th.get_text().strip() for th in soup.find_all("th")]
+    assert all(col in all_th for col in {"day", "avg_temperature"})
+
+
 def test_queries_run_max_row_limit(
     monkeypatch: pytest.MonkeyPatch,
     sample_config: dict[str, Any],
@@ -1131,7 +1164,8 @@ def test_queries_run_max_row_limit(
             soup.find_all("p"),
         )
     )
-    assert (table := soup.find("tbody"))
+    assert (results := soup.find(id="query-results"))
+    assert (table := results.find("tbody"))
     assert len(table.find_all("tr", recursive=False)) == max_query_rows
 
 
