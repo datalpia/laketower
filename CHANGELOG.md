@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - support for Excel (XLSX) file format as import data source, gated behind the `excel` extra
 - web: asynchronous execution for predefined queries when available
+- web: asynchronous execution for tables query when available
 
 ### Fixed
 - preserve empty strings as-is when importing CSV files (previously coerced to `null`)

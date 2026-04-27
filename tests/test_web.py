@@ -484,7 +484,8 @@ def test_tables_query(client: TestClient, sample_config: dict[str, Any]) -> None
         )
         is None
     )
-    assert soup.find("tbody") is None
+    assert (results := soup.find(id="table-results"))
+    assert results.find("tbody") is None
 
 
 def test_tables_query_with_sql(
@@ -502,7 +503,8 @@ def test_tables_query_with_sql(
     assert (
         textarea := soup.find("textarea")
     ) and textarea.get_text().strip() == sql_query
-    assert soup.find("tbody") is None
+    assert (results := soup.find(id="table-results"))
+    assert results.find("tbody") is None
 
 
 def test_tables_query_with_invalid_sql(
@@ -515,7 +517,8 @@ def test_tables_query_with_invalid_sql(
     soup = BeautifulSoup(html, "html.parser")
 
     assert soup.find("h2", string="SQL Query")  # type: ignore[call-overload]
-    assert soup.find("tbody") is None
+    assert (results := soup.find(id="table-results"))
+    assert results.find("tbody") is None
     assert "Error" not in html
 
 
@@ -606,8 +609,45 @@ def test_tables_query_run_max_rows_limit(
             soup.find_all("p"),
         )
     )
-    assert (table := soup.find("tbody"))
+    assert (results := soup.find(id="table-results"))
+    assert (table := results.find("tbody"))
     assert len(table.find_all("tr", recursive=False)) == max_query_rows
+
+
+def test_tables_query_run_htmx(
+    client: TestClient, sample_config: dict[str, Any], delta_table: deltalake.DeltaTable
+) -> None:
+    selected_column = delta_table.schema().fields[0].name
+    sql_query = (
+        f"select {selected_column} from {sample_config['tables'][0]['name']} limit 1"
+    )
+
+    response = client.get(
+        "/tables/query/run",
+        params={"sql": sql_query},
+        headers={"HX-Request": "true"},
+    )
+    assert response.status_code == HTTPStatus.OK
+
+    html = response.content.decode()
+    soup = BeautifulSoup(html, "html.parser")
+
+    # Fragment: no full page structure
+    assert soup.find("html") is None
+    assert soup.find("nav") is None
+
+    # Results div is the root of the fragment
+    results_div = soup.find("div", attrs={"id": "table-results"})
+    assert results_div is not None
+
+    assert next(
+        filter(
+            lambda p: "rows returned" in p.get_text().strip(),
+            soup.find_all("p"),
+        )
+    )
+    all_th = [th.get_text().strip() for th in soup.find_all("th")]
+    assert selected_column in all_th
 
 
 @pytest.mark.parametrize(
@@ -636,7 +676,8 @@ def test_tables_query_parameters(
     assert soup.find("input", attrs={"name": "start_date", "value": start_date})
     assert soup.find("label", string="end_date")  # type: ignore[call-overload]
     assert soup.find("input", attrs={"name": "end_date", "value": end_date})
-    assert soup.find("tbody") is None
+    assert (results := soup.find(id="table-results"))
+    assert results.find("tbody") is None
 
 
 @pytest.mark.parametrize(
