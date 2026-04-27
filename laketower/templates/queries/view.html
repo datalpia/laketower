@@ -1,6 +1,10 @@
 {% extends "_base.html" %}
 
 {% block extra_styles %}
+<style>
+  #query-placeholder { display: none; }
+  #query-placeholder.htmx-request { display: block; }
+</style>
 {% endblock %}
 
 {% block body %}
@@ -14,7 +18,18 @@
     </div>
     {% endif %}
 
-    <form action="{{ request.url_for('get_query_run', query_id=query.name) }}" method="get">
+    <form
+      action="{{ request.url_for('get_query_run', query_id=query.name) }}"
+      method="get"
+      hx-boost="true"
+      hx-target="#query-results"
+      hx-select="#query-results"
+      hx-swap="outerHTML"
+      hx-indicator="#query-placeholder"
+      hx-disabled-elt="find button[type='submit']"
+      hx-on:htmx:before-request="document.getElementById('query-results').style.display='none'"
+      hx-on:htmx:after-request="document.getElementById('query-results').style.display=''"
+    >
       {% if sql_params|length %}
       <h3 class="mb-3">Parameters</h3>
       {% for param_name, param_value in sql_params | dictsort(by='key') %}
@@ -31,7 +46,7 @@
         <div class="d-flex justify-content-end">
           <div class="row">
             <div class="col">
-              <a href="/tables/query?sql={{ query.sql | urlencode }}{% if sql_params | length > 0 %}&{{ sql_params | urlencode}}{% endif %}" class="btn btn-secondary" type="button">
+              <a href="/tables/query?sql={{ query.sql | urlencode }}{% if sql_params | length > 0 %}&{{ sql_params | urlencode}}{% endif %}" class="btn btn-secondary" type="button" hx-boost="false">
                 <i class="bi-code" aria-hidden="true"></i> Edit SQL
               </a>
             </div>
@@ -46,70 +61,40 @@
       </div>
     </form>
 
-    {% if error is not none %}
-    <div class="alert alert-danger" role="alert">
-      {{ error.message }}
-    </div>
-    {% elif query_results is not none %}
-    <h3>Results</h3>
-    <div class="d-flex justify-content-between align-items-center mb-2">
-      <p>
-        <i class="{% if truncated_results %}bi-database-exclamation{% else %}bi-database-check{% endif %}" aria-hidden="true"></i>
-        {{ query_results.num_rows }} rows returned{% if truncated_results %} (truncated){% endif %}
-        <br>
-        <i class="bi-speedometer" aria-hidden="true"></i>
-        Query execution time: {{ execution_time_ms | round(2) }}ms
-      </p>
-      <a href="/tables/query/csv?sql={{ query.sql | urlencode }}{% if sql_params | length > 0 %}&{{ sql_params | urlencode}}{% endif %}" class="btn btn-outline-secondary btn-sm">
-        <i class="bi-download" aria-hidden="true"></i> Export CSV
-      </a>
-    </div>
-    <div class="table-responsive">
-      <table id="resultsTable" class="table table-sm table-bordered table-striped table-hover">
-        <thead>
-          <tr>
-            <td>#</td>
-            {% for column in query_results.column_names %}
-            <th>{{ column }}</th>
+    <div id="query-placeholder" class="htmx-indicator placeholder-wave mt-3" aria-hidden="true">
+      <div class="d-flex align-items-center gap-2 mb-2 text-muted">
+        <div class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></div>
+        <span>Executing query…</span>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-sm table-bordered">
+          <thead>
+            <tr>
+              <th><span class="placeholder col-1"></span></th>
+              <th><span class="placeholder col-4"></span></th>
+              <th><span class="placeholder col-3"></span></th>
+              <th><span class="placeholder col-5"></span></th>
+            </tr>
+          </thead>
+          <tbody class="table-group-divider">
+            {% for i in range(8) %}
+            <tr>
+              <td><span class="placeholder col-1"></span></td>
+              <td><span class="placeholder col-{{ 3 + (i % 4) }}"></span></td>
+              <td><span class="placeholder col-{{ 2 + (i % 3) }}"></span></td>
+              <td><span class="placeholder col-{{ 4 + (i % 3) }}"></span></td>
+            </tr>
             {% endfor %}
-          </tr>
-        </thead>
-        <tbody class="table-group-divider">
-          {% for row in query_results.to_pylist() %}
-          <tr>
-            <td>{{ loop.index }}</td>
-            {% for column in query_results.column_names %}
-            <td>{{ row[column] }}</td>
-            {% endfor %}
-          </tr>
-          {% endfor %}
-        </tbody>
-        {% if query_totals %}
-        <tfoot>
-          <tr>
-            <th>Total</th>
-            {% for column_name in query_totals.column_names %}
-            {% set value = query_totals.column(column_name)[0].as_py() %}
-            <th>{% if value is not none %}{{ value }}{% else %}-{% endif %}</th>
-            {% endfor %}
-          </tr>
-        </tfoot>
-        {% endif %}
-      </table>
+          </tbody>
+        </table>
+      </div>
     </div>
-    {% endif %}
+
+    {% include "queries/_results.html" %}
   </div>
 </div>
 {% endblock %}
 
 {% block extra_scripts %}
-<script>
-  window.addEventListener("DOMContentLoaded", () => {
-    {% if query_results is not none and not error %}
-    const arrowTypes = {{ query_results.schema.types | map('string') | list | tojson }}
-    const columnTypes = datatables.arrowTypesToDataTables(arrowTypes)
-    const dataTable = datatables.createDataTable('#resultsTable', {columnTypes})
-    {% endif %}
-  })
-</script>
 {% endblock %}

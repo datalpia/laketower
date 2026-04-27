@@ -1,3 +1,4 @@
+import asyncio
 import io
 import time
 import urllib.parse
@@ -7,6 +8,7 @@ from typing import Annotated
 
 import bleach
 import markdown
+import pyarrow as pa
 import pyarrow.csv as pacsv
 import pydantic_settings
 from fastapi import APIRouter, FastAPI, File, Form, Query, Request, UploadFile
@@ -58,6 +60,10 @@ def render_markdown(md_text: str) -> str:
     return bleach.clean(
         markdown.markdown(md_text), tags=bleach.sanitizer.ALLOWED_TAGS | {"p"}
     )
+
+
+def wants_partial(request: Request) -> bool:
+    return request.headers.get("HX-Request") == "true"
 
 
 TEMPLATES_DIR = Path(__file__).parent / "templates"
@@ -446,9 +452,10 @@ def get_query_view(request: Request, query_id: str) -> Response:
         and len(query_config.parameters.keys()) > 0
     ):
         default_parameters = {k: v.default for k, v in query_config.parameters.items()}
-        url = request.url_for("get_query_view", query_id=query_id)
-        query_params = urllib.parse.urlencode(default_parameters)
-        return RedirectResponse(f"{url}?{query_params}")
+        redirect_url = request.url_for(
+            "get_query_view", query_id=query_id
+        ).include_query_params(**default_parameters)
+        return RedirectResponse(redirect_url)
 
     sql_param_names = extract_query_parameter_names(query_config.sql)
     sql_params = {
@@ -481,7 +488,7 @@ def get_query_view(request: Request, query_id: str) -> Response:
 
 
 @router.get("/queries/{query_id}/run", response_class=HTMLResponse)
-def get_query_run(request: Request, query_id: str) -> Response:
+async def get_query_run(request: Request, query_id: str) -> Response:
     app_metadata: AppMetadata = request.app.state.app_metadata
     config: Config = request.app.state.config
     templates: Jinja2Templates = request.app.state.templates
@@ -489,7 +496,6 @@ def get_query_run(request: Request, query_id: str) -> Response:
         filter(lambda query_config: query_config.name == query_id, config.queries)
     )
 
-    tables_dataset = load_datasets(config.tables)
     sql_param_names = extract_query_parameter_names(query_config.sql)
     sql_params = {
         name: request.query_params.get(name)
@@ -505,9 +511,14 @@ def get_query_run(request: Request, query_id: str) -> Response:
     try:
         sql_query = limit_query(query_config.sql, config.settings.max_query_rows + 1)
 
-        start_time = time.perf_counter()
-        results = execute_query(tables_dataset, sql_query, sql_params=sql_params)
-        execution_time_ms = (time.perf_counter() - start_time) * 1000
+        def _execute() -> tuple[pa.Table, float]:
+            tables_dataset = load_datasets(config.tables)
+            start_time = time.perf_counter()
+            results = execute_query(tables_dataset, sql_query, sql_params=sql_params)
+            execution_time_ms = (time.perf_counter() - start_time) * 1000
+            return results, execution_time_ms
+
+        results, execution_time_ms = await asyncio.to_thread(_execute)
 
         truncated = results.num_rows > config.settings.max_query_rows
         results = results.slice(
@@ -523,21 +534,40 @@ def get_query_run(request: Request, query_id: str) -> Response:
         totals = None
         execution_time_ms = None
 
+    context: dict[str, object] = {
+        "query": query_config,
+        "query_results": results,
+        "query_totals": totals,
+        "truncated_results": truncated,
+        "execution_time_ms": execution_time_ms,
+        "sql_params": sql_params,
+        "error": error,
+    }
+
+    headers = {}
+
+    if wants_partial(request):
+        template_name = "queries/_results.html"
+        headers["HX-Push-Url"] = str(
+            request.url_for("get_query_view", query_id=query_id).include_query_params(
+                **sql_params
+            )
+        )
+    else:
+        template_name = "queries/view.html"
+        context.update(
+            {
+                "app_metadata": app_metadata,
+                "tables": config.tables,
+                "queries": config.queries,
+            }
+        )
+
     return templates.TemplateResponse(
         request=request,
-        name="queries/view.html",
-        context={
-            "app_metadata": app_metadata,
-            "tables": config.tables,
-            "queries": config.queries,
-            "query": query_config,
-            "query_results": results,
-            "query_totals": totals,
-            "truncated_results": truncated,
-            "execution_time_ms": execution_time_ms,
-            "sql_params": sql_params,
-            "error": error,
-        },
+        name=template_name,
+        context=context,
+        headers=headers,
     )
 
 

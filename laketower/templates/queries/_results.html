@@ -1,0 +1,68 @@
+<div id="query-results">
+  {% if error is not none %}
+  <div class="alert alert-danger" role="alert">
+    {{ error.message }}
+  </div>
+  {% elif query_results is not none %}
+  <h3>Results</h3>
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <p>
+      <i class="{% if truncated_results %}bi-database-exclamation{% else %}bi-database-check{% endif %}" aria-hidden="true"></i>
+      {{ query_results.num_rows }} rows returned{% if truncated_results %} (truncated){% endif %}
+      <br>
+      <i class="bi-speedometer" aria-hidden="true"></i>
+      Query execution time: {{ execution_time_ms | round(2) }}ms
+    </p>
+    <a href="/tables/query/csv?sql={{ query.sql | urlencode }}{% if sql_params | length > 0 %}&{{ sql_params | urlencode}}{% endif %}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi-download" aria-hidden="true"></i> Export CSV
+    </a>
+  </div>
+  <div class="table-responsive">
+    <table id="resultsTable" class="table table-sm table-bordered table-striped table-hover">
+      <thead>
+        <tr>
+          <td>#</td>
+          {% for column in query_results.column_names %}
+          <th>{{ column }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody class="table-group-divider">
+        {% for row in query_results.to_pylist() %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          {% for column in query_results.column_names %}
+          <td>{{ row[column] }}</td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+      {% if query_totals %}
+      <tfoot>
+        <tr>
+          <th>Total</th>
+          {% for column_name in query_totals.column_names %}
+          {% set value = query_totals.column(column_name)[0].as_py() %}
+          <th>{% if value is not none %}{{ value }}{% else %}-{% endif %}</th>
+          {% endfor %}
+        </tr>
+      </tfoot>
+      {% endif %}
+    </table>
+  </div>
+  <script>
+    (function() {
+      const arrowTypes = {{ query_results.schema.types | map('string') | list | tojson }}
+      function initDataTable() {
+        const columnTypes = datatables.arrowTypesToDataTables(arrowTypes)
+        datatables.createDataTable('#resultsTable', {columnTypes: columnTypes})
+      }
+      if (typeof datatables !== 'undefined') {
+        initDataTable()
+      } else {
+        window.addEventListener('DOMContentLoaded', initDataTable)
+      }
+    })()
+  </script>
+  {% endif %}
+</div>
