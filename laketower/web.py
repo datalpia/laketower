@@ -413,6 +413,45 @@ def get_query_view(request: Request, query_id: str) -> Response:
         query_params = urllib.parse.urlencode(default_parameters)
         return RedirectResponse(f"{url}?{query_params}")
 
+    sql_param_names = extract_query_parameter_names(query_config.sql)
+    sql_params = {
+        name: request.query_params.get(name)
+        or (
+            query_param.default
+            if (query_param := query_config.parameters.get(name))
+            else None
+        )
+        or ""
+        for name in sql_param_names
+    }
+
+    return templates.TemplateResponse(
+        request=request,
+        name="queries/view.html",
+        context={
+            "app_metadata": app_metadata,
+            "tables": config.tables,
+            "queries": config.queries,
+            "query": query_config,
+            "sql_params": sql_params,
+            "query_results": None,
+            "query_totals": None,
+            "truncated_results": False,
+            "execution_time_ms": None,
+            "error": None,
+        },
+    )
+
+
+@router.get("/queries/{query_id}/run", response_class=HTMLResponse)
+def get_query_run(request: Request, query_id: str) -> Response:
+    app_metadata: AppMetadata = request.app.state.app_metadata
+    config: Config = request.app.state.config
+    templates: Jinja2Templates = request.app.state.templates
+    query_config = next(
+        filter(lambda query_config: query_config.name == query_id, config.queries)
+    )
+
     tables_dataset = load_datasets(config.tables)
     sql_param_names = extract_query_parameter_names(query_config.sql)
     sql_params = {

@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### BREAKING CHANGES
+- web: separate predefined query view and execution into distinct routes
+
 ### Added
 - support for Excel (XLSX) file format as import data source, gated behind the `excel` extra
 

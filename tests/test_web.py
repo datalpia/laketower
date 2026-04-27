@@ -904,6 +904,7 @@ def test_queries_view(client: TestClient, sample_config: dict[str, Any]) -> None
 
     response = client.get(f"/queries/{query['name']}/view")
     assert response.status_code == HTTPStatus.OK
+    assert len(response.history) == 0
 
     html = response.content.decode()
     soup = BeautifulSoup(html, "html.parser")
@@ -917,67 +918,31 @@ def test_queries_view(client: TestClient, sample_config: dict[str, Any]) -> None
         filter(lambda a: a.get_text().strip() == "Execute", soup.find_all("button"))
     )
 
-    assert next(
-        filter(
-            lambda a: "rows returned" in a.get_text().strip(),
-            soup.find_all("p"),
+    form = soup.find("form")
+    assert form is not None
+    action = form.get("action")
+    assert isinstance(action, str) and action.endswith(f"/queries/{query['name']}/run")
+
+    assert (
+        next(
+            filter(lambda p: "rows returned" in p.get_text(), soup.find_all("p")), None
         )
-    )
-    assert next(
-        filter(
-            lambda p: "Query execution time: " in p.get_text().strip(),
-            soup.find_all("p"),
-        )
-    )
-    export_csv_a = next(
-        filter(lambda a: a.get_text().strip() == "Export CSV", soup.find_all("a"))
+        is None
     )
     assert (
-        export_csv_a.get("href")
-        == f"/tables/query/csv?sql={urllib.parse.quote(query['sql'])}"
-    )
-
-    all_th = [th.get_text().strip() for th in soup.find_all("th")]
-    assert all(col in all_th for col in {"day", "avg_temperature"})
-
-    assert soup.find("tfoot") is None
-
-
-def test_queries_view_max_row_limit(
-    monkeypatch: pytest.MonkeyPatch,
-    sample_config: dict[str, Any],
-    sample_config_path: Path,
-) -> None:
-    max_query_rows = 3
-    sample_config["settings"]["max_query_rows"] = max_query_rows
-    sample_config_path.write_text(yaml.dump(sample_config))
-    monkeypatch.setenv("LAKETOWER_CONFIG_PATH", str(sample_config_path.absolute()))
-    client = TestClient(web.create_app())
-
-    query = sample_config["queries"][0]
-
-    response = client.get(f"/queries/{query['name']}/view")
-    assert response.status_code == HTTPStatus.OK
-
-    html = response.content.decode()
-    soup = BeautifulSoup(html, "html.parser")
-
-    assert next(
-        filter(
-            lambda a: (
-                f"{max_query_rows} rows returned (truncated)" in a.get_text().strip()
+        next(
+            filter(
+                lambda p: "Query execution time:" in p.get_text(), soup.find_all("p")
             ),
-            soup.find_all("p"),
+            None,
         )
+        is None
     )
-    assert next(
-        filter(
-            lambda p: "Query execution time: " in p.get_text().strip(),
-            soup.find_all("p"),
-        )
+    assert (
+        next(filter(lambda a: "Export CSV" in a.get_text(), soup.find_all("a")), None)
+        is None
     )
-    assert (table := soup.find("tbody"))
-    assert len(table.find_all("tr", recursive=False)) == max_query_rows
+    assert soup.find("tbody") is None
 
 
 def test_queries_view_parameters_default(
@@ -1001,18 +966,125 @@ def test_queries_view_parameters_default(
             "input", attrs={"name": param_name, "value": param_data["default"]}
         )
 
+    assert soup.find("tfoot") is None
+    assert soup.find("tbody") is None
+
 
 def test_queries_view_parameters(
     client: TestClient, sample_config: dict[str, Any]
 ) -> None:
     query = sample_config["queries"][1]
+    custom_params = {k: "2025-06-01" for k in query["parameters"]}
+
+    response = client.get(f"/queries/{query['name']}/view", params=custom_params)
+    assert response.status_code == HTTPStatus.OK
+    assert len(response.history) == 0
+
+    html = response.content.decode()
+    soup = BeautifulSoup(html, "html.parser")
+
+    assert soup.find("h2", string=query["title"])
+    assert soup.find("h3", string="Parameters")  # type: ignore[call-overload]
+
+    for param_name in query["parameters"]:
+        assert soup.find("label", string=param_name)
+        assert soup.find("input", attrs={"name": param_name, "value": "2025-06-01"})
+
+    assert soup.find("tfoot") is None
+    assert soup.find("tbody") is None
+
+
+def test_queries_run(client: TestClient, sample_config: dict[str, Any]) -> None:
+    query = sample_config["queries"][0]
+
+    response = client.get(f"/queries/{query['name']}/run")
+    assert response.status_code == HTTPStatus.OK
+
+    html = response.content.decode()
+    soup = BeautifulSoup(html, "html.parser")
+
+    assert soup.find("h2", string=query["title"])
+    assert soup.find("textarea") is None
+    assert next(
+        filter(lambda a: a.get_text().strip() == "Edit SQL", soup.find_all("a"))
+    )
+    assert next(
+        filter(lambda a: a.get_text().strip() == "Execute", soup.find_all("button"))
+    )
+
+    assert next(
+        filter(
+            lambda p: "rows returned" in p.get_text().strip(),
+            soup.find_all("p"),
+        )
+    )
+    assert next(
+        filter(
+            lambda p: "Query execution time: " in p.get_text().strip(),
+            soup.find_all("p"),
+        )
+    )
+    export_csv_a = next(
+        filter(lambda a: a.get_text().strip() == "Export CSV", soup.find_all("a"))
+    )
+    assert (
+        export_csv_a.get("href")
+        == f"/tables/query/csv?sql={urllib.parse.quote(query['sql'])}"
+    )
+
+    all_th = [th.get_text().strip() for th in soup.find_all("th")]
+    assert all(col in all_th for col in {"day", "avg_temperature"})
+
+    assert soup.find("tfoot") is None
+
+
+def test_queries_run_max_row_limit(
+    monkeypatch: pytest.MonkeyPatch,
+    sample_config: dict[str, Any],
+    sample_config_path: Path,
+) -> None:
+    max_query_rows = 3
+    sample_config["settings"]["max_query_rows"] = max_query_rows
+    sample_config_path.write_text(yaml.dump(sample_config))
+    monkeypatch.setenv("LAKETOWER_CONFIG_PATH", str(sample_config_path.absolute()))
+    client = TestClient(web.create_app())
+
+    query = sample_config["queries"][0]
+
+    response = client.get(f"/queries/{query['name']}/run")
+    assert response.status_code == HTTPStatus.OK
+
+    html = response.content.decode()
+    soup = BeautifulSoup(html, "html.parser")
+
+    assert next(
+        filter(
+            lambda p: (
+                f"{max_query_rows} rows returned (truncated)" in p.get_text().strip()
+            ),
+            soup.find_all("p"),
+        )
+    )
+    assert next(
+        filter(
+            lambda p: "Query execution time: " in p.get_text().strip(),
+            soup.find_all("p"),
+        )
+    )
+    assert (table := soup.find("tbody"))
+    assert len(table.find_all("tr", recursive=False)) == max_query_rows
+
+
+def test_queries_run_parameters(
+    client: TestClient, sample_config: dict[str, Any]
+) -> None:
+    query = sample_config["queries"][1]
 
     response = client.get(
-        f"/queries/{query['name']}/view",
+        f"/queries/{query['name']}/run",
         params={k: v["default"] for k, v in query["parameters"].items()},
     )
     assert response.status_code == HTTPStatus.OK
-    assert len(response.history) == 0
 
     html = response.content.decode()
     soup = BeautifulSoup(html, "html.parser")
@@ -1032,7 +1104,7 @@ def test_queries_view_parameters(
     assert totals_row.find("th", string="Total")  # type: ignore[call-overload]
 
 
-def test_queries_view_invalid(
+def test_queries_run_invalid(
     monkeypatch: pytest.MonkeyPatch,
     sample_config: dict[str, Any],
     sample_config_path: Path,
@@ -1043,7 +1115,7 @@ def test_queries_view_invalid(
     monkeypatch.setenv("LAKETOWER_CONFIG_PATH", str(sample_config_path.absolute()))
     client = TestClient(web.create_app())
 
-    response = client.get(f"/queries/{query['name']}/view")
+    response = client.get(f"/queries/{query['name']}/run")
     assert response.status_code == HTTPStatus.OK
 
     html = response.content.decode()
