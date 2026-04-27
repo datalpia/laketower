@@ -82,7 +82,44 @@ def index(request: Request) -> HTMLResponse:
 
 
 @router.get("/tables/query", response_class=HTMLResponse)
-def get_tables_query(request: Request, sql: str) -> HTMLResponse:
+def get_tables_query(request: Request, sql: str = "") -> HTMLResponse:
+    app_metadata: AppMetadata = request.app.state.app_metadata
+    config: Config = request.app.state.config
+    templates: Jinja2Templates = request.app.state.templates
+    tables_dataset = load_datasets(config.tables)
+    sql_schema = {
+        table_name: dataset.schema.names
+        for table_name, dataset in tables_dataset.items()
+    }
+
+    try:
+        sql_param_names = extract_query_parameter_names(sql)
+        sql_params = {
+            name: request.query_params.get(name) or "" for name in sql_param_names
+        }
+    except ValueError:
+        sql_params = {}
+
+    return templates.TemplateResponse(
+        request=request,
+        name="tables/query.html",
+        context={
+            "app_metadata": app_metadata,
+            "tables": config.tables,
+            "queries": config.queries,
+            "table_results": None,
+            "truncated_results": False,
+            "execution_time_ms": None,
+            "sql_query": sql,
+            "sql_schema": sql_schema,
+            "sql_params": sql_params,
+            "error": None,
+        },
+    )
+
+
+@router.get("/tables/query/run", response_class=HTMLResponse)
+def get_tables_query_run(request: Request, sql: str) -> HTMLResponse:
     app_metadata: AppMetadata = request.app.state.app_metadata
     config: Config = request.app.state.config
     templates: Jinja2Templates = request.app.state.templates
