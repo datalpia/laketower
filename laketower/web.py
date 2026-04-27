@@ -125,15 +125,10 @@ def get_tables_query(request: Request, sql: str = "") -> HTMLResponse:
 
 
 @router.get("/tables/query/run", response_class=HTMLResponse)
-def get_tables_query_run(request: Request, sql: str) -> HTMLResponse:
+async def get_tables_query_run(request: Request, sql: str) -> HTMLResponse:
     app_metadata: AppMetadata = request.app.state.app_metadata
     config: Config = request.app.state.config
     templates: Jinja2Templates = request.app.state.templates
-    tables_dataset = load_datasets(config.tables)
-    sql_schema = {
-        table_name: dataset.schema.names
-        for table_name, dataset in tables_dataset.items()
-    }
 
     try:
         sql_param_names = extract_query_parameter_names(sql)
@@ -143,39 +138,69 @@ def get_tables_query_run(request: Request, sql: str) -> HTMLResponse:
     except ValueError:
         sql_params = {}
 
+    results = None
+    truncated = False
+    execution_time_ms = None
+    error = None
+
     try:
         sql_query = limit_query(sql, config.settings.max_query_rows + 1)
 
-        start_time = time.perf_counter()
-        results = execute_query(tables_dataset, sql_query, sql_params=sql_params)
-        execution_time_ms = (time.perf_counter() - start_time) * 1000
+        def _execute() -> tuple[pa.Table, float]:
+            tables_dataset = load_datasets(config.tables)
+            start_time = time.perf_counter()
+            r = execute_query(tables_dataset, sql_query, sql_params=sql_params)
+            elapsed = (time.perf_counter() - start_time) * 1000
+            return r, elapsed
+
+        results, execution_time_ms = await asyncio.to_thread(_execute)
 
         truncated = results.num_rows > config.settings.max_query_rows
         results = results.slice(
             0, min(results.num_rows, config.settings.max_query_rows)
         )
-        error = None
     except ValueError as e:
         error = {"message": str(e)}
-        results = None
-        truncated = False
-        execution_time_ms = None
+
+    context: dict[str, object] = {
+        "table_results": results,
+        "truncated_results": truncated,
+        "execution_time_ms": execution_time_ms,
+        "sql_query": sql,
+        "sql_params": sql_params,
+        "error": error,
+    }
+
+    headers = {}
+
+    if wants_partial(request):
+        template_name = "tables/_results.html"
+        headers["HX-Push-Url"] = str(
+            request.url_for("get_tables_query").include_query_params(
+                sql=sql, **sql_params
+            )
+        )
+    else:
+        template_name = "tables/query.html"
+        tables_dataset = load_datasets(config.tables)
+        sql_schema = {
+            table_name: dataset.schema.names
+            for table_name, dataset in tables_dataset.items()
+        }
+        context.update(
+            {
+                "app_metadata": app_metadata,
+                "tables": config.tables,
+                "queries": config.queries,
+                "sql_schema": sql_schema,
+            }
+        )
 
     return templates.TemplateResponse(
         request=request,
-        name="tables/query.html",
-        context={
-            "app_metadata": app_metadata,
-            "tables": config.tables,
-            "queries": config.queries,
-            "table_results": results,
-            "truncated_results": truncated,
-            "execution_time_ms": execution_time_ms,
-            "sql_query": sql,
-            "sql_schema": sql_schema,
-            "sql_params": sql_params,
-            "error": error,
-        },
+        name=template_name,
+        context=context,
+        headers=headers,
     )
 
 

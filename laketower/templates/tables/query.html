@@ -2,6 +2,10 @@
 {% import 'tables/_macros.html' as table_macros %}
 
 {% block extra_styles %}
+<style>
+  #table-placeholder { display: none; }
+  #table-placeholder.htmx-request { display: block; }
+</style>
 {% endblock %}
 
 {% block body %}
@@ -9,7 +13,18 @@
   <div class="col">
     <h2 class="mb-3">SQL Query</h2>
 
-    <form action="{{ request.url_for('get_tables_query_run') }}" method="get">
+    <form
+      action="{{ request.url_for('get_tables_query_run') }}"
+      method="get"
+      hx-boost="true"
+      hx-target="#table-results"
+      hx-select="#table-results"
+      hx-swap="outerHTML"
+      hx-indicator="#table-placeholder"
+      hx-disabled-elt="find button[type='submit']"
+      hx-on:htmx:before-request="document.getElementById('table-results').style.display='none'"
+      hx-on:htmx:after-request="document.getElementById('table-results').style.display=''"
+    >
       <div class="mb-3">
         <textarea id="sql-editor" name="sql" rows="5" class="form-control">{{ sql_query }}</textarea>
       </div>
@@ -35,45 +50,35 @@
       </div>
     </form>
 
-    {% if error is not none %}
-    <div class="alert alert-danger" role="alert">
-      {{ error.message }}
-    </div>
-    {% elif table_results is not none %}
-    <h3>Results</h3>
-    <div class="d-flex justify-content-between align-items-center mb-2">
-        <p>
-          <i class="{% if truncated_results %}bi-database-exclamation{% else %}bi-database-check{% endif %}" aria-hidden="true"></i>
-          {{ table_results.num_rows }} rows returned{% if truncated_results %} (truncated){% endif %}
-          <br>
-          <i class="bi-speedometer" aria-hidden="true"></i>
-          Query execution time: {{ execution_time_ms | round(2) }}ms
-        </p>
-      <a href="/tables/query/csv?sql={{ sql_query | urlencode }}{% if sql_params | length > 0 %}&{{ sql_params | urlencode}}{% endif %}" class="btn btn-outline-secondary btn-sm">
-        <i class="bi-download" aria-hidden="true"></i> Export CSV
-      </a>
-    </div>
-    <div class="table-responsive">
-      <table id="resultsTable" class="table table-sm table-bordered table-striped table-hover">
-        <thead>
-          <tr>
-            {% for column in table_results.column_names %}
-            <th>{{ column }}</th>
+    <div id="table-placeholder" class="htmx-indicator placeholder-wave mt-3" aria-hidden="true">
+      <div class="d-flex align-items-center gap-2 mb-2 text-muted">
+        <div class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></div>
+        <span>Executing query…</span>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-sm table-bordered">
+          <thead>
+            <tr>
+              <th><span class="placeholder col-4"></span></th>
+              <th><span class="placeholder col-3"></span></th>
+              <th><span class="placeholder col-5"></span></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for i in range(8) %}
+            <tr>
+              <td><span class="placeholder col-{{ 3 + (i % 4) }}"></span></td>
+              <td><span class="placeholder col-{{ 2 + (i % 3) }}"></span></td>
+              <td><span class="placeholder col-{{ 4 + (i % 3) }}"></span></td>
+            </tr>
             {% endfor %}
-          </tr>
-        </thead>
-        <tbody>
-          {% for row in table_results.to_pylist() %}
-          <tr>
-            {% for column in table_results.column_names %}
-            <td>{{ row[column] }}</td>
-            {% endfor %}
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
     </div>
-    {% endif %}
+
+    {% include "tables/_results.html" %}
   </div>
 </div>
 {% endblock %}
@@ -86,12 +91,6 @@
     textArea.style.display = "none"
     const sqlSchema = {{ sql_schema | tojson }}
     const sqlEditor = editor.createEditor(textArea, { readOnly: false, dialect: 'duckdb', schema: sqlSchema})
-
-    {% if table_results is not none and not error %}
-    const arrowTypes = {{ table_results.schema.types | map('string') | list | tojson }}
-    const columnTypes = datatables.arrowTypesToDataTables(arrowTypes)
-    const dataTable = datatables.createDataTable('#resultsTable', {columnTypes})
-    {% endif %}
   })
 </script>
 {% endblock %}
