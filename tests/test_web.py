@@ -460,7 +460,66 @@ def test_table_view_invalid_table_uri(
     assert f"Invalid table: {table['uri']}" in html
 
 
-def test_tables_query(
+def test_tables_query(client: TestClient, sample_config: dict[str, Any]) -> None:
+    response = client.get("/tables/query")
+    assert response.status_code == HTTPStatus.OK
+
+    html = response.content.decode()
+    soup = BeautifulSoup(html, "html.parser")
+
+    assert soup.find("h2", string="SQL Query")  # type: ignore[call-overload]
+    assert soup.find("textarea") is not None
+    assert next(
+        filter(lambda a: a.get_text().strip() == "Execute", soup.find_all("button"))
+    )
+
+    form = soup.find("form")
+    assert form is not None
+    action = form.get("action")
+    assert isinstance(action, str) and action.endswith("/tables/query/run")
+
+    assert (
+        next(
+            filter(lambda p: "rows returned" in p.get_text(), soup.find_all("p")), None
+        )
+        is None
+    )
+    assert soup.find("tbody") is None
+
+
+def test_tables_query_with_sql(
+    client: TestClient, sample_config: dict[str, Any], delta_table: deltalake.DeltaTable
+) -> None:
+    selected_column = delta_table.schema().fields[0].name
+    sql_query = f"select {selected_column} from {sample_config['tables'][0]['name']}"
+
+    response = client.get("/tables/query", params={"sql": sql_query})
+    assert response.status_code == HTTPStatus.OK
+
+    html = response.content.decode()
+    soup = BeautifulSoup(html, "html.parser")
+
+    assert (
+        textarea := soup.find("textarea")
+    ) and textarea.get_text().strip() == sql_query
+    assert soup.find("tbody") is None
+
+
+def test_tables_query_with_invalid_sql(
+    client: TestClient, sample_config: dict[str, Any]
+) -> None:
+    response = client.get("/tables/query", params={"sql": "select * from"})
+    assert response.status_code == HTTPStatus.OK
+
+    html = response.content.decode()
+    soup = BeautifulSoup(html, "html.parser")
+
+    assert soup.find("h2", string="SQL Query")  # type: ignore[call-overload]
+    assert soup.find("tbody") is None
+    assert "Error" not in html
+
+
+def test_tables_query_run(
     client: TestClient, sample_config: dict[str, Any], delta_table: deltalake.DeltaTable
 ) -> None:
     selected_column = delta_table.schema().fields[0].name
@@ -468,7 +527,7 @@ def test_tables_query(
     selected_limit = 1
     sql_query = f"select {selected_column} from {sample_config['tables'][0]['name']} limit {selected_limit}"
 
-    response = client.get("/tables/query", params={"sql": sql_query})
+    response = client.get("/tables/query/run", params={"sql": sql_query})
     assert response.status_code == HTTPStatus.OK
 
     html = response.content.decode()
@@ -512,7 +571,7 @@ def test_tables_query(
     assert not all(str(row) in all_td for row in df[selected_column][selected_limit:])
 
 
-def test_tables_query_max_rows_limit(
+def test_tables_query_run_max_rows_limit(
     monkeypatch: pytest.MonkeyPatch,
     sample_config: dict[str, Any],
     sample_config_path: Path,
@@ -527,7 +586,7 @@ def test_tables_query_max_rows_limit(
     selected_column = delta_table.schema().fields[0].name
     sql_query = f"select {selected_column} from {sample_config['tables'][0]['name']}"
 
-    response = client.get("/tables/query", params={"sql": sql_query})
+    response = client.get("/tables/query/run", params={"sql": sql_query})
     assert response.status_code == HTTPStatus.OK
 
     html = response.content.decode()
@@ -535,8 +594,8 @@ def test_tables_query_max_rows_limit(
 
     assert next(
         filter(
-            lambda a: (
-                f"{max_query_rows} rows returned (truncated)" in a.get_text().strip()
+            lambda p: (
+                f"{max_query_rows} rows returned (truncated)" in p.get_text().strip()
             ),
             soup.find_all("p"),
         )
@@ -577,16 +636,17 @@ def test_tables_query_parameters(
     assert soup.find("input", attrs={"name": "start_date", "value": start_date})
     assert soup.find("label", string="end_date")  # type: ignore[call-overload]
     assert soup.find("input", attrs={"name": "end_date", "value": end_date})
+    assert soup.find("tbody") is None
 
 
 @pytest.mark.parametrize(
     "sql_query",
-    ["select * from unknown_table", "select * from", "select *", "select", ""],
+    ["select * from unknown_table", "select * from", "select *", "select"],
 )
-def test_tables_query_invalid(
+def test_tables_query_run_invalid(
     client: TestClient, delta_table: deltalake.DeltaTable, sql_query: str
 ) -> None:
-    response = client.get("/tables/query", params={"sql": sql_query})
+    response = client.get("/tables/query/run", params={"sql": sql_query})
     assert response.status_code == HTTPStatus.OK
 
     html = response.content.decode()
