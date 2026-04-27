@@ -9663,7 +9663,7 @@ var datatables = (function (exports) {
 
 	var jQuery = jQueryFactory( window);
 
-	/*! DataTables 2.3.7
+	/*! DataTables 2.3.8
 	 * © SpryMedia Ltd - datatables.net/license
 	 */
 
@@ -13224,6 +13224,11 @@ var datatables = (function (exports) {
 		if ( holdPosition !== true ) {
 			settings._iDisplayStart = 0;
 		}
+		else {
+			// Keep position, but make sure that there is actually data to display,
+			// otherwise we need to rewind a bit (e.g. if rows were deleted)
+			_fnLengthOverflow(settings);
+		}
 
 		// Let any modules know about the draw hold position state (used by
 		// scrolling internally)
@@ -14537,6 +14542,12 @@ var datatables = (function (exports) {
 
 		var args = [settings, settings.json];
 
+		// If the footer element is empty after initialisation, then remove it
+		let tfoot = $$2(settings.tfoot);
+		if (tfoot.children().length === 0) {
+			tfoot.remove();
+		}
+
 		settings._bInitComplete = true;
 
 		// Table is fully set up and we have data, so calculate the
@@ -14993,12 +15004,12 @@ var datatables = (function (exports) {
 		// the content of the cell so that the width applied to the header and body
 		// both match, but we want to hide it completely.
 		$$2('th, td', headerCopy).each(function () {
-			$$2(this.childNodes).wrapAll('<div class="dt-scroll-sizing">');
+			$$2(this.childNodes).wrapAll('<div class="dt-scroll-sizing" />');
 		});
 
 		if ( footer ) {
 			$$2('th, td', footerCopy).each(function () {
-				$$2(this.childNodes).wrapAll('<div class="dt-scroll-sizing">');
+				$$2(this.childNodes).wrapAll('<div class="dt-scroll-sizing" />');
 			});
 		}
 
@@ -15025,6 +15036,10 @@ var datatables = (function (exports) {
 
 		// Correct DOM ordering for colgroup - comes before the thead
 		table.children('colgroup').prependTo(table);
+
+		// Remove tabindex from the hidden row elements
+		table.find('thead, tfoot').find('[tabindex]').removeAttr('tabindex');
+		table.find('thead, tfoot').find('role').removeAttr('role');
 
 		// Adjust the position of the header in case we loose the y-scrollbar
 		divBody.trigger('scroll');
@@ -15349,8 +15364,12 @@ var datatables = (function (exports) {
 					.replace(/id=".*?"/g, '')
 					.replace(/name=".*?"/g, '');
 
-				// Don't want Javascript at all in these calculation cells.
-				cellString = cellString.replace(/<script.*?<\/script>/gi, ' ');
+				// Don't want script, dialog or template tags in the width
+				// calculations as they are hidden content
+				cellString = cellString
+					.replace(/<script[\s\S]*?<\/script>/gi, ' ')
+					.replace(/<dialog[\s\S]*?<\/dialog>/gi, ' ')
+					.replace(/<template[\s\S]*?<\/template>/gi, ' ');
 
 				var noHtml = _stripHtml(cellString, ' ')
 					.replace( /&nbsp;/g, ' ' );
@@ -19918,7 +19937,7 @@ var datatables = (function (exports) {
 	 *  @type string
 	 *  @default Version number
 	 */
-	DataTable.version = "2.3.7";
+	DataTable.version = "2.3.8";
 
 	/**
 	 * Private data store, containing all of the settings objects that are
@@ -22200,6 +22219,7 @@ var datatables = (function (exports) {
 	var __mlWarning = false;
 	var __luxon; // Can be assigned in DateTable.use()
 	var __moment; // Can be assigned in DateTable.use()
+	var __reIsoTimezone = /[T\s]\d{2}.*?(Z|[+-]\d{2}(?::?\d{2})?)$/;
 
 	/**
 	 * 
@@ -22220,7 +22240,7 @@ var datatables = (function (exports) {
 		resolveWindowLibs();
 
 		if (__moment) {
-			dt = __moment.utc( d, format, locale, true );
+			dt = __moment( d, format, locale, true );
 
 			if (! dt.isValid()) {
 				return null;
@@ -22330,6 +22350,16 @@ var datatables = (function (exports) {
 					return d;
 				}
 
+				// Determine if there is a timezone. If there is, we want to reuse
+				// it for the output, so the timezone doesn't change between the
+				// input and output.
+				let options = {};
+				let tzMatch = typeof d === 'string' ? d.match(__reIsoTimezone) : null;
+
+				if (tzMatch) {
+					options.timeZone = tzMatch[1] === 'Z' ? 'UTC' : tzMatch[1];
+				}
+
 				var dt = __mldObj(d, from, locale);
 
 				if (dt === null) {
@@ -22343,7 +22373,7 @@ var datatables = (function (exports) {
 				var formatted = to === null
 					? __mld(dt, 'toDate', 'toJSDate', '')[localeString](
 						navigator.language,
-						{ timeZone: "UTC" }
+						options
 					)
 					: __mld(dt, 'format', 'toFormat', 'toISOString', to);
 

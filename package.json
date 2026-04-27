@@ -4,8 +4,8 @@
   "dependencies": {
     "bootstrap": "5.3.8",
     "bootstrap-icons": "1.13.1",
-    "datatables.net": "2.3.7",
-    "datatables.net-bs5": "2.3.7",
+    "datatables.net": "2.3.8",
+    "datatables.net-bs5": "2.3.8",
     "datatables.net-columncontrol-bs5": "1.2.1",
     "halfmoon": "2.0.2",
     "jquery": "4.0.0"
