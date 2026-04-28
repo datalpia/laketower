@@ -484,13 +484,18 @@ def get_query_view(request: Request, query_id: str) -> Response:
 
     sql_param_names = extract_query_parameter_names(query_config.sql)
     sql_params = {
-        name: request.query_params.get(name)
-        or (
-            query_param.default
-            if (query_param := query_config.parameters.get(name))
-            else None
+        name: (
+            request.query_params[name]
+            if name in request.query_params
+            else (
+                (
+                    query_param.default
+                    if (query_param := query_config.parameters.get(name))
+                    else None
+                )
+                or ""
+            )
         )
-        or ""
         for name in sql_param_names
     }
 
@@ -523,13 +528,18 @@ async def get_query_run(request: Request, query_id: str) -> Response:
 
     sql_param_names = extract_query_parameter_names(query_config.sql)
     sql_params = {
-        name: request.query_params.get(name)
-        or (
-            query_param.default
-            if (query_param := query_config.parameters.get(name))
-            else None
+        name: (
+            request.query_params[name]
+            if name in request.query_params
+            else (
+                (
+                    query_param.default
+                    if (query_param := query_config.parameters.get(name))
+                    else None
+                )
+                or ""
+            )
         )
-        or ""
         for name in sql_param_names
     }
 

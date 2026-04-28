@@ -77,7 +77,7 @@ def sample_config(delta_table: deltalake.DeltaTable) -> dict[str, Any]:
                     "start_date": {"default": "2025-01-01"},
                     "end_date": {"default": "2025-01-31"},
                 },
-                "sql": "select date_trunc('day', time) as day, round(avg(temperature)) as avg_temperature from delta_table where day between $start_date and $end_date group by day order by day asc",
+                "sql": "select date_trunc('day', time) as day, round(avg(temperature)) as avg_temperature from delta_table where day between coalesce($start_date::timestamp, timestamp '-infinity') and coalesce($end_date::timestamp, timestamp 'infinity') group by day order by day asc",
             },
         ],
     }

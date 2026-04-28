@@ -309,6 +309,45 @@ tables:
     storage_credential: my_adls
 ```
 
+#### Predefined Query Parameters
+
+Predefined queries allows for specifying named parameters that can then be used
+with an SQL statement using the `$param_name` syntax.
+
+When a query parameter is left blank by the user, it is treated as `NULL` by the
+SQL engine. Use `COALESCE` to provide a fallback so the filter becomes a no-op
+instead of returning an error or empty results:
+
+```yaml
+queries:
+  - name: daily_avg_temperature_params
+    title: Daily average temperature with parameters
+    parameters:
+      start_date:
+        default: "2025-01-01"
+      end_date:
+        default: "2025-01-31"
+    sql: |
+      select
+        date_trunc('day', time) as day,
+        round(avg(temperature_2m)) as avg_temperature
+      from
+        weather
+      where
+        day between coalesce($start_date::timestamp, timestamp '-infinity')
+                and coalesce($end_date::timestamp, timestamp 'infinity')
+      group by
+        day
+      order by
+        day asc
+```
+
+In this example:
+
+- Blank `start_date` leads to `timestamp '-infinity'` (no lower bound)
+- Blank `end_date` leads to `timestamp 'infinity'` (no upper bound)
+- If both parameters are blank, all rows are returned
+
 ### Web Application
 
 The easiest way to get started is to launch the Laketower web application:
