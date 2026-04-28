@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - preserve empty strings as-is when importing CSV files (previously coerced to `null`)
+- preserve empty parameters in parametrized SQL queries
 
 ## [0.8.0] - 2026-04-20
 Extends YAML configuration with environment variable interpolation, multi-file

@@ -50,7 +50,8 @@ queries:
       from
         weather
       where
-        day between $start_date and $end_date
+        day between coalesce($start_date::timestamp, timestamp '-infinity')
+                and coalesce($end_date::timestamp, timestamp 'infinity')
       group by
         day
       order by

@@ -1098,6 +1098,25 @@ def test_queries_view_parameters(
     assert results.find("tbody") is None
 
 
+def test_queries_view_parameters_empty(
+    client: TestClient, sample_config: dict[str, Any]
+) -> None:
+    query = sample_config["queries"][1]
+    empty_params = {k: "" for k in query["parameters"]}
+
+    response = client.get(f"/queries/{query['name']}/view", params=empty_params)
+    assert response.status_code == HTTPStatus.OK
+    assert len(response.history) == 0
+
+    soup = BeautifulSoup(response.content.decode(), "html.parser")
+
+    for param_name, param_data in query["parameters"].items():
+        assert soup.find("input", attrs={"name": param_name, "value": ""})
+        assert not soup.find(
+            "input", attrs={"name": param_name, "value": param_data["default"]}
+        )
+
+
 def test_queries_run(client: TestClient, sample_config: dict[str, Any]) -> None:
     query = sample_config["queries"][0]
 
@@ -1237,6 +1256,50 @@ def test_queries_run_parameters(
     totals_row = tfoot.find("tr")
     assert totals_row
     assert totals_row.find("th", string="Total")  # type: ignore[call-overload]
+
+
+def test_queries_run_parameters_empty(
+    client: TestClient, sample_config: dict[str, Any], delta_table: deltalake.DeltaTable
+) -> None:
+    query = sample_config["queries"][1]
+    empty_params = {k: "" for k in query["parameters"]}
+
+    response = client.get(f"/queries/{query['name']}/run", params=empty_params)
+    assert response.status_code == HTTPStatus.OK
+
+    soup = BeautifulSoup(response.content.decode(), "html.parser")
+
+    for param_name, param_data in query["parameters"].items():
+        assert soup.find("input", attrs={"name": param_name, "value": ""})
+        assert not soup.find(
+            "input", attrs={"name": param_name, "value": param_data["default"]}
+        )
+
+    # Empty bounds mean no filter: all rows returned, no error
+    assert soup.find("div", class_="alert-danger") is None
+    assert soup.find("tfoot") is not None
+
+
+def test_queries_run_htmx_parameters_empty(
+    client: TestClient, sample_config: dict[str, Any]
+) -> None:
+    query = sample_config["queries"][1]
+    empty_params = {k: "" for k in query["parameters"]}
+
+    response = client.get(
+        f"/queries/{query['name']}/run",
+        params=empty_params,
+        headers={"HX-Request": "true"},
+    )
+    assert response.status_code == HTTPStatus.OK
+
+    push_url = response.headers.get("HX-Push-Url", "")
+    parsed = urllib.parse.urlparse(push_url)
+    pushed_params = dict(urllib.parse.parse_qsl(parsed.query, keep_blank_values=True))
+
+    for param_name, param_data in query["parameters"].items():
+        assert pushed_params.get(param_name) == ""
+        assert pushed_params.get(param_name) != param_data["default"]
 
 
 def test_queries_run_invalid(
