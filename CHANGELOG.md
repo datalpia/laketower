@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-04-28
+Introduces a lightweight asynchronous query execution mechanism for the raw SQL
+editor and predefined SQL queries. As this feature requires JavaScript to be
+enabled on client-side, a basic fallback is provided in no-JS environments.
+
+Excel files (XLSX format) are now supported for table data import.
+
 ### BREAKING CHANGES
 - web: separate predefined query view and execution into distinct routes
 - web: separate tables query view and execution into distinct routes
@@ -265,7 +272,8 @@ Initial release of `laketower`.
     - View a given table with simple query builder
     - Query all registered tables with DuckDB SQL dialect
 
-[Unreleased]: https://github.com/datalpia/laketower/compare/0.8.0...HEAD
+[Unreleased]: https://github.com/datalpia/laketower/compare/0.9.0...HEAD
+[0.9.0]: https://github.com/datalpia/laketower/compare/0.8.0...0.9.0
 [0.8.0]: https://github.com/datalpia/laketower/compare/0.7.0...0.8.0
 [0.7.0]: https://github.com/datalpia/laketower/compare/0.6.11...0.7.0
 [0.6.11]: https://github.com/datalpia/laketower/compare/0.6.10...0.6.11
