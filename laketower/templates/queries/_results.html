@@ -45,6 +45,7 @@
     (function() {
       const arrowTypes = {{ query_results.schema.types | map('string') | list | tojson }}
       const columnNames = {{ query_results.column_names | tojson }}
+      const columnUniques = {{ query_results.column_uniques | tojson }}
       const tableData = datatables.columnarToArrays({{ query_results.columns | tojson }}, columnNames)
       function initDataTable() {
         const columnTypes = datatables.arrowTypesToDataTables(arrowTypes)
@@ -56,6 +57,8 @@
           data: tableData,
           columns: columns,
           columnTypes: columnTypes,
+          columnNames: columnNames,
+          columnUniques: columnUniques,
           columnIndexOffset: 1,
         })
       }

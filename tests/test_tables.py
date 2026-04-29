@@ -432,6 +432,38 @@ def test_query_result_column_cardinalities_cached() -> None:
     assert result.column_cardinalities is result.column_cardinalities
 
 
+def test_query_result_column_uniques() -> None:
+    data = pa.table({"col1": [1, 2, 2, 3], "col2": ["b", "a", "a", "c"]})
+
+    result = tables.run_query(_make_datasets(data), "SELECT * FROM t", max_rows=10)
+
+    assert result.column_uniques == {"col1": [1, 2, 3], "col2": ["a", "b", "c"]}
+
+
+def test_query_result_column_uniques_includes_all_columns() -> None:
+    data = pa.table({"low": ["a"] * 24 + ["b"], "high": list(range(25))})
+
+    result = tables.run_query(_make_datasets(data), "SELECT * FROM t", max_rows=100)
+
+    assert "low" in result.column_uniques
+    assert "high" in result.column_uniques
+
+
+def test_query_result_column_uniques_excludes_nulls() -> None:
+    data = pa.table({"col1": pa.array(["a", None, "b", None], type=pa.string())})
+
+    result = tables.run_query(_make_datasets(data), "SELECT * FROM t", max_rows=10)
+
+    assert result.column_uniques == {"col1": ["a", "b"]}
+
+
+def test_query_result_column_uniques_cached() -> None:
+    data = pa.table({"col1": ["a", "b"]})
+    result = tables.run_query(_make_datasets(data), "SELECT * FROM t", max_rows=10)
+
+    assert result.column_uniques is result.column_uniques
+
+
 def test_query_result_totals() -> None:
     data = pa.table({"col1": ["cat1", "cat2", "cat3"], "col2": [1, 2, 3]})
 

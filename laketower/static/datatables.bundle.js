@@ -27014,6 +27014,8 @@ var datatables = (function (exports) {
 	DataTable.ColumnControl.SearchInput.classes.input = ['form-control', 'form-control-sm'];
 	DataTable.ColumnControl.SearchInput.classes.select = ['form-select', 'form-select-sm'];
 
+	const SEARCHLIST_MAX_CARDINALITY = 25;
+
 	function columnarToArrays(columnar, columnNames) {
 	    const cols = columnNames.map(k => columnar[k]);
 	    if (cols.length === 0) return []
@@ -27036,6 +27038,8 @@ var datatables = (function (exports) {
 
 	function createDataTable(tableId, options = {}) {
 	    const colOffset = options.columnIndexOffset || 0;
+	    const columnNames = options.columnNames || [];
+	    const columnUniques = options.columnUniques || {};
 	    return new DataTable(
 	        tableId,
 	        {
@@ -27055,8 +27059,10 @@ var datatables = (function (exports) {
 	                    type: type === 'numeric' ? 'num' : type === 'date' ? 'date' : 'string-utf8',
 	                };
 
-	                if (type === 'string') {
-	                    colDef.columnControl = ['order', ['searchList', 'spacer', 'orderAsc', 'orderDesc', 'orderClear']];
+	                const colName = columnNames[index];
+	                const uniques = columnUniques[colName];
+	                if (type === 'string' && uniques && uniques.length < SEARCHLIST_MAX_CARDINALITY) {
+	                    colDef.columnControl = ['order', [{ extend: 'searchList', options: uniques }, 'spacer', 'orderAsc', 'orderDesc', 'orderClear']];
 	                } else {
 	                    colDef.columnControl = ['order', ['search', 'spacer', 'orderAsc', 'orderDesc', 'orderClear']];
 	                }

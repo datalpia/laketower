@@ -33,6 +33,7 @@
     (function() {
       const arrowTypes = {{ table_results.schema.types | map('string') | list | tojson }}
       const columnNames = {{ table_results.column_names | tojson }}
+      const columnUniques = {{ table_results.column_uniques | tojson }}
       const tableData = datatables.columnarToArrays({{ table_results.columns | tojson }}, columnNames)
       function initDataTable() {
         const columnTypes = datatables.arrowTypesToDataTables(arrowTypes)
@@ -41,6 +42,8 @@
           data: tableData,
           columns: columns,
           columnTypes: columnTypes,
+          columnNames: columnNames,
+          columnUniques: columnUniques,
         })
       }
       if (typeof datatables !== 'undefined') {

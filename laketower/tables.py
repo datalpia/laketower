@@ -387,6 +387,17 @@ class QueryResult:
         }
 
     @cached_property
+    def column_uniques(self) -> dict[str, list[Any]]:
+        return {
+            name: sorted(
+                v
+                for v in pc.unique(self.data.column(name)).to_pylist()
+                if v is not None
+            )
+            for name in self.data.column_names
+        }
+
+    @cached_property
     def totals(self) -> pa.RecordBatch:
         return compute_totals(self.data)
 
