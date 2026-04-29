@@ -5,6 +5,7 @@ from unittest import mock
 
 import openpyxl
 import pyarrow as pa
+import pyarrow.dataset as padataset
 import pytest
 
 from laketower import config, tables
@@ -370,3 +371,121 @@ def test_compute_totals() -> None:
     assert totals.schema == data.schema
     assert totals["col1"][0].as_py() is None
     assert totals["col2"][0].as_py() == 6
+
+
+def _make_datasets(data: pa.Table, name: str = "t") -> dict[str, padataset.Dataset]:
+    return {name: padataset.dataset(data)}
+
+
+def test_run_query_basic() -> None:
+    data = pa.table({"col1": [1, 2, 3], "col2": ["a", "b", "c"]})
+
+    result = tables.run_query(_make_datasets(data), "SELECT * FROM t", max_rows=10)
+
+    assert result.num_rows == 3
+    assert result.truncated is False
+    assert result.execution_time_ms > 0
+
+
+def test_run_query_truncated() -> None:
+    data = pa.table({"col1": [1, 2, 3, 4, 5]})
+
+    result = tables.run_query(_make_datasets(data), "SELECT * FROM t", max_rows=3)
+
+    assert result.num_rows == 3
+    assert result.truncated is True
+
+
+def test_run_query_with_sql_params() -> None:
+    data = pa.table({"col1": [1, 2, 3], "col2": ["a", "b", "c"]})
+
+    result = tables.run_query(
+        _make_datasets(data),
+        "SELECT * FROM t WHERE col1 = $val",
+        sql_params={"val": "2"},
+        max_rows=10,
+    )
+
+    assert result.num_rows == 1
+    assert result.data["col1"][0].as_py() == 2
+
+
+def test_run_query_empty_sql_raises() -> None:
+    data = pa.table({"col1": [1, 2, 3]})
+
+    with pytest.raises(ValueError, match="empty SQL query"):
+        tables.run_query(_make_datasets(data), "", max_rows=10)
+
+
+def test_query_result_column_cardinalities() -> None:
+    data = pa.table({"col1": [1, 2, 2, 3], "col2": ["a", "a", "b", "b"]})
+
+    result = tables.run_query(_make_datasets(data), "SELECT * FROM t", max_rows=10)
+
+    assert result.column_cardinalities == {"col1": 3, "col2": 2}
+
+
+def test_query_result_column_cardinalities_cached() -> None:
+    data = pa.table({"col1": [1, 2, 3]})
+    result = tables.run_query(_make_datasets(data), "SELECT * FROM t", max_rows=10)
+
+    assert result.column_cardinalities is result.column_cardinalities
+
+
+def test_query_result_totals() -> None:
+    data = pa.table({"col1": ["cat1", "cat2", "cat3"], "col2": [1, 2, 3]})
+
+    result = tables.run_query(_make_datasets(data), "SELECT * FROM t", max_rows=10)
+
+    assert result.totals.num_rows == 1
+    assert result.totals["col1"][0].as_py() is None
+    assert result.totals["col2"][0].as_py() == 6
+
+
+def test_query_result_totals_cached() -> None:
+    data = pa.table({"col1": [1, 2, 3]})
+    result = tables.run_query(_make_datasets(data), "SELECT * FROM t", max_rows=10)
+
+    assert result.totals is result.totals
+
+
+def test_query_result_num_rows() -> None:
+    data = pa.table({"col1": [1, 2, 3]})
+    result = tables.run_query(_make_datasets(data), "SELECT * FROM t", max_rows=10)
+
+    assert result.num_rows == 3
+
+
+def test_query_result_column_names() -> None:
+    data = pa.table({"col1": [1, 2], "col2": ["a", "b"]})
+    result = tables.run_query(_make_datasets(data), "SELECT * FROM t", max_rows=10)
+
+    assert result.column_names == ["col1", "col2"]
+
+
+def test_query_result_rows() -> None:
+    data = pa.table({"col1": [1, 2], "col2": ["a", "b"]})
+    result = tables.run_query(_make_datasets(data), "SELECT * FROM t", max_rows=10)
+
+    assert result.rows == [{"col1": 1, "col2": "a"}, {"col1": 2, "col2": "b"}]
+
+
+def test_query_result_rows_cached() -> None:
+    data = pa.table({"col1": [1, 2, 3]})
+    result = tables.run_query(_make_datasets(data), "SELECT * FROM t", max_rows=10)
+
+    assert result.rows is result.rows
+
+
+def test_query_result_columns() -> None:
+    data = pa.table({"col1": [1, 2], "col2": ["a", "b"]})
+    result = tables.run_query(_make_datasets(data), "SELECT * FROM t", max_rows=10)
+
+    assert result.columns == {"col1": [1, 2], "col2": ["a", "b"]}
+
+
+def test_query_result_columns_cached() -> None:
+    data = pa.table({"col1": [1, 2, 3]})
+    result = tables.run_query(_make_datasets(data), "SELECT * FROM t", max_rows=10)
+
+    assert result.columns is result.columns

@@ -1,5 +1,8 @@
 import enum
+import time
+from dataclasses import dataclass
 from datetime import datetime, timezone
+from functools import cached_property
 from typing import Any, BinaryIO, Protocol, TextIO
 
 import deltalake
@@ -316,7 +319,7 @@ def limit_query(sql_query: str, max_limit: int) -> str:
 def execute_query(
     tables_datasets: dict[str, padataset.Dataset],
     sql_query: str,
-    sql_params: dict[str, str] = {},
+    sql_params: dict[str, str] | None = None,
 ) -> pa.Table:
     if not sql_query:
         raise ValueError("Error: Cannot execute empty SQL query")
@@ -332,7 +335,7 @@ def execute_query(
             view_name = f"{table_name}_view"
             conn.register(view_name, table_dataset)
             conn.execute(f'create view "{table_name}" as select * from "{view_name}"')  # nosec B608
-        normalized_params = {k: v or None for k, v in sql_params.items()}
+        normalized_params = {k: v or None for k, v in (sql_params or {}).items()}
         return conn.execute(sql_query, parameters=normalized_params).to_arrow_table()
     except duckdb.Error as e:
         raise ValueError(f"Error: {e}") from e
@@ -347,6 +350,65 @@ def compute_totals(results: pa.Table) -> pa.RecordBatch:
             for i, field in enumerate(results.schema)
         ],
         schema=results.schema,
+    )
+
+
+@dataclass(frozen=True)
+class QueryResult:
+    data: pa.Table
+    execution_time_ms: float
+    truncated: bool
+
+    @property
+    def num_rows(self) -> int:
+        return self.data.num_rows
+
+    @property
+    def column_names(self) -> list[str]:
+        return self.data.column_names
+
+    @property
+    def schema(self) -> pa.Schema:
+        return self.data.schema
+
+    @cached_property
+    def rows(self) -> list[dict[str, Any]]:
+        return self.data.to_pylist()
+
+    @cached_property
+    def columns(self) -> dict[str, list[Any]]:
+        return self.data.to_pydict()
+
+    @cached_property
+    def column_cardinalities(self) -> dict[str, int]:
+        return {
+            name: pc.count_distinct(self.data.column(name)).as_py()
+            for name in self.data.column_names
+        }
+
+    @cached_property
+    def totals(self) -> pa.RecordBatch:
+        return compute_totals(self.data)
+
+
+def run_query(
+    tables_datasets: dict[str, padataset.Dataset],
+    sql_query: str,
+    sql_params: dict[str, str] | None = None,
+    max_rows: int = DEFAULT_LIMIT,
+) -> QueryResult:
+    limited_sql = limit_query(sql_query, max_rows + 1)
+    start = time.perf_counter()
+    results = execute_query(tables_datasets, limited_sql, sql_params)
+    elapsed = (time.perf_counter() - start) * 1000
+
+    truncated = results.num_rows > max_rows
+    data = results.slice(0, max_rows) if truncated else results
+
+    return QueryResult(
+        data=data,
+        execution_time_ms=elapsed,
+        truncated=truncated,
     )
 
 

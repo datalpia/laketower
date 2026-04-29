@@ -7,11 +7,11 @@
   <h3>Results</h3>
   <div class="d-flex justify-content-between align-items-center mb-2">
     <p>
-      <i class="{% if truncated_results %}bi-database-exclamation{% else %}bi-database-check{% endif %}" aria-hidden="true"></i>
-      {{ query_results.num_rows }} rows returned{% if truncated_results %} (truncated){% endif %}
+      <i class="{% if query_results.truncated %}bi-database-exclamation{% else %}bi-database-check{% endif %}" aria-hidden="true"></i>
+      {{ query_results.num_rows }} rows returned{% if query_results.truncated %} (truncated){% endif %}
       <br>
       <i class="bi-speedometer" aria-hidden="true"></i>
-      Query execution time: {{ execution_time_ms | round(2) }}ms
+      Query execution time: {{ query_results.execution_time_ms | round(2) }}ms
     </p>
     <a href="/tables/query/csv?sql={{ query.sql | urlencode }}{% if sql_params | length > 0 %}&{{ sql_params | urlencode}}{% endif %}" class="btn btn-outline-secondary btn-sm">
       <i class="bi-download" aria-hidden="true"></i> Export CSV
@@ -45,7 +45,7 @@
     (function() {
       const arrowTypes = {{ query_results.schema.types | map('string') | list | tojson }}
       const columnNames = {{ query_results.column_names | tojson }}
-      const tableData = datatables.columnarToArrays({{ query_results.to_pydict() | tojson }}, columnNames)
+      const tableData = datatables.columnarToArrays({{ query_results.columns | tojson }}, columnNames)
       function initDataTable() {
         const columnTypes = datatables.arrowTypesToDataTables(arrowTypes)
         const columns = [
