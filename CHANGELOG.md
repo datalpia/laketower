@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- web: performance enhancements to render query results
+
 ## [0.9.0] - 2026-04-28
 Introduces a lightweight asynchronous query execution mechanism for the raw SQL
 editor and predefined SQL queries. As this feature requires JavaScript to be

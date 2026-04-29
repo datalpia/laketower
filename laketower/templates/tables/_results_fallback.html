@@ -18,7 +18,7 @@
     </a>
   </div>
   <div class="table-responsive">
-    <table id="resultsTable" class="table table-sm table-bordered table-striped table-hover">
+    <table class="table table-sm table-bordered table-striped table-hover">
       <thead>
         <tr>
           {% for column in table_results.column_names %}
@@ -26,29 +26,16 @@
           {% endfor %}
         </tr>
       </thead>
-      <tbody></tbody>
+      <tbody>
+        {% for row in table_results.to_pylist() %}
+        <tr>
+          {% for col in table_results.column_names %}
+          <td>{{ row[col] }}</td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
     </table>
   </div>
-  <script>
-    (function() {
-      const arrowTypes = {{ table_results.schema.types | map('string') | list | tojson }}
-      const columnNames = {{ table_results.column_names | tojson }}
-      const tableData = datatables.columnarToArrays({{ table_results.to_pydict() | tojson }}, columnNames)
-      function initDataTable() {
-        const columnTypes = datatables.arrowTypesToDataTables(arrowTypes)
-        const columns = columnNames.map((name, i) => ({ data: i, title: name }))
-        datatables.createDataTable('#resultsTable', {
-          data: tableData,
-          columns: columns,
-          columnTypes: columnTypes,
-        })
-      }
-      if (typeof datatables !== 'undefined') {
-        initDataTable()
-      } else {
-        window.addEventListener('DOMContentLoaded', initDataTable)
-      }
-    })()
-  </script>
   {% endif %}
 </div>

@@ -8,6 +8,7 @@ from typing import Annotated
 
 import bleach
 import markdown
+import orjson
 import pyarrow as pa
 import pyarrow.csv as pacsv
 import pydantic_settings
@@ -43,6 +44,15 @@ class Settings(pydantic_settings.BaseSettings):
 class AppMetadata:
     app_name: str
     app_version: str
+
+
+def orjson_dumps(obj: object, **kwargs: object) -> str:
+    option = 0
+    if kwargs.get("sort_keys"):
+        option |= orjson.OPT_SORT_KEYS
+    if kwargs.get("indent"):
+        option |= orjson.OPT_INDENT_2
+    return orjson.dumps(obj, option=option).decode()
 
 
 def current_path_with_args(request: Request, args: list[tuple[str, str]]) -> str:
@@ -611,6 +621,7 @@ def create_app() -> FastAPI:
     config = load_yaml_config(settings.laketower_config_path)
 
     templates = Jinja2Templates(directory=TEMPLATES_DIR)
+    templates.env.policies["json.dumps_function"] = orjson_dumps
     templates.env.filters["current_path_with_args"] = current_path_with_args
     templates.env.filters["render_markdown"] = render_markdown
 
