@@ -1,6 +1,5 @@
 import asyncio
 import io
-import time
 import urllib.parse
 from dataclasses import dataclass
 from pathlib import Path
@@ -9,7 +8,6 @@ from typing import Annotated
 import bleach
 import markdown
 import orjson
-import pyarrow as pa
 import pyarrow.csv as pacsv
 import pydantic_settings
 from fastapi import APIRouter, FastAPI, File, Form, Query, Request, UploadFile
@@ -23,16 +21,16 @@ from laketower.tables import (
     DEFAULT_LIMIT,
     ImportFileFormatEnum,
     ImportModeEnum,
-    compute_totals,
+    QueryResult,
     execute_query,
     extract_query_parameter_names,
     generate_table_statistics_query,
     generate_table_query,
     import_file_to_table,
-    limit_query,
     load_datasets,
     load_table,
     resolve_table,
+    run_query,
 )
 
 
@@ -124,8 +122,6 @@ def get_tables_query(request: Request, sql: str = "") -> HTMLResponse:
             "tables": config.tables,
             "queries": config.queries,
             "table_results": None,
-            "truncated_results": False,
-            "execution_time_ms": None,
             "sql_query": sql,
             "sql_schema": sql_schema,
             "sql_params": sql_params,
@@ -148,34 +144,25 @@ async def get_tables_query_run(request: Request, sql: str) -> HTMLResponse:
     except ValueError:
         sql_params = {}
 
-    results = None
-    truncated = False
-    execution_time_ms = None
+    query_result: QueryResult | None = None
     error = None
 
     try:
-        sql_query = limit_query(sql, config.settings.max_query_rows + 1)
 
-        def _execute() -> tuple[pa.Table, float]:
-            tables_dataset = load_datasets(config.tables)
-            start_time = time.perf_counter()
-            r = execute_query(tables_dataset, sql_query, sql_params=sql_params)
-            elapsed = (time.perf_counter() - start_time) * 1000
-            return r, elapsed
+        def _execute() -> QueryResult:
+            return run_query(
+                load_datasets(config.tables),
+                sql,
+                sql_params=sql_params,
+                max_rows=config.settings.max_query_rows,
+            )
 
-        results, execution_time_ms = await asyncio.to_thread(_execute)
-
-        truncated = results.num_rows > config.settings.max_query_rows
-        results = results.slice(
-            0, min(results.num_rows, config.settings.max_query_rows)
-        )
+        query_result = await asyncio.to_thread(_execute)
     except ValueError as e:
         error = {"message": str(e)}
 
     context: dict[str, object] = {
-        "table_results": results,
-        "truncated_results": truncated,
-        "execution_time_ms": execution_time_ms,
+        "table_results": query_result,
         "sql_query": sql,
         "sql_params": sql_params,
         "error": error,
@@ -520,8 +507,6 @@ def get_query_view(request: Request, query_id: str) -> Response:
             "sql_params": sql_params,
             "query_results": None,
             "query_totals": None,
-            "truncated_results": False,
-            "execution_time_ms": None,
             "error": None,
         },
     )
@@ -553,38 +538,29 @@ async def get_query_run(request: Request, query_id: str) -> Response:
         for name in sql_param_names
     }
 
+    query_result: QueryResult | None = None
+    error = None
+
     try:
-        sql_query = limit_query(query_config.sql, config.settings.max_query_rows + 1)
 
-        def _execute() -> tuple[pa.Table, float]:
-            tables_dataset = load_datasets(config.tables)
-            start_time = time.perf_counter()
-            results = execute_query(tables_dataset, sql_query, sql_params=sql_params)
-            execution_time_ms = (time.perf_counter() - start_time) * 1000
-            return results, execution_time_ms
+        def _execute() -> QueryResult:
+            return run_query(
+                load_datasets(config.tables),
+                query_config.sql,
+                sql_params=sql_params,
+                max_rows=config.settings.max_query_rows,
+            )
 
-        results, execution_time_ms = await asyncio.to_thread(_execute)
-
-        truncated = results.num_rows > config.settings.max_query_rows
-        results = results.slice(
-            0, min(results.num_rows, config.settings.max_query_rows)
-        )
-
-        totals = compute_totals(results) if query_config.totals_row else None
-        error = None
+        query_result = await asyncio.to_thread(_execute)
     except ValueError as e:
         error = {"message": str(e)}
-        results = None
-        truncated = False
-        totals = None
-        execution_time_ms = None
 
     context: dict[str, object] = {
         "query": query_config,
-        "query_results": results,
-        "query_totals": totals,
-        "truncated_results": truncated,
-        "execution_time_ms": execution_time_ms,
+        "query_results": query_result,
+        "query_totals": query_result.totals
+        if (query_result is not None and query_config.totals_row)
+        else None,
         "sql_params": sql_params,
         "error": error,
     }

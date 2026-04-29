@@ -1,6 +1,5 @@
 import argparse
 import os
-import time
 from pathlib import Path
 
 import rich.jupyter
@@ -19,15 +18,14 @@ from laketower.config import load_yaml_config, resolve_yaml_config
 from laketower.tables import (
     ImportFileFormatEnum,
     ImportModeEnum,
-    compute_totals,
     execute_query,
     extract_query_parameter_names,
     generate_table_query,
     generate_table_statistics_query,
     import_file_to_table,
-    limit_query,
     load_datasets,
     load_table,
+    run_query,
 )
 
 
@@ -225,35 +223,29 @@ def query_table(
         query_params = {
             name: sql_params_dict.get(name) or "" for name in query_param_names
         }
-        limited_sql_query = limit_query(sql_query, config.settings.max_query_rows + 1)
-
-        start_time = time.perf_counter()
-        results = execute_query(
-            tables_dataset, limited_sql_query, sql_params=query_params
-        )
-        execution_time_ms = (time.perf_counter() - start_time) * 1000
-
-        truncated = results.num_rows > config.settings.max_query_rows
-        results = results.slice(
-            0, min(results.num_rows, config.settings.max_query_rows)
+        result = run_query(
+            tables_dataset,
+            sql_query,
+            sql_params=query_params,
+            max_rows=config.settings.max_query_rows,
         )
 
         out = rich.table.Table(
             caption=(
-                f"{results.num_rows} rows returned{' (truncated)' if truncated else ''}"
-                f"\nExecution time: {execution_time_ms:.2f}ms"
+                f"{result.num_rows} rows returned{' (truncated)' if result.truncated else ''}"
+                f"\nExecution time: {result.execution_time_ms:.2f}ms"
             ),
             caption_justify="left",
             caption_style=rich.style.Style(dim=True),
         )
-        for column in results.column_names:
+        for column in result.column_names:
             out.add_column(column)
-        for row_dict in results.to_pylist():
-            out.add_row(*[str(row_dict[col]) for col in results.column_names])
+        for row_dict in result.rows:
+            out.add_row(*[str(row_dict[col]) for col in result.column_names])
 
         if output_path is not None:
             pacsv.write_csv(
-                results,
+                result.data,
                 output_path,
                 pacsv.WriteOptions(include_header=True, delimiter=","),
             )
@@ -317,42 +309,35 @@ def view_query(
             name: query_params_dict.get(name) or default_parameters.get(name) or ""
             for name in sql_param_names
         }
-        limited_sql_query = limit_query(sql_query, config.settings.max_query_rows + 1)
-
-        start_time = time.perf_counter()
-        results = execute_query(
-            tables_dataset, limited_sql_query, sql_params=sql_params
-        )
-        execution_time_ms = (time.perf_counter() - start_time) * 1000
-
-        truncated = results.num_rows > config.settings.max_query_rows
-        results = results.slice(
-            0, min(results.num_rows, config.settings.max_query_rows)
+        result = run_query(
+            tables_dataset,
+            sql_query,
+            sql_params=sql_params,
+            max_rows=config.settings.max_query_rows,
         )
 
         out = rich.table.Table(
             caption=(
-                f"{results.num_rows} rows returned{' (truncated)' if truncated else ''}"
-                f"\nExecution time: {execution_time_ms:.2f}ms"
+                f"{result.num_rows} rows returned{' (truncated)' if result.truncated else ''}"
+                f"\nExecution time: {result.execution_time_ms:.2f}ms"
             ),
             caption_justify="left",
             caption_style=rich.style.Style(dim=True),
         )
         out.add_column("#")
-        for column in results.column_names:
+        for column in result.column_names:
             out.add_column(column)
-        for idx, row_dict in enumerate(results.to_pylist(), start=1):
-            out.add_row(str(idx), *[str(row_dict[col]) for col in results.column_names])
+        for idx, row_dict in enumerate(result.rows, start=1):
+            out.add_row(str(idx), *[str(row_dict[col]) for col in result.column_names])
 
         if query_config.totals_row:
-            totals = compute_totals(results)
-            totals_dict = totals.to_pylist()[0]
+            totals_dict = result.totals.to_pylist()[0]
             out.add_section()
             out.add_row(
                 "Total",
                 *[
                     str(totals_dict[col]) if totals_dict[col] is not None else "-"
-                    for col in results.column_names
+                    for col in result.column_names
                 ],
                 style="bold",
             )
