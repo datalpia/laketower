@@ -56,3 +56,29 @@ queries:
         day
       order by
         day asc
+  - name: large_query
+    title: Large query
+    description: Large synthetic data query with 10,000 rows and 20 columns
+    sql: |
+      select
+        row_number() over () as id,
+        'user_' || (random() * 10000)::int as username,
+        ['Alice', 'Bob', 'Carol', 'Dave', 'Eve'][1 + (random() * 4)::int] as first_name,
+        ['Smith', 'Jones', 'Brown', 'Taylor', 'Wilson'][1 + (random() * 4)::int] as last_name,
+        (18 + (random() * 62)::int) as age,
+        round(random() * 100000, 2) as salary,
+        current_date - ((random() * 3650)::int) as hire_date,
+        ['Engineering', 'Sales', 'HR', 'Finance', 'Marketing'][1 + (random() * 4)::int] as department,
+        random() > 0.5 as is_active,
+        round(random() * 5, 1) as performance_score,
+        ['New York', 'London', 'Paris', 'Tokyo', 'Berlin'][1 + (random() * 4)::int] as city,
+        ['US', 'UK', 'FR', 'JP', 'DE'][1 + (random() * 4)::int] as country_code,
+        (random() * 50)::int as vacation_days_used,
+        round(random() * 500, 2) as monthly_expenses,
+        'proj_' || (random() * 100)::int as project_code,
+        ['Junior', 'Mid', 'Senior', 'Lead', 'Principal'][1 + (random() * 4)::int] as seniority,
+        current_date - ((random() * 365)::int) as last_review_date,
+        round(random() * 10000, 2) as bonus,
+        (random() * 20)::int as direct_reports,
+        ['Full-time', 'Part-time', 'Contractor'][1 + (random() * 2)::int] as employment_type
+      from range(10000)
