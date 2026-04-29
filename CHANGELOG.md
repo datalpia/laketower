@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.1] - 2026-04-29
+Patch version with performance improvements for query results dynamic rendering
+in Laketower web application.
+
 ### Fixed
 - web: performance enhancements to render query results
 
@@ -279,7 +283,8 @@ Initial release of `laketower`.
     - View a given table with simple query builder
     - Query all registered tables with DuckDB SQL dialect
 
-[Unreleased]: https://github.com/datalpia/laketower/compare/0.9.0...HEAD
+[Unreleased]: https://github.com/datalpia/laketower/compare/0.9.1...HEAD
+[0.9.1]: https://github.com/datalpia/laketower/compare/0.9.0...0.9.1
 [0.9.0]: https://github.com/datalpia/laketower/compare/0.8.0...0.9.0
 [0.8.0]: https://github.com/datalpia/laketower/compare/0.7.0...0.8.0
 [0.7.0]: https://github.com/datalpia/laketower/compare/0.6.11...0.7.0
