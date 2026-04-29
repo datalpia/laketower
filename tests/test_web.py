@@ -79,6 +79,19 @@ def test_render_markdown(md_text: str, expected_html: str) -> None:
     assert web.render_markdown(md_text) == expected_html
 
 
+@pytest.mark.parametrize(
+    ("kwargs", "expected"),
+    [
+        ({}, '{"b":1,"a":2}'),
+        ({"sort_keys": True}, '{"a":2,"b":1}'),
+        ({"sort_keys": False}, '{"b":1,"a":2}'),
+        ({"indent": 2}, '{\n  "b": 1,\n  "a": 2\n}'),
+    ],
+)
+def test_orjson_dumps(kwargs: dict[str, Any], expected: str) -> None:
+    assert web.orjson_dumps({"b": 1, "a": 2}, **kwargs) == expected
+
+
 def test_index(client: TestClient, sample_config: dict[str, Any]) -> None:
     response = client.get("/")
     assert response.status_code == HTTPStatus.OK

@@ -14,6 +14,7 @@ dependencies = [
     "fastapi",
     "jinja2>=3,!=3.1.5",
     "markdown",
+    "orjson",
     "pyarrow!=19.0.0",
     "pydantic>=2",
     "pydantic-settings>=2",

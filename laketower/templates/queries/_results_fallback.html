@@ -18,7 +18,7 @@
     </a>
   </div>
   <div class="table-responsive">
-    <table id="resultsTable" class="table table-sm table-bordered table-striped table-hover">
+    <table class="table table-sm table-bordered table-striped table-hover">
       <thead>
         <tr>
           <td>#</td>
@@ -27,7 +27,16 @@
           {% endfor %}
         </tr>
       </thead>
-      <tbody></tbody>
+      <tbody>
+        {% for row in query_results.to_pylist() %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          {% for col in query_results.column_names %}
+          <td>{{ row[col] }}</td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
       {% if query_totals %}
       <tfoot>
         <tr>
@@ -41,30 +50,5 @@
       {% endif %}
     </table>
   </div>
-  <script>
-    (function() {
-      const arrowTypes = {{ query_results.schema.types | map('string') | list | tojson }}
-      const columnNames = {{ query_results.column_names | tojson }}
-      const tableData = datatables.columnarToArrays({{ query_results.to_pydict() | tojson }}, columnNames)
-      function initDataTable() {
-        const columnTypes = datatables.arrowTypesToDataTables(arrowTypes)
-        const columns = [
-          { data: null, title: '#', render: (d, t, r, meta) => meta.row + 1, orderable: false, searchable: false },
-          ...columnNames.map((name, i) => ({ data: i, title: name }))
-        ]
-        datatables.createDataTable('#resultsTable', {
-          data: tableData,
-          columns: columns,
-          columnTypes: columnTypes,
-          columnIndexOffset: 1,
-        })
-      }
-      if (typeof datatables !== 'undefined') {
-        initDataTable()
-      } else {
-        window.addEventListener('DOMContentLoaded', initDataTable)
-      }
-    })()
-  </script>
   {% endif %}
 </div>
