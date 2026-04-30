@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.2] - 2026-04-30
+Patch version fixing predefined query totals row when dynamically applying table
+filters in Laketower web application.
+
 ### Fixed
 - web: update predefined query totals row with results table filters
 
@@ -286,7 +290,8 @@ Initial release of `laketower`.
     - View a given table with simple query builder
     - Query all registered tables with DuckDB SQL dialect
 
-[Unreleased]: https://github.com/datalpia/laketower/compare/0.9.1...HEAD
+[Unreleased]: https://github.com/datalpia/laketower/compare/0.9.2...HEAD
+[0.9.1]: https://github.com/datalpia/laketower/compare/0.9.1...0.9.2
 [0.9.1]: https://github.com/datalpia/laketower/compare/0.9.0...0.9.1
 [0.9.0]: https://github.com/datalpia/laketower/compare/0.8.0...0.9.0
 [0.8.0]: https://github.com/datalpia/laketower/compare/0.7.0...0.8.0
