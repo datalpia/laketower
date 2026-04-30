@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- web: update predefined query totals row with results table filters
+
 ## [0.9.1] - 2026-04-29
 Patch version with performance improvements for query results dynamic rendering
 in Laketower web application.

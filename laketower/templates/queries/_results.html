@@ -28,13 +28,12 @@
         </tr>
       </thead>
       <tbody></tbody>
-      {% if query_totals %}
+      {% if query.totals_row %}
       <tfoot>
         <tr>
           <th>Total</th>
-          {% for column_name in query_totals.column_names %}
-          {% set value = query_totals.column(column_name)[0].as_py() %}
-          <th>{% if value is not none %}{{ value }}{% else %}-{% endif %}</th>
+          {% for column in query_results.column_names %}
+          <th></th>
           {% endfor %}
         </tr>
       </tfoot>

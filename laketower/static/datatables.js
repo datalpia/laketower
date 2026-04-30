@@ -35,6 +35,24 @@ export function createDataTable(tableId, options = {}) {
             data: options.data,
             columns: options.columns,
             searching: true,
+            footerCallback: function(row, data, start, end, display) {
+                if (!row || !options.columnTypes) return
+                const cells = row.cells
+                options.columnTypes.forEach((type, i) => {
+                    const cell = cells[i + colOffset]
+                    if (!cell) return
+                    if (type !== 'numeric') {
+                        cell.textContent = '-'
+                        return
+                    }
+                    let total = 0
+                    display.forEach(rowIdx => {
+                        const val = data[rowIdx][i]
+                        if (val != null && val !== '' && !isNaN(val)) total += parseFloat(val)
+                    })
+                    cell.textContent = total
+                })
+            },
             layout: {
                 topStart: null,
                 topEnd: null,
