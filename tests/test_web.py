@@ -1165,7 +1165,7 @@ def test_queries_run(client: TestClient, sample_config: dict[str, Any]) -> None:
     )
     assert (
         export_csv_a.get("href")
-        == f"/tables/query/csv?sql={urllib.parse.quote(query['sql'])}"
+        == f"/tables/query/csv?sql={urllib.parse.quote(query['sql'])}&filename={urllib.parse.quote(query['name'])}"
     )
 
     all_th = [th.get_text().strip() for th in soup.find_all("th")]

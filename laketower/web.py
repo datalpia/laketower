@@ -1,5 +1,6 @@
 import asyncio
 import io
+import re
 import urllib.parse
 from dataclasses import dataclass
 from pathlib import Path
@@ -202,7 +203,9 @@ async def get_tables_query_run(request: Request, sql: str) -> HTMLResponse:
 
 
 @router.get("/tables/query/csv")
-def export_tables_query_csv(request: Request, sql: str) -> Response:
+def export_tables_query_csv(
+    request: Request, sql: str, filename: str = "query_results"
+) -> Response:
     config: Config = request.app.state.config
     tables_dataset = load_datasets(config.tables)
 
@@ -216,10 +219,12 @@ def export_tables_query_csv(request: Request, sql: str) -> Response:
         results, csv_content, pacsv.WriteOptions(include_header=True, delimiter=",")
     )
 
+    # keep only word chars, hyphens, dots. replace the rest with underscores
+    safe_filename = re.sub(r"[^\w\-.]", "_", filename.lower()).strip("_")
     return Response(
         content=csv_content.getvalue(),
         media_type="text/csv",
-        headers={"Content-Disposition": "attachment; filename=query_results.csv"},
+        headers={"Content-Disposition": f"attachment; filename={safe_filename}.csv"},
     )
 
 

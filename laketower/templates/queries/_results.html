@@ -57,7 +57,7 @@
           columnNames: columnNames,
           columnUniques: columnUniques,
           columnIndexOffset: 1,
-          exportFilename: 'query_results',
+          exportFilename: {{ query.name | tojson }},
         })
 
       }
