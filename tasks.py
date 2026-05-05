@@ -78,11 +78,11 @@ def shots(ctx: Context) -> None:
             "output": screenshots_path / "tables_history.png",
         },
         {
-            "url": f"{server_url}/tables/query?sql=select * from weather where temperature_2m < $temperature_min limit 10&temperature_min=2",
+            "url": f"{server_url}/tables/query/run?sql=select * from weather where temperature_2m < $temperature_min limit 10&temperature_min=2",
             "output": screenshots_path / "tables_query.png",
         },
         {
-            "url": f"{server_url}/queries/daily_avg_temperature_params/view",
+            "url": f"{server_url}/queries/daily_avg_temperature_params/run?start_date=2025-01-15&end_date=2025-01-31",
             "output": screenshots_path / "queries_view.png",
         },
     ]
