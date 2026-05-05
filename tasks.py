@@ -136,6 +136,9 @@ def vendor_static_assets(ctx: Context) -> None:
         "datatables.net-bs5": [
             "datatables.net-bs5/css/dataTables.bootstrap5.css",
         ],
+        "datatables.net-buttons-bs5": [
+            "datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css",
+        ],
         "datatables.net-columncontrol-bs5": [
             "datatables.net-columncontrol-bs5/css/columnControl.bootstrap5.min.css",
         ],
@@ -169,6 +172,7 @@ def vendor_static_assets(ctx: Context) -> None:
                 -o {bundle['dest']} \
                 -f iife \
                 -n {bundle['name']} \
+                --context window \
                 -p @rollup/plugin-node-resolve \
                 -p @rollup/plugin-commonjs"
         )
