@@ -13,9 +13,7 @@
       <i class="bi-speedometer" aria-hidden="true"></i>
       Query execution time: {{ query_results.execution_time_ms | round(2) }}ms
     </p>
-    <a href="/tables/query/csv?sql={{ query.sql | urlencode }}{% if sql_params | length > 0 %}&{{ sql_params | urlencode}}{% endif %}" class="btn btn-outline-secondary btn-sm">
-      <i class="bi-download" aria-hidden="true"></i> Export CSV
-    </a>
+
   </div>
   <div class="table-responsive">
     <table id="resultsTable" class="table table-sm table-bordered table-striped table-hover">
@@ -59,7 +57,9 @@
           columnNames: columnNames,
           columnUniques: columnUniques,
           columnIndexOffset: 1,
+          exportFilename: 'query_results',
         })
+
       }
       if (typeof datatables !== 'undefined') {
         initDataTable()

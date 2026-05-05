@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- web: client-side CSV export to avoid double query execution
+
 ## [0.9.2] - 2026-04-30
 Patch version fixing predefined query totals row when dynamically applying table
 filters in Laketower web application.
