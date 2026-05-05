@@ -1,4 +1,6 @@
 import DataTable from 'datatables.net-bs5'
+import 'datatables.net-buttons-bs5'
+import 'datatables.net-buttons/js/buttons.html5'
 import 'datatables.net-columncontrol-bs5'
 
 export { DataTable }
@@ -55,10 +57,18 @@ export function createDataTable(tableId, options = {}) {
             },
             layout: {
                 topStart: null,
-                topEnd: null,
+                topEnd: options.exportFilename ? 'buttons' : null,
                 bottomStart: ['pageLength', 'info'],
                 bottomEnd: 'paging',
             },
+            buttons: options.exportFilename ? [{
+                extend: 'csv',
+                filename: options.exportFilename,
+                extension: '.csv',
+                text: '<i class="bi-download" aria-hidden="true"></i> Export CSV',
+                className: 'btn btn-sm btn-outline-secondary',
+                exportOptions: { modifier: { search: 'none' } },
+            }] : [],
             columnControl: ['order', ['search', 'spacer', 'orderAsc', 'orderDesc', 'orderClear']],
             columnDefs: options.columnTypes ? options.columnTypes.map((type, index) => {
                 const colDef = {

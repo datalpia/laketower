@@ -9670,7 +9670,7 @@ var datatables = (function (exports) {
 
 	// DataTables code uses $ internally, but we want to be able to
 	// reassign $ with the `use` method, so it is a regular var.
-	var $$2 = jQuery;
+	var $$5 = jQuery;
 
 
 	var DataTable = function ( selector, options )
@@ -9683,7 +9683,7 @@ var datatables = (function (exports) {
 
 		// When creating with `new`, create a new DataTable, returning the API instance
 		if (this instanceof DataTable) {
-			return $$2(selector).DataTable(options);
+			return $$5(selector).DataTable(options);
 		}
 		else {
 			// Argument switching
@@ -9716,7 +9716,7 @@ var datatables = (function (exports) {
 			var i=0, iLen;
 			var sId = this.getAttribute( 'id' );
 			var defaults = DataTable.defaults;
-			var $this = $$2(this);
+			var $this = $$5(this);
 			
 			// Sanity check
 			if ( this.nodeName.toLowerCase() != 'table' )
@@ -9741,7 +9741,7 @@ var datatables = (function (exports) {
 			_fnCamelToHungarian( defaults.column, defaults.column, true );
 			
 			/* Setting up the initialisation object */
-			_fnCamelToHungarian( defaults, $$2.extend( oInit, _fnEscapeObject($this.data()) ), true );
+			_fnCamelToHungarian( defaults, $$5.extend( oInit, _fnEscapeObject($this.data()) ), true );
 			
 			
 			
@@ -9799,11 +9799,11 @@ var datatables = (function (exports) {
 			$this.children('colgroup').remove();
 			
 			/* Create the settings object for this table and set some of the default parameters */
-			var oSettings = $$2.extend( true, {}, DataTable.models.oSettings, {
+			var oSettings = $$5.extend( true, {}, DataTable.models.oSettings, {
 				"sDestroyWidth": $this[0].style.width,
 				"sInstance":     sId,
 				"sTableId":      sId,
-				colgroup: $$2('<colgroup>'),
+				colgroup: $$5('<colgroup>'),
 				fastData: function (row, column, type) {
 					return _fnGetCellData(oSettings, row, column, type);
 				}
@@ -9828,14 +9828,14 @@ var datatables = (function (exports) {
 			{
 				oInit.iDisplayLength = Array.isArray(oInit.aLengthMenu[0])
 					? oInit.aLengthMenu[0][0]
-					: $$2.isPlainObject( oInit.aLengthMenu[0] )
+					: $$5.isPlainObject( oInit.aLengthMenu[0] )
 						? oInit.aLengthMenu[0].value
 						: oInit.aLengthMenu[0];
 			}
 			
 			// Apply the defaults and init options to make a single init object will all
 			// options defined from defaults and instance options.
-			oInit = _fnExtend( $$2.extend( true, {}, defaults ), oInit );
+			oInit = _fnExtend( $$5.extend( true, {}, defaults ), oInit );
 			
 			
 			// Map the initialisation options onto the settings object
@@ -9916,7 +9916,7 @@ var datatables = (function (exports) {
 			
 			var oClasses = oSettings.oClasses;
 			
-			$$2.extend( oClasses, DataTable.ext.classes, oInit.oClasses );
+			$$5.extend( oClasses, DataTable.ext.classes, oInit.oClasses );
 			$this.addClass( oClasses.table );
 			
 			if (! oSettings.oFeatures.bPaginate) {
@@ -9978,7 +9978,7 @@ var datatables = (function (exports) {
 					return cell.getAttribute( 'data-'+name ) !== null ? name : null;
 				};
 			
-				$$2( rowOne[0] ).children('th, td').each( function (i, cell) {
+				$$5( rowOne[0] ).children('th, td').each( function (i, cell) {
 					var col = oSettings.aoColumns[i];
 			
 					if (! col) {
@@ -10041,7 +10041,7 @@ var datatables = (function (exports) {
 			
 			if ( oSettings.caption ) {
 				if ( caption.length === 0 ) {
-					caption = $$2('<caption/>').prependTo( $this );
+					caption = $$5('<caption/>').prependTo( $this );
 				}
 			
 				caption.html( oSettings.caption );
@@ -10063,13 +10063,13 @@ var datatables = (function (exports) {
 			}
 			
 			if ( thead.length === 0 ) {
-				thead = $$2('<thead/>').appendTo($this);
+				thead = $$5('<thead/>').appendTo($this);
 			}
 			oSettings.nTHead = thead[0];
 			
 			var tbody = $this.children('tbody');
 			if ( tbody.length === 0 ) {
-				tbody = $$2('<tbody/>').insertAfter(thead);
+				tbody = $$5('<tbody/>').insertAfter(thead);
 			}
 			oSettings.nTBody = tbody[0];
 			
@@ -10077,7 +10077,7 @@ var datatables = (function (exports) {
 			if ( tfoot.length === 0 ) {
 				// If we are a scrolling table, and no footer has been given, then we need to create
 				// a tfoot element for the caption element to be appended to
-				tfoot = $$2('<tfoot/>').appendTo($this);
+				tfoot = $$5('<tfoot/>').appendTo($this);
 			}
 			oSettings.nTFoot = tfoot[0];
 			
@@ -10089,16 +10089,16 @@ var datatables = (function (exports) {
 			
 			// Language definitions
 			var oLanguage = oSettings.oLanguage;
-			$$2.extend( true, oLanguage, oInit.oLanguage );
+			$$5.extend( true, oLanguage, oInit.oLanguage );
 			
 			if ( oLanguage.sUrl ) {
 				// Get the language definitions from a file
-				$$2.ajax( {
+				$$5.ajax( {
 					dataType: 'json',
 					url: oLanguage.sUrl,
 					success: function ( json ) {
 						_fnCamelToHungarian( defaults.oLanguage, json );
-						$$2.extend( true, oLanguage, json, oSettings.oInit.oLanguage );
+						$$5.extend( true, oLanguage, json, oSettings.oInit.oLanguage );
 			
 						_fnCallbackFire( oSettings, null, 'i18n', [oSettings], true);
 						_fnInitialise( oSettings );
@@ -10624,7 +10624,7 @@ var datatables = (function (exports) {
 	//
 	// Backwards compatibility. Alias to pre 1.10 Hungarian notation counter parts
 	//
-	$$2.extend( _ext, {
+	$$5.extend( _ext, {
 		afnFiltering: _ext.search,
 		aTypes:       _ext.type.detect,
 		ofnSearch:    _ext.type.search,
@@ -10636,7 +10636,7 @@ var datatables = (function (exports) {
 	} );
 
 
-	$$2.extend( DataTable.ext.classes, {
+	$$5.extend( DataTable.ext.classes, {
 		container: 'dt-container',
 		empty: {
 			row: 'dt-empty'
@@ -11175,7 +11175,7 @@ var datatables = (function (exports) {
 		 * @returns Write function
 		 */
 		set: function ( source ) {
-			if ( $$2.isPlainObject( source ) ) {
+			if ( $$5.isPlainObject( source ) ) {
 				/* Unlike get, only the underscore (global) option is used for for
 				 * setting data since we don't know the type here. This is why an object
 				 * option is not documented for `mData` (which is read/write), but it is
@@ -11284,10 +11284,10 @@ var datatables = (function (exports) {
 		 * @returns Value read
 		 */
 		get: function ( source ) {
-			if ( $$2.isPlainObject( source ) ) {
+			if ( $$5.isPlainObject( source ) ) {
 				// Build an object of get functions, and wrap them in a single call
 				var o = {};
-				$$2.each( source, function (key, val) {
+				$$5.each( source, function (key, val) {
 					if ( val ) {
 						o[key] = DataTable.util.get( val );
 					}
@@ -11441,7 +11441,7 @@ var datatables = (function (exports) {
 			newKey,
 			map = {};
 
-		$$2.each( o, function (key) {
+		$$5.each( o, function (key) {
 			match = key.match(/^([^A-Z]+?)([A-Z])/);
 
 			if ( match && hungarian.indexOf(match[1]+' ') !== -1 )
@@ -11479,7 +11479,7 @@ var datatables = (function (exports) {
 
 		var hungarianKey;
 
-		$$2.each( user, function (key) {
+		$$5.each( user, function (key) {
 			hungarianKey = src._hungarianMap[ key ];
 
 			if ( hungarianKey !== undefined && (force || user[hungarianKey] === undefined) )
@@ -11491,7 +11491,7 @@ var datatables = (function (exports) {
 					if ( ! user[ hungarianKey ] ) {
 						user[ hungarianKey ] = {};
 					}
-					$$2.extend( true, user[hungarianKey], user[key] );
+					$$5.extend( true, user[hungarianKey], user[key] );
 
 					_fnCamelToHungarian( src[hungarianKey], user[hungarianKey], force );
 				}
@@ -11617,7 +11617,7 @@ var datatables = (function (exports) {
 			DataTable.__browser = browser;
 
 			// Scrolling feature / quirks detection
-			var n = $$2('<div/>')
+			var n = $$5('<div/>')
 				.css( {
 					position: 'fixed',
 					top: 0,
@@ -11627,7 +11627,7 @@ var datatables = (function (exports) {
 					overflow: 'hidden'
 				} )
 				.append(
-					$$2('<div/>')
+					$$5('<div/>')
 						.css( {
 							position: 'absolute',
 							top: 1,
@@ -11636,7 +11636,7 @@ var datatables = (function (exports) {
 							overflow: 'scroll'
 						} )
 						.append(
-							$$2('<div/>')
+							$$5('<div/>')
 								.css( {
 									width: '100%',
 									height: 10
@@ -11658,7 +11658,7 @@ var datatables = (function (exports) {
 			n.remove();
 		}
 
-		$$2.extend( settings.oBrowser, DataTable.__browser );
+		$$5.extend( settings.oBrowser, DataTable.__browser );
 		settings.oScroll.iBarWidth = DataTable.__browser.barWidth;
 	}
 
@@ -11672,12 +11672,12 @@ var datatables = (function (exports) {
 		// Add column to aoColumns array
 		var oDefaults = DataTable.defaults.column;
 		var iCol = oSettings.aoColumns.length;
-		var oCol = $$2.extend( {}, DataTable.models.oColumn, oDefaults, {
+		var oCol = $$5.extend( {}, DataTable.models.oColumn, oDefaults, {
 			"aDataSort": oDefaults.aDataSort ? oDefaults.aDataSort : [iCol],
 			"mData": oDefaults.mData ? oDefaults.mData : iCol,
 			idx: iCol,
 			searchFixed: {},
-			colEl: $$2('<col>').attr('data-dt-column', iCol)
+			colEl: $$5('<col>').attr('data-dt-column', iCol)
 		} );
 		oSettings.aoColumns.push( oCol );
 
@@ -11685,7 +11685,7 @@ var datatables = (function (exports) {
 		// passed into extend can be undefined. This allows the user to give a default
 		// with only some of the parameters defined, and also not give a default
 		var searchCols = oSettings.aoPreSearchCols;
-		searchCols[ iCol ] = $$2.extend( {}, DataTable.models.oSearch, searchCols[ iCol ] );
+		searchCols[ iCol ] = $$5.extend( {}, DataTable.models.oSearch, searchCols[ iCol ] );
 	}
 
 
@@ -11729,7 +11729,7 @@ var datatables = (function (exports) {
 
 			var origClass = oCol.sClass;
 
-			$$2.extend( oCol, oOptions );
+			$$5.extend( oCol, oOptions );
 			_fnMap( oCol, oOptions, "sWidth", "sWidthOrig" );
 
 			// Merge class from previously defined classes with this one, rather than just
@@ -11766,7 +11766,7 @@ var datatables = (function (exports) {
 		var attrTest = function( src ) {
 			return typeof src === 'string' && src.indexOf('@') !== -1;
 		};
-		oCol._bAttrSrc = $$2.isPlainObject( mDataSrc ) && (
+		oCol._bAttrSrc = $$5.isPlainObject( mDataSrc ) && (
 			attrTest(mDataSrc.sort) || attrTest(mDataSrc.type) || attrTest(mDataSrc.filter)
 		);
 		oCol._setter = null;
@@ -11885,7 +11885,7 @@ var datatables = (function (exports) {
 
 		if ( layout.length ) {
 			for ( var i=0, iLen=layout[0].length ; i<iLen ; i++ ) {
-				if ( columns[i].bVisible && $$2(layout[0][i].cell).css('display') !== 'none' ) {
+				if ( columns[i].bVisible && $$5(layout[0][i].cell).css('display') !== 'none' ) {
 					vis++;
 				}
 			}
@@ -12168,7 +12168,7 @@ var datatables = (function (exports) {
 								// Cell selector
 								headerLayout.forEach(function (row) {
 									if (row[k]) {
-										var cell = $$2(row[k].cell);
+										var cell = $$5(row[k].cell);
 
 										// Legacy support. Note that it means that we don't support
 										// an element name selector only, since they are treated as
@@ -12250,7 +12250,7 @@ var datatables = (function (exports) {
 
 	function _fnColumnsFromHeader( cell )
 	{
-		var attr = $$2(cell).closest('[data-dt-column]').attr('data-dt-column');
+		var attr = $$5(cell).closest('[data-dt-column]').attr('data-dt-column');
 
 		if ( ! attr ) {
 			return [];
@@ -12277,7 +12277,7 @@ var datatables = (function (exports) {
 	{
 		/* Create the object for storing information about this new row */
 		var rowIdx = settings.aoData.length;
-		var rowModel = $$2.extend( true, {}, DataTable.models.oRow, {
+		var rowModel = $$5.extend( true, {}, DataTable.models.oRow, {
 			src: tr ? 'dom' : 'data',
 			idx: rowIdx
 		} );
@@ -12326,8 +12326,8 @@ var datatables = (function (exports) {
 		var row;
 
 		// Allow an individual node to be passed in
-		if ( ! (trs instanceof $$2) ) {
-			trs = $$2(trs);
+		if ( ! (trs instanceof $$5) ) {
+			trs = $$5(trs);
 		}
 
 		return trs.map( function (i, el) {
@@ -12441,7 +12441,7 @@ var datatables = (function (exports) {
 	function _fnWriteCell(td, val)
 	{
 		if (val && typeof val === 'object' && val.nodeName) {
-			$$2(td)
+			$$5(td)
 				.empty()
 				.append(val);
 		}
@@ -12791,7 +12791,7 @@ var datatables = (function (exports) {
 					create ||
 					(
 						(oCol.mRender || oCol.mData !== i) &&
-						(!$$2.isPlainObject(oCol.mData) || oCol.mData._ !== i+'.display')
+						(!$$5.isPlainObject(oCol.mData) || oCol.mData._ !== i+'.display')
 					)
 				) {
 					_fnWriteCell(nTd, display[i]);
@@ -12852,17 +12852,17 @@ var datatables = (function (exports) {
 					_unique( row.__rowc.concat( a ) ) :
 					a;
 
-				$$2(tr)
+				$$5(tr)
 					.removeClass( row.__rowc.join(' ') )
 					.addClass( data.DT_RowClass );
 			}
 
 			if ( data.DT_RowAttr ) {
-				$$2(tr).attr( data.DT_RowAttr );
+				$$5(tr).attr( data.DT_RowAttr );
 			}
 
 			if ( data.DT_RowData ) {
-				$$2(tr).data( data.DT_RowData );
+				$$5(tr).data( data.DT_RowData );
 			}
 		}
 	}
@@ -12890,23 +12890,23 @@ var datatables = (function (exports) {
 
 		// If no cells yet and we have content for them, then create
 		if (side === 'header' || _pluck(settings.aoColumns, titleProp).join('')) {
-			row = $$2('tr', target);
+			row = $$5('tr', target);
 
 			// Add a row if needed
 			if (! row.length) {
-				row = $$2('<tr/>').appendTo(target);
+				row = $$5('<tr/>').appendTo(target);
 			}
 
 			// Add the number of cells needed to make up to the number of columns
 			if (row.length === 1) {
 				var cellCount = 0;
 				
-				$$2('td, th', row).each(function () {
+				$$5('td, th', row).each(function () {
 					cellCount += this.colSpan;
 				});
 
 				for ( i=cellCount, iLen=columns.length ; i<iLen ; i++ ) {
-					$$2('<th/>')
+					$$5('<th/>')
 						.html( columns[i][titleProp] || '' )
 						.appendTo( row );
 				}
@@ -12917,18 +12917,18 @@ var datatables = (function (exports) {
 
 		if (side === 'header') {
 			settings.aoHeader = detected;
-			$$2('tr', target).addClass(classes.thead.row);
+			$$5('tr', target).addClass(classes.thead.row);
 		}
 		else {
 			settings.aoFooter = detected;
-			$$2('tr', target).addClass(classes.tfoot.row);
+			$$5('tr', target).addClass(classes.tfoot.row);
 		}
 
 		// Every cell needs to be passed through the renderer
-		$$2(target).children('tr').children('th, td')
+		$$5(target).children('tr').children('th, td')
 			.each( function () {
 				_fnRenderer( settings, side )(
-					settings, $$2(this), classes
+					settings, $$5(this), classes
 				);
 			} );
 	}
@@ -13005,7 +13005,7 @@ var datatables = (function (exports) {
 						colspan++;
 					}
 
-					var titleSpan = $$2('.dt-column-title', cell);
+					var titleSpan = $$5('.dt-column-title', cell);
 
 					structure[row][column] = {
 						cell: cell,
@@ -13013,7 +13013,7 @@ var datatables = (function (exports) {
 						rowspan: rowspan,
 						title: titleSpan.length
 							? titleSpan.html()
-							: $$2(cell).html()
+							: $$5(cell).html()
 					};
 				}
 			}
@@ -13050,7 +13050,7 @@ var datatables = (function (exports) {
 				var point = layout[row][column];
 
 				if (point) {
-					$$2(point.cell)
+					$$5(point.cell)
 						.appendTo(tr)
 						.attr('rowspan', point.rowspan)
 						.attr('colspan', point.colspan);
@@ -13086,7 +13086,7 @@ var datatables = (function (exports) {
 		var iDisplayStart = oSettings._iDisplayStart;
 		var iDisplayEnd = oSettings.fnDisplayEnd();
 		var columns = oSettings.aoColumns;
-		var body = $$2(oSettings.nTBody);
+		var body = $$5(oSettings.nTBody);
 
 		oSettings.bDrawing = true;
 
@@ -13161,10 +13161,10 @@ var datatables = (function (exports) {
 		}
 
 		/* Header and footer callbacks */
-		_fnCallbackFire( oSettings, 'aoHeaderCallback', 'header', [ $$2(oSettings.nTHead).children('tr')[0],
+		_fnCallbackFire( oSettings, 'aoHeaderCallback', 'header', [ $$5(oSettings.nTHead).children('tr')[0],
 			_fnGetDataMaster( oSettings ), iDisplayStart, iDisplayEnd, aiDisplay ] );
 
-		_fnCallbackFire( oSettings, 'aoFooterCallback', 'footer', [ $$2(oSettings.nTFoot).children('tr')[0],
+		_fnCallbackFire( oSettings, 'aoFooterCallback', 'footer', [ $$5(oSettings.nTFoot).children('tr')[0],
 			_fnGetDataMaster( oSettings ), iDisplayStart, iDisplayEnd, aiDisplay ] );
 
 		// replaceChildren is faster, but only became widespread in 2020,
@@ -13174,11 +13174,11 @@ var datatables = (function (exports) {
 		}
 		else {
 			body.children().detach();
-			body.append( $$2(anRows) );
+			body.append( $$5(anRows) );
 		}
 
 		// Empty table needs a specific class
-		$$2(oSettings.nTableWrapper).toggleClass('dt-empty-footer', $$2('tr', oSettings.nTFoot).length === 0);
+		$$5(oSettings.nTableWrapper).toggleClass('dt-empty-footer', $$5('tr', oSettings.nTFoot).length === 0);
 
 		/* Call all required callback functions for the end of a draw */
 		_fnCallbackFire( oSettings, 'aoDrawCallback', 'draw', [oSettings], true );
@@ -13260,8 +13260,8 @@ var datatables = (function (exports) {
 			zero = oLang.sEmptyTable;
 		}
 
-		return $$2( '<tr/>' )
-			.append( $$2('<td />', {
+		return $$5( '<tr/>' )
+			.append( $$5('<td />', {
 				'colSpan': _fnVisibleColumns( settings ),
 				'class':   settings.oClasses.empty.row
 			} ).html( zero ) )[0];
@@ -13283,7 +13283,7 @@ var datatables = (function (exports) {
 		var rowCell = row[align];
 
 		// If it is an object, then there can be multiple features contained in it
-		if ( $$2.isPlainObject( items ) ) {
+		if ( $$5.isPlainObject( items ) ) {
 			// A feature plugin cannot be named "features" due to this check
 			if (items.features) {
 				if (items.rowId) {
@@ -13367,7 +13367,7 @@ var datatables = (function (exports) {
 		var rows = [];
 		
 		// Split out into an array
-		$$2.each( layout, function ( pos, items ) {
+		$$5.each( layout, function ( pos, items ) {
 			if (items === null) {
 				return;
 			}
@@ -13453,7 +13453,7 @@ var datatables = (function (exports) {
 				else if ( typeof line[i] === 'string' ) {
 					line[i] = getFeature( line[i], null );
 				}
-				else if ( $$2.isPlainObject(line[i]) ) {
+				else if ( $$5.isPlainObject(line[i]) ) {
 					// If it's an object, it just has feature and opts properties from
 					// the transform in _layoutArray
 					line[i] = getFeature(line[i].feature, line[i].opts);
@@ -13485,10 +13485,10 @@ var datatables = (function (exports) {
 	function _fnAddOptionsHtml ( settings )
 	{
 		var classes = settings.oClasses;
-		var table = $$2(settings.nTable);
+		var table = $$5(settings.nTable);
 
 		// Wrapper div around everything DataTables controls
-		var insert = $$2('<div/>')
+		var insert = $$5('<div/>')
 			.attr({
 				id:      settings.sTableId+'_wrapper',
 				'class': classes.container
@@ -13546,7 +13546,7 @@ var datatables = (function (exports) {
 
 			if ( option == '<' ) {
 				// New container div
-				newNode = $$2('<div/>');
+				newNode = $$5('<div/>');
 
 				// Check to see if we should append an id and/or a class name to the container
 				next = parts[i+1];
@@ -13619,7 +13619,7 @@ var datatables = (function (exports) {
 	function _fnDetectHeader ( settings, thead, write )
 	{
 		var columns = settings.aoColumns;
-		var rows = $$2(thead).children('tr');
+		var rows = $$5(thead).children('tr');
 		var row, cell;
 		var i, k, l, iLen, shifted, column, colspan, rowspan;
 		var titleRow = settings.titleRow;
@@ -13651,7 +13651,7 @@ var datatables = (function (exports) {
 					cell.nodeName.toUpperCase() == 'TH'
 				) {
 					var cols = [];
-					var jqCell = $$2(cell);
+					var jqCell = $$5(cell);
 
 					// Get the col and rowspan attributes from the DOM and sanitise them
 					colspan = cell.getAttribute('colspan') * 1;
@@ -13724,8 +13724,8 @@ var datatables = (function (exports) {
 						}
 
 						// Wrap the column title so we can write to it in future
-						if ( $$2('.dt-column-title', cell).length === 0) {
-							$$2(document.createElement(settings.columnTitleTag))
+						if ( $$5('.dt-column-title', cell).length === 0) {
+							$$5(document.createElement(settings.columnTitleTag))
 								.addClass('dt-column-title')
 								.append(cell.childNodes)
 								.appendTo(cell);
@@ -13736,9 +13736,9 @@ var datatables = (function (exports) {
 							isHeader &&
 							jqCell.filter(':not([data-dt-order=disable])').length !== 0 &&
 							jqCell.parent(':not([data-dt-order=disable])').length !== 0 &&
-							$$2('.dt-column-order', cell).length === 0
+							$$5('.dt-column-order', cell).length === 0
 						) {
-							$$2(document.createElement(settings.columnTitleTag))
+							$$5(document.createElement(settings.columnTitleTag))
 								.addClass('dt-column-order')
 								.appendTo(cell);
 						}
@@ -13747,8 +13747,8 @@ var datatables = (function (exports) {
 						// layout for those elements
 						var headerFooter = isHeader ? 'header' : 'footer';
 
-						if ( $$2('div.dt-column-' + headerFooter, cell).length === 0) {
-							$$2('<div>')
+						if ( $$5('div.dt-column-' + headerFooter, cell).length === 0) {
+							$$5('<div>')
 								.addClass('dt-column-' + headerFooter)
 								.append(cell.childNodes)
 								.appendTo(cell);
@@ -13845,7 +13845,7 @@ var datatables = (function (exports) {
 			fn(json);
 		};
 
-		if ($$2.isPlainObject(ajax) && ajax.data) {
+		if ($$5.isPlainObject(ajax) && ajax.data) {
 			ajaxData = ajax.data;
 
 			var newData =
@@ -13854,7 +13854,7 @@ var datatables = (function (exports) {
 					: ajaxData; // an object or array to merge
 
 			// If the function returned something, use that alone
-			data = typeof ajaxData === 'function' && newData ? newData : $$2.extend(true, data, newData);
+			data = typeof ajaxData === 'function' && newData ? newData : $$5.extend(true, data, newData);
 
 			// Remove the data property as we've resolved it already and don't want
 			// jQuery to do it again (it is restored at the end of the function)
@@ -13891,8 +13891,8 @@ var datatables = (function (exports) {
 		};
 
 		// If `ajax` option is an object, extend and override our default base
-		if ($$2.isPlainObject(ajax)) {
-			$$2.extend(baseAjax, ajax);
+		if ($$5.isPlainObject(ajax)) {
+			$$5.extend(baseAjax, ajax);
 		}
 
 		// Store the data submitted for the API
@@ -13924,7 +13924,7 @@ var datatables = (function (exports) {
 		}
 		else {
 			// Object to extend the base settings
-			oSettings.jqXHR = $$2.ajax(baseAjax);
+			oSettings.jqXHR = $$5.ajax(baseAjax);
 		}
 
 		// Restore for next time around
@@ -14068,7 +14068,7 @@ var datatables = (function (exports) {
 	function _fnAjaxDataSrc(settings, json, write) {
 		var dataProp = 'data';
 
-		if ($$2.isPlainObject(settings.ajax) && settings.ajax.dataSrc !== undefined) {
+		if ($$5.isPlainObject(settings.ajax) && settings.ajax.dataSrc !== undefined) {
 			// Could in inside a `dataSrc` object, or not!
 			var dataSrc = settings.ajax.dataSrc;
 
@@ -14103,7 +14103,7 @@ var datatables = (function (exports) {
 	 * @returns Resolved value
 	 */
 	function _fnAjaxDataSrcParam(settings, param, json) {
-		var dataSrc = $$2.isPlainObject(settings.ajax) ? settings.ajax.dataSrc : null;
+		var dataSrc = $$5.isPlainObject(settings.ajax) ? settings.ajax.dataSrc : null;
 
 		if (dataSrc && dataSrc[param]) {
 			// Get from custom location
@@ -14150,7 +14150,7 @@ var datatables = (function (exports) {
 			// Global filter first
 			_fnFilter( settings.aiDisplay, settings, input.search, input );
 
-			$$2.each(settings.searchFixed, function (name, term) {
+			$$5.each(settings.searchFixed, function (name, term) {
 				_fnFilter(settings.aiDisplay, settings, term, {});
 			});
 
@@ -14167,7 +14167,7 @@ var datatables = (function (exports) {
 					i
 				);
 
-				$$2.each(settings.aoColumns[i].searchFixed, function (name, term) {
+				$$5.each(settings.aoColumns[i].searchFixed, function (name, term) {
 					_fnFilter(settings.aiDisplay, settings, term, {}, i);
 				});
 			}
@@ -14272,7 +14272,7 @@ var datatables = (function (exports) {
 	function _fnFilterCreateSearch( search, inOpts )
 	{
 		var not = [];
-		var options = $$2.extend({}, {
+		var options = $$5.extend({}, {
 			boundary: false,
 			caseInsensitive: true,
 			exact: false,
@@ -14366,7 +14366,7 @@ var datatables = (function (exports) {
 	 */
 	var _fnEscapeRegex = DataTable.util.escapeRegex;
 
-	var __filter_div = $$2('<div>')[0];
+	var __filter_div = $$5('<div>')[0];
 	var __filter_div_textContent = __filter_div.textContent !== undefined;
 
 	// Update the filtering data for each row if needed (by invalidation or first run)
@@ -14475,7 +14475,7 @@ var datatables = (function (exports) {
 			}
 			else if ( deferLoading || dataSrc == 'dom' ) {
 				// Grab the data from the page
-				_fnAddTr( settings, $$2(settings.nTBody).children('tr') );
+				_fnAddTr( settings, $$5(settings.nTBody).children('tr') );
 			}
 
 			// Filter not yet applied - copy the display master
@@ -14543,7 +14543,7 @@ var datatables = (function (exports) {
 		var args = [settings, settings.json];
 
 		// If the footer element is empty after initialisation, then remove it
-		let tfoot = $$2(settings.tfoot);
+		let tfoot = $$5(settings.tfoot);
 		if (tfoot.children().length === 0) {
 			tfoot.remove();
 		}
@@ -14656,7 +14656,7 @@ var datatables = (function (exports) {
 		var scrolling = settings.oScroll.sX !== '' || settings.oScroll.sY !== '';
 
 		if ( settings.oFeatures.bProcessing ) {
-			var n = $$2('<div/>', {
+			var n = $$5('<div/>', {
 					'id': settings.sTableId + '_processing',
 					'class': settings.oClasses.processing.container,
 					'role': 'status'
@@ -14666,13 +14666,13 @@ var datatables = (function (exports) {
 
 			// Different positioning depending on if scrolling is enabled or not
 			if (scrolling) {
-				n.prependTo( $$2('div.dt-scroll', settings.nTableWrapper) );
+				n.prependTo( $$5('div.dt-scroll', settings.nTableWrapper) );
 			}
 			else {
 				n.insertBefore( table );
 			}
 
-			$$2(table).on( 'processing.dt.DT', function (e, s, show) {
+			$$5(table).on( 'processing.dt.DT', function (e, s, show) {
 				n.css( 'display', show ? 'block' : 'none' );
 			} );
 		}
@@ -14725,7 +14725,7 @@ var datatables = (function (exports) {
 	 */
 	function _fnFeatureHtmlTable ( settings )
 	{
-		var table = $$2(settings.nTable);
+		var table = $$5(settings.nTable);
 
 		// Scrolling from here on in
 		var scroll = settings.oScroll;
@@ -14739,8 +14739,8 @@ var datatables = (function (exports) {
 		var classes = settings.oClasses.scrolling;
 		var caption = settings.captionNode;
 		var captionSide = caption ? caption._captionSide : null;
-		var headerClone = $$2( table[0].cloneNode(false) );
-		var footerClone = $$2( table[0].cloneNode(false) );
+		var headerClone = $$5( table[0].cloneNode(false) );
+		var footerClone = $$5( table[0].cloneNode(false) );
 		var footer = table.children('tfoot');
 		var _div = '<div/>';
 		var size = function ( s ) {
@@ -14767,9 +14767,9 @@ var datatables = (function (exports) {
 		 *        table - scroll foot table
 		 *          tfoot - tfoot
 		 */
-		var scroller = $$2( _div, { 'class': classes.container } )
+		var scroller = $$5( _div, { 'class': classes.container } )
 			.append(
-				$$2(_div, { 'class': classes.header.self } )
+				$$5(_div, { 'class': classes.header.self } )
 					.css( {
 						overflow: 'hidden',
 						position: 'relative',
@@ -14777,7 +14777,7 @@ var datatables = (function (exports) {
 						width: scrollX ? size(scrollX) : '100%'
 					} )
 					.append(
-						$$2(_div, { 'class': classes.header.inner } )
+						$$5(_div, { 'class': classes.header.inner } )
 							.css( {
 								'box-sizing': 'content-box',
 								width: scroll.sXInner || '100%'
@@ -14794,7 +14794,7 @@ var datatables = (function (exports) {
 					)
 			)
 			.append(
-				$$2(_div, { 'class': classes.body } )
+				$$5(_div, { 'class': classes.body } )
 					.css( {
 						position: 'relative',
 						overflow: 'auto',
@@ -14805,14 +14805,14 @@ var datatables = (function (exports) {
 
 		if ( footer ) {
 			scroller.append(
-				$$2(_div, { 'class': classes.footer.self } )
+				$$5(_div, { 'class': classes.footer.self } )
 					.css( {
 						overflow: 'hidden',
 						border: 0,
 						width: scrollX ? size(scrollX) : '100%'
 					} )
 					.append(
-						$$2(_div, { 'class': classes.footer.inner } )
+						$$5(_div, { 'class': classes.footer.inner } )
 							.append(
 								footerClone
 									.removeAttr('id')
@@ -14832,7 +14832,7 @@ var datatables = (function (exports) {
 		var scrollFoot = footer ? children[2] : null;
 
 		// When the body is scrolled, then we also want to scroll the headers
-		$$2(scrollBody).on( 'scroll.DT', function () {
+		$$5(scrollBody).on( 'scroll.DT', function () {
 			var scrollLeft = this.scrollLeft;
 
 			scrollHead.scrollLeft = scrollLeft;
@@ -14843,7 +14843,7 @@ var datatables = (function (exports) {
 		} );
 
 		// When focus is put on the header cells, we might need to scroll the body
-		$$2('th, td', scrollHead).on('focus', function () {
+		$$5('th, td', scrollHead).on('focus', function () {
 			var scrollLeft = scrollHead.scrollLeft;
 
 			scrollBody.scrollLeft = scrollLeft;
@@ -14853,9 +14853,9 @@ var datatables = (function (exports) {
 			}
 		});
 
-		$$2(scrollBody).css('max-height', scrollY);
+		$$5(scrollBody).css('max-height', scrollY);
 		if (! scroll.bCollapse) {
-			$$2(scrollBody).css('height', scrollY);
+			$$5(scrollBody).css('height', scrollY);
 		}
 
 		settings.nScrollHead = scrollHead;
@@ -14891,17 +14891,17 @@ var datatables = (function (exports) {
 		var
 			scroll         = settings.oScroll,
 			barWidth       = scroll.iBarWidth,
-			divHeader      = $$2(settings.nScrollHead),
+			divHeader      = $$5(settings.nScrollHead),
 			divHeaderInner = divHeader.children('div'),
 			divHeaderTable = divHeaderInner.children('table'),
 			divBodyEl      = settings.nScrollBody,
-			divBody        = $$2(divBodyEl),
-			divFooter      = $$2(settings.nScrollFoot),
+			divBody        = $$5(divBodyEl),
+			divFooter      = $$5(settings.nScrollFoot),
 			divFooterInner = divFooter.children('div'),
 			divFooterTable = divFooterInner.children('table'),
-			header         = $$2(settings.nTHead),
-			table          = $$2(settings.nTable),
-			footer         = settings.nTFoot && $$2('th, td', settings.nTFoot).length ? $$2(settings.nTFoot) : null,
+			header         = $$5(settings.nTHead),
+			table          = $$5(settings.nTable),
+			footer         = settings.nTFoot && $$5('th, td', settings.nTFoot).length ? $$5(settings.nTFoot) : null,
 			browser        = settings.oBrowser,
 			headerCopy, footerCopy;
 
@@ -14962,10 +14962,10 @@ var datatables = (function (exports) {
 			}
 
 			if (firstTr) {
-				var colSizes = $$2(firstTr).children('th, td').map(function (vis) {
+				var colSizes = $$5(firstTr).children('th, td').map(function (vis) {
 					return {
 						idx: _fnVisibleToColumnIndex(settings, vis),
-						width: $$2(this).outerWidth()
+						width: $$5(this).outerWidth()
 					};
 				});
 
@@ -15003,13 +15003,13 @@ var datatables = (function (exports) {
 		// "Hide" the header and footer that we used for the sizing. We need to keep
 		// the content of the cell so that the width applied to the header and body
 		// both match, but we want to hide it completely.
-		$$2('th, td', headerCopy).each(function () {
-			$$2(this.childNodes).wrapAll('<div class="dt-scroll-sizing" />');
+		$$5('th, td', headerCopy).each(function () {
+			$$5(this.childNodes).wrapAll('<div class="dt-scroll-sizing" />');
 		});
 
 		if ( footer ) {
-			$$2('th, td', footerCopy).each(function () {
-				$$2(this.childNodes).wrapAll('<div class="dt-scroll-sizing" />');
+			$$5('th, td', footerCopy).each(function () {
+				$$5(this.childNodes).wrapAll('<div class="dt-scroll-sizing" />');
 			});
 		}
 
@@ -15110,7 +15110,7 @@ var datatables = (function (exports) {
 		// Construct a worst case table with the widest, assign any user defined
 		// widths, then insert it into  the DOM and allow the browser to do all
 		// the hard work of calculating table widths
-		var tmpTable = $$2(table.cloneNode())
+		var tmpTable = $$5(table.cloneNode())
 			.css( 'visibility', 'hidden' )
 			.css( 'margin', 0 )
 			.removeAttr( 'id' );
@@ -15122,8 +15122,8 @@ var datatables = (function (exports) {
 		// from the cloned table, since if scrolling is active, the table's
 		// real header and footer are contained in different table tags
 		tmpTable
-			.append( $$2(settings.nTHead).clone() )
-			.append( $$2(settings.nTFoot).clone() );
+			.append( $$5(settings.nTHead).clone() )
+			.append( $$5(settings.nTFoot).clone() );
 
 		// Remove any assigned widths from the footer (from scrolling)
 		tmpTable.find('tfoot th, tfoot td').css('width', '');
@@ -15142,7 +15142,7 @@ var datatables = (function (exports) {
 				if ( scrollX ) {
 					this.style.minWidth = width;
 
-					$$2( this ).append( $$2('<div/>').css( {
+					$$5( this ).append( $$5('<div/>').css( {
 						width: width,
 						margin: 0,
 						padding: 0,
@@ -15166,7 +15166,7 @@ var datatables = (function (exports) {
 
 		if (longestData.length) {
 			for ( i=0 ; i<longestData[0].length ; i++ ) {
-				var tr = $$2('<tr/>').appendTo( tmpTable.find('tbody') );
+				var tr = $$5('<tr/>').appendTo( tmpTable.find('tbody') );
 
 				for ( j=0 ; j<visibleColumns.length ; j++ ) {
 					columnIdx = visibleColumns[j];
@@ -15180,7 +15180,7 @@ var datatables = (function (exports) {
 						? document.createTextNode(text)
 						: text;
 
-					$$2('<td/>')
+					$$5('<td/>')
 						.addClass(autoClass)
 						.addClass(column.sClass)
 						.append(insert)
@@ -15191,14 +15191,14 @@ var datatables = (function (exports) {
 
 		// Tidy the temporary table - remove name attributes so there aren't
 		// duplicated in the dom (radio elements for example)
-		$$2('[name]', tmpTable).removeAttr('name');
+		$$5('[name]', tmpTable).removeAttr('name');
 
 		// Table has been built, attach to the document so we can work with it.
 		// A holding element is used, positioned at the top of the container
 		// with minimal height, so it has no effect on if the container scrolls
 		// or not. Otherwise it might trigger scrolling when it actually isn't
 		// needed
-		var holder = $$2('<div/>').css( scrollX || scrollY ?
+		var holder = $$5('<div/>').css( scrollX || scrollY ?
 				{
 					position: 'absolute',
 					top: 0,
@@ -15281,10 +15281,10 @@ var datatables = (function (exports) {
 				// then the callback is immediately run. Which we don't want. If the element isn't
 				// visible, then it isn't run, but we want it to run when it is then made visible.
 				// This flag allows the above to be satisfied.
-				var first = $$2(settings.nTableWrapper).is(':visible');
+				var first = $$5(settings.nTableWrapper).is(':visible');
 
 				// Use an empty div to attach the observer so it isn't impacted by height changes
-				var resizer = $$2('<div>')
+				var resizer = $$5('<div>')
 					.css({
 						width: '100%',
 						height: 0
@@ -15305,7 +15305,7 @@ var datatables = (function (exports) {
 			}
 			else {
 				// For old browsers, the best we can do is listen for a window resize
-				$$2(window).on('resize.DT-'+settings.sInstance, resize);
+				$$5(window).on('resize.DT-'+settings.sInstance, resize);
 			}
 
 			settings._reszEvt = true;
@@ -15319,8 +15319,8 @@ var datatables = (function (exports) {
 	 * @returns Width
 	 */
 	function _fnWrapperWidth(settings) {
-		return $$2(settings.nTableWrapper).is(':visible')
-			? $$2(settings.nTableWrapper).width()
+		return $$5(settings.nTableWrapper).is(':visible')
+			? $$5(settings.nTableWrapper).width()
 			: 0;
 	}
 
@@ -15572,7 +15572,7 @@ var datatables = (function (exports) {
 
 	function _fnSortResolve (settings, nestedSort, sort) {
 		var push = function ( a ) {
-			if ($$2.isPlainObject(a)) {
+			if ($$5.isPlainObject(a)) {
 				if (a.idx !== undefined) {
 					// Index based ordering
 					nestedSort.push([a.idx, a.dir]);
@@ -15593,7 +15593,7 @@ var datatables = (function (exports) {
 			}
 		};
 
-		if ( $$2.isPlainObject(sort) ) {
+		if ( $$5.isPlainObject(sort) ) {
 			// Object
 			push(sort);
 		}
@@ -15619,7 +15619,7 @@ var datatables = (function (exports) {
 			aoColumns = settings.aoColumns,
 			aDataSort, iCol, sType, srcCol,
 			fixed = settings.aaSortingFixed,
-			fixedObj = $$2.isPlainObject( fixed ),
+			fixedObj = $$5.isPlainObject( fixed ),
 			nestedSort = [];
 		
 		if ( ! settings.oFeatures.bSort ) {
@@ -15920,7 +15920,7 @@ var datatables = (function (exports) {
 				colIdx = oldSort[i].src;
 
 				// Remove column sorting
-				$$2( _pluck( settings.aoData, 'anCells', colIdx ) )
+				$$5( _pluck( settings.aoData, 'anCells', colIdx ) )
 					.removeClass( sortClass + (i<2 ? i+1 : 3) );
 			}
 
@@ -15928,7 +15928,7 @@ var datatables = (function (exports) {
 			for ( i=0, iLen=sort.length ; i<iLen ; i++ ) {
 				colIdx = sort[i].src;
 
-				$$2( _pluck( settings.aoData, 'anCells', colIdx ) )
+				$$5( _pluck( settings.aoData, 'anCells', colIdx ) )
 					.addClass( sortClass + (i<2 ? i+1 : 3) );
 			}
 		}
@@ -16010,12 +16010,12 @@ var datatables = (function (exports) {
 					? [ columns[sort[0]].sName, sort[1] ]
 					: sort.slice();
 			} ),
-			search:  $$2.extend({}, settings.oPreviousSearch),
+			search:  $$5.extend({}, settings.oPreviousSearch),
 			columns: settings.aoColumns.map( function ( col, i ) {
 				return {
 					name: col.sName,
 					visible: col.bVisible,
-					search: $$2.extend({}, settings.aoPreSearchCols[i])
+					search: $$5.extend({}, settings.aoPreSearchCols[i])
 				};
 			} )
 		};
@@ -16093,7 +16093,7 @@ var datatables = (function (exports) {
 		}
 
 		// Store the saved state so it might be accessed at any time
-		settings.oLoadedState = $$2.extend( true, {}, s );
+		settings.oLoadedState = $$5.extend( true, {}, s );
 
 		// This is needed for ColReorder, which has to happen first to allow all
 		// the stored indexes to be usable. It is not publicly documented.
@@ -16124,7 +16124,7 @@ var datatables = (function (exports) {
 		// Order
 		if ( s.order !== undefined ) {
 			settings.aaSorting = [];
-			$$2.each( s.order, function ( i, col ) {
+			$$5.each( s.order, function ( i, col ) {
 				var set = [ col[0], col[1] ];
 
 				// A column name was stored and should be used for restore
@@ -16150,7 +16150,7 @@ var datatables = (function (exports) {
 
 		// Search
 		if ( s.search !== undefined ) {
-			$$2.extend( settings.oPreviousSearch, s.search );
+			$$5.extend( settings.oPreviousSearch, s.search );
 		}
 
 		// Columns
@@ -16205,7 +16205,7 @@ var datatables = (function (exports) {
 
 					// Search
 					if ( col.search !== undefined ) {
-						$$2.extend( settings.aoPreSearchCols[i], col.search );
+						$$5.extend( settings.aoPreSearchCols[i], col.search );
 					}
 				}
 
@@ -16274,7 +16274,7 @@ var datatables = (function (exports) {
 	function _fnMap( ret, src, name, mappedName )
 	{
 		if ( Array.isArray( name ) ) {
-			$$2.each( name, function (i, val) {
+			$$5.each( name, function (i, val) {
 				if ( Array.isArray( val ) ) {
 					_fnMap( ret, src, val[0], val[1] );
 				}
@@ -16321,11 +16321,11 @@ var datatables = (function (exports) {
 			if ( Object.prototype.hasOwnProperty.call(extender, prop) ) {
 				val = extender[prop];
 
-				if ( $$2.isPlainObject( val ) ) {
-					if ( ! $$2.isPlainObject( out[prop] ) ) {
+				if ( $$5.isPlainObject( val ) ) {
+					if ( ! $$5.isPlainObject( out[prop] ) ) {
 						out[prop] = {};
 					}
-					$$2.extend( true, out[prop], val );
+					$$5.extend( true, out[prop], val );
 				}
 				else if ( breakRefs && prop !== 'data' && prop !== 'aaData' && Array.isArray(val) ) {
 					out[prop] = val.slice();
@@ -16352,7 +16352,7 @@ var datatables = (function (exports) {
 	 */
 	function _fnBindAction( n, selector, fn )
 	{
-		$$2(n)
+		$$5(n)
 			.on( 'click.DT', selector, function (e) {
 				fn(e);
 			} )
@@ -16411,8 +16411,8 @@ var datatables = (function (exports) {
 		}
 
 		if ( eventName !== null) {
-			var e = $$2.Event( eventName+'.dt' );
-			var table = $$2(settings.nTable);
+			var e = $$5.Event( eventName+'.dt' );
+			var table = $$5(settings.nTable);
 			
 			// Expose the DataTables API on the event object for easy access
 			e.dt = settings.api;
@@ -16422,7 +16422,7 @@ var datatables = (function (exports) {
 			// If not yet attached to the document, trigger the event
 			// on the body directly to sort of simulate the bubble
 			if (bubbles && table.parents('body').length === 0) {
-				$$2('body').trigger( e, args );
+				$$5('body').trigger( e, args );
 			}
 
 			ret.push( e.result );
@@ -16462,7 +16462,7 @@ var datatables = (function (exports) {
 		var renderer = settings.renderer;
 		var host = DataTable.ext.renderer[type];
 
-		if ( $$2.isPlainObject( renderer ) && renderer[type] ) {
+		if ( $$5.isPlainObject( renderer ) && renderer[type] ) {
 			// Specific renderer for this type. If available use it, otherwise use
 			// the default.
 			return host[renderer[type]] || host._;
@@ -16575,7 +16575,7 @@ var datatables = (function (exports) {
 	 */
 	function _fnEscapeObject(obj) {
 		if (DataTable.ext.escape.attributes) {
-			$$2.each(obj, function (key, val) {
+			$$5.each(obj, function (key, val) {
 				obj[key] = _escapeHtml(val);
 			});
 		}
@@ -16676,9 +16676,9 @@ var datatables = (function (exports) {
 		}
 		else if ( typeof mixed === 'string' ) {
 			// jQuery selector
-			jq = $$2(mixed).get();
+			jq = $$5(mixed).get();
 		}
-		else if ( mixed instanceof $$2 ) {
+		else if ( mixed instanceof $$5 ) {
 			// jQuery object (also DataTables instance)
 			jq = mixed.get();
 		}
@@ -16791,7 +16791,7 @@ var datatables = (function (exports) {
 
 	// Don't destroy the existing prototype, just extend it. Required for jQuery 2's
 	// isPlainObject.
-	$$2.extend( _Api.prototype, {
+	$$5.extend( _Api.prototype, {
 		any: function ()
 		{
 			return this.count() !== 0;
@@ -16970,12 +16970,12 @@ var datatables = (function (exports) {
 
 		to$: function ()
 		{
-			return $$2( this );
+			return $$5( this );
 		},
 
 		toJQuery: function ()
 		{
-			return $$2( this );
+			return $$5( this );
 		},
 
 		unique: function ()
@@ -17101,7 +17101,7 @@ var datatables = (function (exports) {
 				src.val = val;
 				src.type = typeof val === 'function' ?
 					'function' :
-					$$2.isPlainObject( val ) ?
+					$$5.isPlainObject( val ) ?
 						'object' :
 						'other';
 			}
@@ -17174,7 +17174,7 @@ var datatables = (function (exports) {
 			return el.nTable;
 		} );
 
-		return $$2(nodes)
+		return $$5(nodes)
 			.filter( selector )
 			.map( function () {
 				// Need to translate back from the table node to the settings
@@ -17286,13 +17286,13 @@ var datatables = (function (exports) {
 		}
 
 		return this.iterator( 'table', function ( ctx ) {
-			var table = $$2(ctx.nTable);
-			var caption = $$2(ctx.captionNode);
-			var container = $$2(ctx.nTableWrapper);
+			var table = $$5(ctx.nTable);
+			var caption = $$5(ctx.captionNode);
+			var container = $$5(ctx.nTableWrapper);
 
 			// Create the node if it doesn't exist yet
 			if ( ! caption.length ) {
-				caption = $$2('<caption/>').html( value );
+				caption = $$5('<caption/>').html( value );
 				ctx.captionNode = caption[0];
 
 				// If side isn't set, we need to insert into the document to let the
@@ -17564,14 +17564,14 @@ var datatables = (function (exports) {
 			}
 			ctx = ctx[0];
 
-			return $$2.isPlainObject( ctx.ajax ) ?
+			return $$5.isPlainObject( ctx.ajax ) ?
 				ctx.ajax.url :
 				ctx.ajax;
 		}
 
 		// set
 		return this.iterator( 'table', function ( settings ) {
-			if ( $$2.isPlainObject( settings.ajax ) ) {
+			if ( $$5.isPlainObject( settings.ajax ) ) {
 				settings.ajax.url = url;
 			}
 			else {
@@ -17651,7 +17651,7 @@ var datatables = (function (exports) {
 			opts.search = opts.filter;
 		}
 
-		return $$2.extend( {
+		return $$5.extend( {
 			columnOrder: 'implied',
 			search: 'none',
 			order: 'current',
@@ -17840,7 +17840,7 @@ var datatables = (function (exports) {
 						[];
 				}
 				else {
-					var host = $$2(sel).closest('*[data-dt-row]');
+					var host = $$5(sel).closest('*[data-dt-row]');
 					return host.length ?
 						[ host.data('dt-row') ] :
 						[];
@@ -17875,7 +17875,7 @@ var datatables = (function (exports) {
 			// Selector - jQuery selector string, array of nodes or jQuery object/
 			// As jQuery's .filter() allows jQuery objects to be passed in filter,
 			// it also allows arrays, so this will cope with all three options
-			return $$2(nodes)
+			return $$5(nodes)
 				.filter( sel )
 				.map( function () {
 					return this._DT_RowIndex;
@@ -17898,7 +17898,7 @@ var datatables = (function (exports) {
 		if ( selector === undefined ) {
 			selector = '';
 		}
-		else if ( $$2.isPlainObject( selector ) ) {
+		else if ( $$5.isPlainObject( selector ) ) {
 			opts = selector;
 			selector = '';
 		}
@@ -18077,7 +18077,7 @@ var datatables = (function (exports) {
 	_api_register( 'row.add()', function ( row ) {
 		// Allow a jQuery object to be passed in - only a single row is added from
 		// it though - the first element in the set
-		if ( row instanceof $$2 && row.length ) {
+		if ( row instanceof $$5 && row.length ) {
 			row = row[0];
 		}
 
@@ -18093,7 +18093,7 @@ var datatables = (function (exports) {
 	} );
 
 
-	$$2(document).on('plugin-init.dt', function (e, context) {
+	$$5(document).on('plugin-init.dt', function (e, context) {
 		var api = new _Api( context );
 
 		api.on( 'stateSaveParams.DT', function ( e, settings, d ) {
@@ -18145,7 +18145,7 @@ var datatables = (function (exports) {
 		var rows = [];
 		var addRow = function ( r, k ) {
 			// Recursion to allow for arrays of jQuery objects
-			if ( Array.isArray( r ) || r instanceof $$2 ) {
+			if ( Array.isArray( r ) || r instanceof $$5 ) {
 				for ( var i=0, iLen=r.length ; i<iLen ; i++ ) {
 					addRow( r[i], k );
 				}
@@ -18160,11 +18160,11 @@ var datatables = (function (exports) {
 			}
 			else {
 				// Otherwise create a row with a wrapper
-				var created = $$2('<tr><td></td></tr>')
+				var created = $$5('<tr><td></td></tr>')
 					.attr( 'data-dt-row', row.idx )
 					.addClass( k );
 				
-				$$2('td', created)
+				$$5('td', created)
 					.addClass( k )
 					.html( r )[0].colSpan = _fnVisibleColumns( ctx );
 
@@ -18178,7 +18178,7 @@ var datatables = (function (exports) {
 			row._details.detach();
 		}
 
-		row._details = $$2(rows);
+		row._details = $$5(rows);
 
 		// If the children were already shown, that state should be retained
 		if ( row._detailsShow ) {
@@ -18208,7 +18208,7 @@ var datatables = (function (exports) {
 
 				row._detailsShow = undefined;
 				row._details = undefined;
-				$$2( row.nTr ).removeClass( 'dt-hasChild' );
+				$$5( row.nTr ).removeClass( 'dt-hasChild' );
 				__details_state( ctx );
 			}
 		}
@@ -18226,11 +18226,11 @@ var datatables = (function (exports) {
 
 				if ( show ) {
 					row._details.insertAfter( row.nTr );
-					$$2( row.nTr ).addClass( 'dt-hasChild' );
+					$$5( row.nTr ).addClass( 'dt-hasChild' );
 				}
 				else {
 					row._details.detach();
-					$$2( row.nTr ).removeClass( 'dt-hasChild' );
+					$$5( row.nTr ).removeClass( 'dt-hasChild' );
 				}
 
 				_fnCallbackFire( ctx[0], null, 'childRow', [ show, api.row( api[0] ) ] );
@@ -18285,7 +18285,7 @@ var datatables = (function (exports) {
 
 					if ( row && row._details ) {
 						row._details.each(function () {
-							var el = $$2(this).children('td');
+							var el = $$5(this).children('td');
 
 							if (el.length == 1) {
 								el.attr('colspan', visible);
@@ -18433,7 +18433,7 @@ var datatables = (function (exports) {
 			// Automatic - find the _last_ unique cell from the top that is not empty (last for
 			// backwards compatibility)
 			for (var i=0 ; i<header.length ; i++) {
-				if (header[i][column].unique && $$2('.dt-column-title', header[i][column].cell).text()) {
+				if (header[i][column].unique && $$5('.dt-column-title', header[i][column].cell).text()) {
 					target = i;
 				}
 			}
@@ -18535,7 +18535,7 @@ var datatables = (function (exports) {
 
 							// Selector
 							if (match[1]) {
-								return $$2(nodes[idx]).filter(match[1]).length > 0 ? idx : null;
+								return $$5(nodes[idx]).filter(match[1]).length > 0 ? idx : null;
 							}
 
 							// `:visible` on its own
@@ -18574,7 +18574,7 @@ var datatables = (function (exports) {
 			}
 
 			// jQuery selector on the TH elements for the columns
-			var jqResult = $$2( nodes )
+			var jqResult = $$5( nodes )
 				.filter( s )
 				.map( function () {
 					return _fnColumnsFromHeader( this ); // `nodes` is column index complete and in order
@@ -18590,7 +18590,7 @@ var datatables = (function (exports) {
 
 			// Otherwise a node which might have a `dt-column` data attribute, or be
 			// a child or such an element
-			var host = $$2(s).closest('*[data-dt-column]');
+			var host = $$5(s).closest('*[data-dt-column]');
 			return host.length ?
 				[ host.data('dt-column') ] :
 				[];
@@ -18641,7 +18641,7 @@ var datatables = (function (exports) {
 		}
 		else {
 			// Remove column
-			$$2( _pluck( settings.aoData, 'anCells', column ) ).detach();
+			$$5( _pluck( settings.aoData, 'anCells', column ) ).detach();
 		}
 
 		// Common actions
@@ -18658,7 +18658,7 @@ var datatables = (function (exports) {
 		if ( selector === undefined ) {
 			selector = '';
 		}
-		else if ( $$2.isPlainObject( selector ) ) {
+		else if ( $$5.isPlainObject( selector ) ) {
 			opts = selector;
 			selector = '';
 		}
@@ -18744,7 +18744,7 @@ var datatables = (function (exports) {
 				title = undefined;
 			}
 
-			var span = $$2('.dt-column-title', this.column(column).header(row));
+			var span = $$5('.dt-column-title', this.column(column).header(row));
 
 			if (title !== undefined) {
 				span.html(title);
@@ -18796,7 +18796,7 @@ var datatables = (function (exports) {
 				// Update colspan for no records display. Child rows and extensions will use their own
 				// listeners to do this - only need to update the empty table item here
 				if ( ! settings.aiDisplay.length ) {
-					$$2(settings.nTBody).find('td[colspan]').attr('colspan', _fnVisibleColumns(settings));
+					$$5(settings.nTBody).find('td[colspan]').attr('colspan', _fnVisibleColumns(settings));
 				}
 		
 				_fnSaveState( settings );
@@ -18822,12 +18822,12 @@ var datatables = (function (exports) {
 		// be read, regardless of colspan in the header and rows being present in
 		// the body
 		var columns = this.columns(':visible').count();
-		var row = $$2('<tr>').html('<td>' + Array(columns).join('</td><td>') + '</td>');
+		var row = $$5('<tr>').html('<td>' + Array(columns).join('</td><td>') + '</td>');
 
-		$$2(this.table().body()).append(row);
+		$$5(this.table().body()).append(row);
 
 		var widths = row.children().map(function () {
-			return $$2(this).outerWidth();
+			return $$5(this).outerWidth();
 		});
 
 		row.remove();
@@ -18879,7 +18879,7 @@ var datatables = (function (exports) {
 		var data = settings.aoData;
 		var rows = _selector_row_indexes( settings, opts );
 		var cells = _removeEmpty( _pluck_order( data, rows, 'anCells' ) );
-		var allCells = $$2(_flatten( [], cells ));
+		var allCells = $$5(_flatten( [], cells ));
 		var row;
 		var columns = settings.aoColumns.length;
 		var a, i, iLen, j, o, host;
@@ -18919,7 +18919,7 @@ var datatables = (function (exports) {
 			}
 			
 			// Selector - index
-			if ( $$2.isPlainObject( s ) ) {
+			if ( $$5.isPlainObject( s ) ) {
 				// Valid cell index and its in the array of selectable rows
 				return s.column !== undefined && s.row !== undefined && rows.indexOf(s.row) !== -1 ?
 					[s] :
@@ -18944,7 +18944,7 @@ var datatables = (function (exports) {
 			// Otherwise the selector is a node, and there is one last option - the
 			// element might be a child of an element which has dt-row and dt-column
 			// data attributes
-			host = $$2(s).closest('*[data-dt-row]');
+			host = $$5(s).closest('*[data-dt-row]');
 			return host.length ?
 				[ {
 					row: host.data('dt-row'),
@@ -18961,7 +18961,7 @@ var datatables = (function (exports) {
 
 	_api_register( 'cells()', function ( rowSelector, columnSelector, opts ) {
 		// Argument shifting
-		if ( $$2.isPlainObject( rowSelector ) ) {
+		if ( $$5.isPlainObject( rowSelector ) ) {
 			// Indexes
 			if ( rowSelector.row === undefined ) {
 				// Selector options in first parameter
@@ -18974,7 +18974,7 @@ var datatables = (function (exports) {
 				columnSelector = null;
 			}
 		}
-		if ( $$2.isPlainObject( columnSelector ) ) {
+		if ( $$5.isPlainObject( columnSelector ) ) {
 			opts = columnSelector;
 			columnSelector = null;
 		}
@@ -19020,7 +19020,7 @@ var datatables = (function (exports) {
 			this.cells( cellsNoOpts, opts ) :
 			cellsNoOpts;
 
-		$$2.extend( cells.selector, {
+		$$5.extend( cells.selector, {
 			cols: columnSelector,
 			rows: rowSelector,
 			opts: opts
@@ -19197,7 +19197,7 @@ var datatables = (function (exports) {
 		}
 
 		return this.iterator( 'table', function ( settings ) {
-			settings.aaSortingFixed = $$2.extend( true, {}, set );
+			settings.aaSortingFixed = $$5.extend( true, {}, set );
 		} );
 	} );
 
@@ -19267,13 +19267,13 @@ var datatables = (function (exports) {
 
 			if (typeof regex === 'object') {
 				// New style options to pass to the search builder
-				_fnFilterComplete( settings, $$2.extend( settings.oPreviousSearch, regex, {
+				_fnFilterComplete( settings, $$5.extend( settings.oPreviousSearch, regex, {
 					search: input
 				} ) );
 			}
 			else {
 				// Compat for the old options
-				_fnFilterComplete( settings, $$2.extend( settings.oPreviousSearch, {
+				_fnFilterComplete( settings, $$5.extend( settings.oPreviousSearch, {
 					search: input,
 					regex:  regex === null ? false : regex,
 					smart:  smart === null ? true  : smart,
@@ -19327,13 +19327,13 @@ var datatables = (function (exports) {
 
 				if (typeof regex === 'object') {
 					// New style options to pass to the search builder
-					$$2.extend( preSearch[ column ], regex, {
+					$$5.extend( preSearch[ column ], regex, {
 						search: input
 					} );
 				}
 				else {
 					// Old style (with not all options available)
-					$$2.extend( preSearch[ column ], {
+					$$5.extend( preSearch[ column ], {
 						search: input,
 						regex:  regex === null ? false : regex,
 						smart:  smart === null ? true  : smart,
@@ -19387,7 +19387,7 @@ var datatables = (function (exports) {
 				null;
 		}
 
-		var setMutate = $$2.extend( true, {}, set );
+		var setMutate = $$5.extend( true, {}, set );
 
 		// setter
 		return this.iterator( 'table', function ( settings ) {
@@ -19444,7 +19444,7 @@ var datatables = (function (exports) {
 			switch (type) {
 				case 'lib':
 				case 'jq':
-					return $$2;
+					return $$5;
 
 				case 'win':
 					return window;
@@ -19473,7 +19473,7 @@ var datatables = (function (exports) {
 
 		// Setter
 		if (type === 'lib' || type === 'jq' || (module && module.fn && module.fn.jquery)) {
-			$$2 = module;
+			$$5 = module;
 		}
 		else if (type === 'win' || (module && module.document)) {
 			window = module;
@@ -19517,7 +19517,7 @@ var datatables = (function (exports) {
 
 		// Test if the second parameter is a jQuery object
 		if (jq && jq.fn && jq.fn.jquery) {
-			$$2 = jq;
+			$$5 = jq;
 			is = true;
 		}
 
@@ -19583,16 +19583,16 @@ var datatables = (function (exports) {
 	 */
 	DataTable.isDataTable = function ( table )
 	{
-		var t = $$2(table).get(0);
+		var t = $$5(table).get(0);
 		var is = false;
 
 		if ( table instanceof DataTable.Api ) {
 			return true;
 		}
 
-		$$2.each( DataTable.settings, function (i, o) {
-			var head = o.nScrollHead ? $$2('table', o.nScrollHead)[0] : null;
-			var foot = o.nScrollFoot ? $$2('table', o.nScrollFoot)[0] : null;
+		$$5.each( DataTable.settings, function (i, o) {
+			var head = o.nScrollHead ? $$5('table', o.nScrollHead)[0] : null;
+			var foot = o.nScrollFoot ? $$5('table', o.nScrollFoot)[0] : null;
 
 			if ( o.nTable === t || head === t || foot === t ) {
 				is = true;
@@ -19623,14 +19623,14 @@ var datatables = (function (exports) {
 	{
 		var api = false;
 
-		if ( $$2.isPlainObject( visible ) ) {
+		if ( $$5.isPlainObject( visible ) ) {
 			api = visible.api;
 			visible = visible.visible;
 		}
 
 		var a = DataTable.settings
 			.filter( function (o) {
-				return !visible || (visible && $$2(o.nTable).is(':visible')) 
+				return !visible || (visible && $$5(o.nTable).is(':visible')) 
 					? true
 					: false;
 			} )
@@ -19667,9 +19667,9 @@ var datatables = (function (exports) {
 	_api_register( '$()', function ( selector, opts ) {
 		var
 			rows   = this.rows( opts ).nodes(), // Get all rows
-			jqRows = $$2(rows);
+			jqRows = $$5(rows);
 
-		return $$2( [].concat(
+		return $$5( [].concat(
 			jqRows.filter( selector ).toArray(),
 			jqRows.find( selector ).toArray()
 		) );
@@ -19677,7 +19677,7 @@ var datatables = (function (exports) {
 
 
 	// jQuery functions to operate on the tables
-	$$2.each( [ 'on', 'one', 'off' ], function (i, key) {
+	$$5.each( [ 'on', 'one', 'off' ], function (i, key) {
 		_api_register( key+'()', function ( /* event, handler */ ) {
 			var args = Array.prototype.slice.call(arguments);
 
@@ -19688,7 +19688,7 @@ var datatables = (function (exports) {
 					e;
 				} ).join( ' ' );
 
-			var inst = $$2( this.tables().nodes() );
+			var inst = $$5( this.tables().nodes() );
 			inst[key].apply( inst, args );
 			return this;
 		} );
@@ -19770,9 +19770,9 @@ var datatables = (function (exports) {
 			var tbody     = settings.nTBody;
 			var thead     = settings.nTHead;
 			var tfoot     = settings.nTFoot;
-			var jqTable   = $$2(table);
-			var jqTbody   = $$2(tbody);
-			var jqWrapper = $$2(settings.nTableWrapper);
+			var jqTable   = $$5(table);
+			var jqTbody   = $$5(tbody);
+			var jqWrapper = $$5(settings.nTableWrapper);
 			var rows      = settings.aoData.map( function (r) { return r ? r.nTr : null; } );
 			var orderClasses = classes.order;
 
@@ -19797,7 +19797,7 @@ var datatables = (function (exports) {
 			// lowercase, `dt` events are user subscribed and they are responsible
 			// for removing them
 			jqWrapper.off('.DT').find(':not(tbody *)').off('.DT');
-			$$2(window).off('.DT-'+settings.sInstance);
+			$$5(window).off('.DT-'+settings.sInstance);
 
 			// When scrolling we had to break the table up - restore it
 			if ( table != thead.parentNode ) {
@@ -19819,13 +19819,13 @@ var datatables = (function (exports) {
 			settings.aaSortingFixed = [];
 			_fnSortingClasses( settings );
 
-			$$2(jqTable).find('th, td').removeClass(
-				$$2.map(DataTable.ext.type.className, function (v) {
+			$$5(jqTable).find('th, td').removeClass(
+				$$5.map(DataTable.ext.type.className, function (v) {
 					return v;
 				}).join(' ')
 			);
 
-			$$2('th, td', thead)
+			$$5('th, td', thead)
 				.removeClass(
 					orderClasses.none + ' ' +
 					orderClasses.canAsc + ' ' +
@@ -19870,7 +19870,7 @@ var datatables = (function (exports) {
 
 
 	// Add the `every()` method for rows, columns and cells in a compact form
-	$$2.each( [ 'column', 'row', 'cell' ], function ( i, type ) {
+	$$5.each( [ 'column', 'row', 'cell' ], function ( i, type ) {
 		_api_register( type+'s().every()', function ( fn ) {
 			var opts = this.selector.opts;
 			var api = this;
@@ -19903,7 +19903,7 @@ var datatables = (function (exports) {
 			resolved = def;
 		}
 
-		if ( $$2.isPlainObject( resolved ) ) {
+		if ( $$5.isPlainObject( resolved ) ) {
 			resolved = plural !== undefined && resolved[ plural ] !== undefined
 				? resolved[ plural ]
 				: plural === false
@@ -19918,15 +19918,15 @@ var datatables = (function (exports) {
 
 	// Needed for header and footer, so pulled into its own function
 	function cleanHeader(node, className) {
-		$$2(node).find('.dt-column-order').remove();
-		$$2(node).find('.dt-column-title').each(function () {
-			var title = $$2(this).html();
-			$$2(this).parent().parent().append(title);
-			$$2(this).remove();
+		$$5(node).find('.dt-column-order').remove();
+		$$5(node).find('.dt-column-title').each(function () {
+			var title = $$5(this).html();
+			$$5(this).parent().parent().append(title);
+			$$5(this).remove();
 		});
-		$$2(node).find('div.dt-column-' + className).remove();
+		$$5(node).find('div.dt-column-' + className).remove();
 
-		$$2('th, td', node).removeAttr('data-dt-column');
+		$$5('th, td', node).removeAttr('data-dt-column');
 	}
 
 	/**
@@ -20987,7 +20987,7 @@ var datatables = (function (exports) {
 		 * DataTables will use it's smart filtering methods (to word match at
 		 * any point in the data), when false this will not be done.
 		 */
-		"oSearch": $$2.extend( {}, DataTable.models.oSearch ),
+		"oSearch": $$5.extend( {}, DataTable.models.oSearch ),
 
 
 		/**
@@ -22093,7 +22093,7 @@ var datatables = (function (exports) {
 	var extPagination = DataTable.ext.pager;
 
 	// Paging buttons configuration
-	$$2.extend( extPagination, {
+	$$5.extend( extPagination, {
 		simple: function () {
 			return [ 'previous', 'next' ];
 		},
@@ -22130,7 +22130,7 @@ var datatables = (function (exports) {
 	} );
 
 
-	$$2.extend( true, DataTable.ext.renderer, {
+	$$5.extend( true, DataTable.ext.renderer, {
 		pagingButton: {
 			_: function (settings, buttonType, content, active, disabled) {
 				var classes = settings.oClasses.paging;
@@ -22146,10 +22146,10 @@ var datatables = (function (exports) {
 				}
 
 				if (buttonType === 'ellipsis') {
-					btn = $$2('<span class="ellipsis"></span>').html(content)[0];
+					btn = $$5('<span class="ellipsis"></span>').html(content)[0];
 				}
 				else {
-					btn = $$2('<button>', {
+					btn = $$5('<button>', {
 						class: btnClasses.join(' '),
 						role: 'link',
 						type: 'button'
@@ -22904,7 +22904,7 @@ var datatables = (function (exports) {
 	};
 
 
-	$$2.extend( true, DataTable.ext.renderer, {
+	$$5.extend( true, DataTable.ext.renderer, {
 		footer: {
 			_: function ( settings, cell, classes ) {
 				cell.addClass(classes.tfoot.cell);
@@ -22942,7 +22942,7 @@ var datatables = (function (exports) {
 				// `DT` namespace will allow the event to be removed automatically
 				// on destroy, while the `dt` namespaced event is the one we are
 				// listening for
-				$$2(settings.nTable).on( 'order.dt.DT column-visibility.dt.DT', function ( e, ctx, column ) {
+				$$5(settings.nTable).on( 'order.dt.DT column-visibility.dt.DT', function ( e, ctx, column ) {
 					if ( settings !== ctx ) { // need to check if this is the host
 						return;               // table, not a nested one
 					}
@@ -23052,7 +23052,7 @@ var datatables = (function (exports) {
 		layout: {
 			_: function ( settings, container, items ) {
 				var classes = settings.oClasses.layout;
-				var row = $$2('<div/>')
+				var row = $$5('<div/>')
 					.attr('id', items.id || null)
 					.addClass(items.className || classes.row)
 					.appendTo( container );
@@ -23079,7 +23079,7 @@ var datatables = (function (exports) {
 						klass += classes.full;
 					}
 
-					$$2('<div/>')
+					$$5('<div/>')
 						.attr({
 							id: val.id || null,
 							"class": val.className
@@ -23139,7 +23139,7 @@ var datatables = (function (exports) {
 	}
 
 	DataTable.feature.register( 'div', function ( settings, opts ) {
-		var n = $$2('<div>')[0];
+		var n = $$5('<div>')[0];
 
 		if (opts) {
 			_divProp(n, 'className', opts.className);
@@ -23160,11 +23160,11 @@ var datatables = (function (exports) {
 		var
 			lang  = settings.oLanguage,
 			tid = settings.sTableId,
-			n = $$2('<div/>', {
+			n = $$5('<div/>', {
 				'class': settings.oClasses.info.container,
 			} );
 
-		opts = $$2.extend({
+		opts = $$5.extend({
 			callback: lang.fnInfoCallback,
 			empty: lang.sInfoEmpty,
 			postfix: lang.sInfoPostFix,
@@ -23187,7 +23187,7 @@ var datatables = (function (exports) {
 			});
 
 			// Table is described by our info div
-			$$2(settings.nTable).attr( 'aria-describedby', tid+'_info' );
+			$$5(settings.nTable).attr( 'aria-describedby', tid+'_info' );
 
 			settings._infoEl = n;
 		}
@@ -23248,7 +23248,7 @@ var datatables = (function (exports) {
 		var previousSearch = settings.oPreviousSearch;
 		var input = '<input type="search" class="'+classes.input+'"/>';
 
-		opts = $$2.extend({
+		opts = $$5.extend({
 			placeholder: language.sSearchPlaceholder,
 			processing: false,
 			text: language.sSearch
@@ -23276,7 +23276,7 @@ var datatables = (function (exports) {
 			str = '<label>' + removed + '</label>_INPUT_';
 		}
 
-		var filter = $$2('<div>')
+		var filter = $$5('<div>')
 			.addClass(classes.container)
 			.append(str.replace(/_INPUT_/, input));
 
@@ -23310,7 +23310,7 @@ var datatables = (function (exports) {
 			settings.searchDelay :
 			0;
 
-		var jqFilter = $$2('input', filter)
+		var jqFilter = $$5('input', filter)
 			.val( previousSearch.search )
 			.attr( 'placeholder', opts.placeholder )
 			.on(
@@ -23336,7 +23336,7 @@ var datatables = (function (exports) {
 			.attr('aria-controls', tableId);
 
 		// Update the input elements whenever the table is filtered
-		$$2(settings.nTable).on( 'search.dt.DT', function ( ev, s ) {
+		$$5(settings.nTable).on( 'search.dt.DT', function ( ev, s ) {
 			if ( settings === s && jqFilter[0] !== document.activeElement ) {
 				jqFilter.val( typeof previousSearch.search !== 'function'
 					? previousSearch.search
@@ -23357,7 +23357,7 @@ var datatables = (function (exports) {
 			return null;
 		}
 
-		opts = $$2.extend({
+		opts = $$5.extend({
 			buttons: DataTable.ext.pager.numbers_length,
 			type: settings.sPaginationType,
 			boundaryNumbers: true,
@@ -23366,10 +23366,10 @@ var datatables = (function (exports) {
 			numbers: true
 		}, opts);
 
-		var host = $$2('<div/>')
+		var host = $$5('<div/>')
 			.addClass(settings.oClasses.paging.container + (opts.type ? ' paging_' + opts.type : ''))
 			.append(
-				$$2('<nav>')
+				$$5('<nav>')
 					.attr('aria-label', 'pagination')
 					.addClass(settings.oClasses.paging.nav)
 			);
@@ -23380,7 +23380,7 @@ var datatables = (function (exports) {
 		settings.aoDrawCallback.push(draw);
 
 		// Responsive redraw of paging control
-		$$2(settings.nTable).on('column-sizing.dt.DT', draw);
+		$$5(settings.nTable).on('column-sizing.dt.DT', draw);
 
 		return host;
 	}, 'p' );
@@ -23456,7 +23456,7 @@ var datatables = (function (exports) {
 					: null;
 
 			// Common attributes
-			$$2(btn.clicker).attr({
+			$$5(btn.clicker).attr({
 				'aria-controls': settings.sTableId,
 				'aria-disabled': btnInfo.disabled ? 'true' : null,
 				'aria-current': btnInfo.active ? 'page' : null,
@@ -23470,7 +23470,7 @@ var datatables = (function (exports) {
 			});
 
 			if (typeof button !== 'number') {
-				$$2(btn.clicker).addClass(button);
+				$$5(btn.clicker).addClass(button);
 			}
 
 			_fnBindAction(
@@ -23499,14 +23499,14 @@ var datatables = (function (exports) {
 		// Responsive - check if the buttons are over two lines based on the
 		// height of the buttons and the container.
 		if (buttonEls.length) {
-			var outerHeight = $$2(buttonEls[0]).outerHeight();
+			var outerHeight = $$5(buttonEls[0]).outerHeight();
 		
 			if (
 				opts.buttons > 1 && // prevent infinite
 				outerHeight > 0 && // will be 0 if hidden
-				$$2(host).height() >= (outerHeight * 2) - 10
+				$$5(host).height() >= (outerHeight * 2) - 10
 			) {
-				_pagingDraw(settings, host, $$2.extend({}, opts, { buttons: opts.buttons - 2 }));
+				_pagingDraw(settings, host, $$5.extend({}, opts, { buttons: opts.buttons - 2 }));
 			}
 		}
 	}
@@ -23658,7 +23658,7 @@ var datatables = (function (exports) {
 			return null;
 		}
 
-		opts = $$2.extend({
+		opts = $$5.extend({
 			menu: settings.aLengthMenu,
 			text: settings.oLanguage.sLengthMenu
 		}, opts);
@@ -23680,7 +23680,7 @@ var datatables = (function (exports) {
 		else {
 			for ( i=0 ; i<menu.length ; i++ ) {
 				// An object with different label and value
-				if ($$2.isPlainObject(menu[i])) {
+				if ($$5.isPlainObject(menu[i])) {
 					lengths.push(menu[i].value);
 					language.push(menu[i].label);
 				}
@@ -23709,7 +23709,7 @@ var datatables = (function (exports) {
 
 		// Wrapper element - use a span as a holder for where the select will go
 		var tmpId = 'tmp-' + (+new Date());
-		var div = $$2('<div/>')
+		var div = $$5('<div/>')
 			.addClass( classes.container )
 			.append(
 				str.replace( '_MENU_', '<span id="'+tmpId+'"></span>' )
@@ -23734,7 +23734,7 @@ var datatables = (function (exports) {
 		};
 
 		// Next, the select itself, along with the options
-		var select = $$2('<select/>', {
+		var select = $$5('<select/>', {
 			'aria-controls': tableId,
 			'class':         classes.select
 		} );
@@ -23763,17 +23763,17 @@ var datatables = (function (exports) {
 
 		// Can't use `select` variable as user might provide their own and the
 		// reference is broken by the use of outerHTML
-		$$2('select', div)
+		$$5('select', div)
 			.val( settings._iDisplayLength )
 			.on( 'change.DT', function() {
-				_fnLengthChange( settings, $$2(this).val() );
+				_fnLengthChange( settings, $$5(this).val() );
 				_fnDraw( settings );
 			} );
 
 		// Update node value whenever anything changes the table's length
-		$$2(settings.nTable).on( 'length.dt.DT', function (e, s, len) {
+		$$5(settings.nTable).on( 'length.dt.DT', function (e, s, len) {
 			if ( settings === s ) {
-				$$2('select', div).val( len );
+				$$5('select', div).val( len );
 
 				// Resolve plurals in the text for the new length
 				updateEntries(len);
@@ -23786,25 +23786,25 @@ var datatables = (function (exports) {
 	}, 'l' );
 
 	// jQuery access
-	$$2.fn.dataTable = DataTable;
+	$$5.fn.dataTable = DataTable;
 
 	// Provide access to the host jQuery object (circular reference)
-	DataTable.$ = $$2;
+	DataTable.$ = $$5;
 
 	// Legacy aliases
-	$$2.fn.dataTableSettings = DataTable.settings;
-	$$2.fn.dataTableExt = DataTable.ext;
+	$$5.fn.dataTableSettings = DataTable.settings;
+	$$5.fn.dataTableExt = DataTable.ext;
 
 	// With a capital `D` we return a DataTables API instance rather than a
 	// jQuery object
-	$$2.fn.DataTable = function ( opts ) {
-		return $$2(this).dataTable( opts ).api();
+	$$5.fn.DataTable = function ( opts ) {
+		return $$5(this).dataTable( opts ).api();
 	};
 
 	// All properties that are available to $.fn.dataTable should also be
 	// available on $.fn.DataTable
-	$$2.each( DataTable, function ( prop, val ) {
-		$$2.fn.DataTable[ prop ] = val;
+	$$5.each( DataTable, function ( prop, val ) {
+		$$5.fn.DataTable[ prop ] = val;
 	} );
 
 	/*! DataTables Bootstrap 5 integration
@@ -23813,7 +23813,7 @@ var datatables = (function (exports) {
 
 
 	// Allow reassignment of the $ variable
-	let $$1 = jQuery;
+	let $$4 = jQuery;
 
 
 	/**
@@ -23825,13 +23825,13 @@ var datatables = (function (exports) {
 	 */
 
 	/* Set the defaults for DataTables initialisation */
-	$$1.extend( true, DataTable.defaults, {
+	$$4.extend( true, DataTable.defaults, {
 		renderer: 'bootstrap'
 	} );
 
 
 	/* Default class modification */
-	$$1.extend( true, DataTable.ext.classes, {
+	$$4.extend( true, DataTable.ext.classes, {
 		container: "dt-container dt-bootstrap5",
 		search: {
 			input: "form-control form-control-sm"
@@ -23865,8 +23865,8 @@ var datatables = (function (exports) {
 			btnClasses.push('disabled');
 		}
 
-		var li = $$1('<li>').addClass(btnClasses.join(' '));
-		var a = $$1('<button>', {
+		var li = $$4('<li>').addClass(btnClasses.join(' '));
+		var a = $$4('<button>', {
 			'class': 'page-link',
 			role: 'link',
 			type: 'button'
@@ -23881,7 +23881,4645 @@ var datatables = (function (exports) {
 	};
 
 	DataTable.ext.renderer.pagingContainer.bootstrap = function (settings, buttonEls) {
-		return $$1('<ul/>').addClass('pagination').append(buttonEls);
+		return $$4('<ul/>').addClass('pagination').append(buttonEls);
+	};
+
+	/*! Buttons for DataTables 3.2.6
+	 * © SpryMedia Ltd - datatables.net/license
+	 */
+
+
+	// Allow reassignment of the $ variable
+	let $$3 = jQuery;
+
+
+	// Used for namespacing events added to the document by each instance, so they
+	// can be removed on destroy
+	var _instCounter = 0;
+
+	// Button namespacing counter for namespacing events on individual buttons
+	var _buttonCounter = 0;
+
+	var _dtButtons = DataTable.ext.buttons;
+
+	// Custom entity decoder for data export
+	var _entityDecoder = null;
+
+	// Allow for jQuery slim
+	function _fadeIn(el, duration, fn) {
+		if ($$3.fn.animate) {
+			el.stop().fadeIn(duration, fn);
+		}
+		else {
+			el.css('display', 'block');
+		}
+	}
+
+	function _fadeOut(el, duration, fn) {
+		if ($$3.fn.animate) {
+			el.stop().fadeOut(duration, fn);
+		}
+		else {
+			el.css('display', 'none');
+
+			if (fn) {
+				fn.call(el);
+			}
+		}
+	}
+
+	/**
+	 * [Buttons description]
+	 * @param {[type]}
+	 * @param {[type]}
+	 */
+	var Buttons = function (dt, config) {
+		if (!DataTable.versionCheck('2')) {
+			throw 'Warning: Buttons requires DataTables 2 or newer';
+		}
+
+		// If not created with a `new` keyword then we return a wrapper function that
+		// will take the settings object for a DT. This allows easy use of new instances
+		// with the `layout` option - e.g. `topLeft: $.fn.dataTable.Buttons( ... )`.
+		if (!(this instanceof Buttons)) {
+			return function (settings) {
+				return new Buttons(settings, dt).container();
+			};
+		}
+
+		// If there is no config set it to an empty object
+		if (typeof config === 'undefined') {
+			config = {};
+		}
+
+		// Allow a boolean true for defaults
+		if (config === true) {
+			config = {};
+		}
+
+		// For easy configuration of buttons an array can be given
+		if (Array.isArray(config)) {
+			config = { buttons: config };
+		}
+
+		this.c = $$3.extend(true, {}, Buttons.defaults, config);
+
+		// Don't want a deep copy for the buttons
+		if (config.buttons) {
+			this.c.buttons = config.buttons;
+		}
+
+		this.s = {
+			dt: new DataTable.Api(dt),
+			buttons: [],
+			listenKeys: '',
+			namespace: 'dtb' + _instCounter++
+		};
+
+		this.dom = {
+			container: $$3('<' + this.c.dom.container.tag + '/>').addClass(
+				this.c.dom.container.className
+			)
+		};
+
+		this._constructor();
+	};
+
+	$$3.extend(Buttons.prototype, {
+		/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+		 * Public methods
+		 */
+
+		/**
+		 * Get the action of a button
+		 * @param  {int|string} Button index
+		 * @return {function}
+		 */ /**
+		 * Set the action of a button
+		 * @param  {node} node Button element
+		 * @param  {function} action Function to set
+		 * @return {Buttons} Self for chaining
+		 */
+		action: function (node, action) {
+			var button = this._nodeToButton(node);
+
+			if (action === undefined) {
+				return button.conf.action;
+			}
+
+			button.conf.action = action;
+
+			return this;
+		},
+
+		/**
+		 * Add an active class to the button to make to look active or get current
+		 * active state.
+		 * @param  {node} node Button element
+		 * @param  {boolean} [flag] Enable / disable flag
+		 * @return {Buttons} Self for chaining or boolean for getter
+		 */
+		active: function (node, flag) {
+			var button = this._nodeToButton(node);
+			var klass = this.c.dom.button.active;
+			var jqNode = $$3(button.node);
+
+			if (
+				button.inCollection &&
+				this.c.dom.collection.button &&
+				this.c.dom.collection.button.active !== undefined
+			) {
+				klass = this.c.dom.collection.button.active;
+			}
+
+			if (flag === undefined) {
+				return jqNode.hasClass(klass);
+			}
+
+			jqNode.toggleClass(klass, flag === undefined ? true : flag);
+
+			return this;
+		},
+
+		/**
+		 * Add a new button
+		 * @param {object} config Button configuration object, base string name or function
+		 * @param {int|string} [idx] Button index for where to insert the button
+		 * @param {boolean} [draw=true] Trigger a draw. Set a false when adding
+		 *   lots of buttons, until the last button.
+		 * @return {Buttons} Self for chaining
+		 */
+		add: function (config, idx, draw) {
+			var buttons = this.s.buttons;
+
+			if (typeof idx === 'string') {
+				var split = idx.split('-');
+				var base = this.s;
+
+				for (var i = 0, ien = split.length - 1; i < ien; i++) {
+					base = base.buttons[split[i] * 1];
+				}
+
+				buttons = base.buttons;
+				idx = split[split.length - 1] * 1;
+			}
+
+			let node = this._expandButton(
+				buttons,
+				config,
+				config !== undefined ? config.split : undefined,
+				(config === undefined ||
+					config.split === undefined ||
+					config.split.length === 0) &&
+					base !== undefined,
+				false,
+				idx
+			);
+
+			if (draw === undefined || draw === true) {
+				this._draw();
+			}
+
+			return node;
+		},
+
+		/**
+		 * Clear buttons from a collection and then insert new buttons
+		 */
+		collectionRebuild: function (node, newButtons) {
+			var button = this._nodeToButton(node);
+
+			if (newButtons !== undefined) {
+				var i;
+				// Need to reverse the array
+				for (i = button.buttons.length - 1; i >= 0; i--) {
+					this.remove(button.buttons[i].node);
+				}
+
+				// If the collection has prefix and / or postfix buttons we need to add them in
+				if (button.conf.prefixButtons) {
+					newButtons.unshift.apply(newButtons, button.conf.prefixButtons);
+				}
+
+				if (button.conf.postfixButtons) {
+					newButtons.push.apply(newButtons, button.conf.postfixButtons);
+				}
+
+				for (i = 0; i < newButtons.length; i++) {
+					var newBtn = newButtons[i];
+
+					this._expandButton(
+						button.buttons,
+						newBtn,
+						newBtn !== undefined &&
+							newBtn.config !== undefined &&
+							newBtn.config.split !== undefined,
+						true,
+						newBtn.parentConf !== undefined &&
+							newBtn.parentConf.split !== undefined,
+						null,
+						newBtn.parentConf
+					);
+				}
+			}
+
+			this._draw(button.collection, button.buttons);
+		},
+
+		/**
+		 * Get the container node for the buttons
+		 * @return {jQuery} Buttons node
+		 */
+		container: function () {
+			return this.dom.container;
+		},
+
+		/**
+		 * Disable a button
+		 * @param  {node} node Button node
+		 * @return {Buttons} Self for chaining
+		 */
+		disable: function (node) {
+			var button = this._nodeToButton(node);
+
+			if (button.isSplit) {
+				$$3(button.node.childNodes[0])
+					.addClass(this.c.dom.button.disabled)
+					.prop('disabled', true);
+			}
+			else {
+				$$3(button.node)
+					.addClass(this.c.dom.button.disabled)
+					.prop('disabled', true);
+			}
+
+			button.disabled = true;
+
+			this._checkSplitEnable();
+
+			return this;
+		},
+
+		/**
+		 * Destroy the instance, cleaning up event handlers and removing DOM
+		 * elements
+		 * @return {Buttons} Self for chaining
+		 */
+		destroy: function () {
+			// Key event listener
+			$$3('body').off('keyup.' + this.s.namespace);
+
+			// Individual button destroy (so they can remove their own events if
+			// needed). Take a copy as the array is modified by `remove`
+			var buttons = this.s.buttons.slice();
+			var i, ien;
+
+			for (i = 0, ien = buttons.length; i < ien; i++) {
+				this.remove(buttons[i].node);
+			}
+
+			// Container
+			this.dom.container.remove();
+
+			// Remove from the settings object collection
+			var buttonInsts = this.s.dt.settings()[0];
+
+			for (i = 0, ien = buttonInsts.length; i < ien; i++) {
+				if (buttonInsts.inst === this) {
+					buttonInsts.splice(i, 1);
+					break;
+				}
+			}
+
+			return this;
+		},
+
+		/**
+		 * Enable / disable a button
+		 * @param  {node} node Button node
+		 * @param  {boolean} [flag=true] Enable / disable flag
+		 * @return {Buttons} Self for chaining
+		 */
+		enable: function (node, flag) {
+			if (flag === false) {
+				return this.disable(node);
+			}
+
+			var button = this._nodeToButton(node);
+
+			if (button.isSplit) {
+				$$3(button.node.childNodes[0])
+					.removeClass(this.c.dom.button.disabled)
+					.prop('disabled', false);
+			}
+			else {
+				$$3(button.node)
+					.removeClass(this.c.dom.button.disabled)
+					.prop('disabled', false);
+			}
+
+			button.disabled = false;
+
+			this._checkSplitEnable();
+
+			return this;
+		},
+
+		/**
+		 * Get a button's index
+		 *
+		 * This is internally recursive
+		 * @param {element} node Button to get the index of
+		 * @return {string} Button index
+		 */
+		index: function (node, nested, buttons) {
+			if (!nested) {
+				nested = '';
+				buttons = this.s.buttons;
+			}
+
+			for (var i = 0, ien = buttons.length; i < ien; i++) {
+				var inner = buttons[i].buttons;
+
+				if (buttons[i].node === node) {
+					return nested + i;
+				}
+
+				if (inner && inner.length) {
+					var match = this.index(node, i + '-', inner);
+
+					if (match !== null) {
+						return match;
+					}
+				}
+			}
+
+			return null;
+		},
+
+		/**
+		 * Get the instance name for the button set selector
+		 * @return {string} Instance name
+		 */
+		name: function () {
+			return this.c.name;
+		},
+
+		/**
+		 * Get a button's node of the buttons container if no button is given
+		 * @param  {node} [node] Button node
+		 * @return {jQuery} Button element, or container
+		 */
+		node: function (node) {
+			if (!node) {
+				return this.dom.container;
+			}
+
+			var button = this._nodeToButton(node);
+			return $$3(button.node);
+		},
+
+		/**
+		 * Set / get a processing class on the selected button
+		 * @param {element} node Triggering button node
+		 * @param  {boolean} flag true to add, false to remove, undefined to get
+		 * @return {boolean|Buttons} Getter value or this if a setter.
+		 */
+		processing: function (node, flag) {
+			var dt = this.s.dt;
+			var button = this._nodeToButton(node);
+
+			if (flag === undefined) {
+				return $$3(button.node).hasClass('processing');
+			}
+
+			$$3(button.node).toggleClass('processing', flag);
+
+			$$3(dt.table().node()).triggerHandler('buttons-processing.dt', [
+				flag,
+				dt.button(node),
+				dt,
+				$$3(node),
+				button.conf
+			]);
+
+			return this;
+		},
+
+		/**
+		 * Remove a button.
+		 * @param  {node} node Button node
+		 * @return {Buttons} Self for chaining
+		 */
+		remove: function (node) {
+			var button = this._nodeToButton(node);
+			var host = this._nodeToHost(node);
+			var dt = this.s.dt;
+
+			// Remove any child buttons first
+			if (button.buttons.length) {
+				for (var i = button.buttons.length - 1; i >= 0; i--) {
+					this.remove(button.buttons[i].node);
+				}
+			}
+
+			button.conf.destroying = true;
+
+			// Allow the button to remove event handlers, etc
+			if (button.conf.destroy) {
+				button.conf.destroy.call(dt.button(node), dt, $$3(node), button.conf);
+			}
+
+			this._removeKey(button.conf);
+
+			$$3(button.node).remove();
+
+			if (button.inserter) {
+				$$3(button.inserter).remove();
+			}
+
+			var idx = $$3.inArray(button, host);
+			host.splice(idx, 1);
+
+			return this;
+		},
+
+		/**
+		 * Get the text for a button
+		 * @param  {int|string} node Button index
+		 * @return {string} Button text
+		 */ /**
+		 * Set the text for a button
+		 * @param  {int|string|function} node Button index
+		 * @param  {string} label Text
+		 * @return {Buttons} Self for chaining
+		 */
+		text: function (node, label) {
+			var button = this._nodeToButton(node);
+			var textNode = button.textNode;
+			var dt = this.s.dt;
+			var jqNode = $$3(button.node);
+			var text = function (opt) {
+				return typeof opt === 'function'
+					? opt(dt, jqNode, button.conf)
+					: opt;
+			};
+
+			if (label === undefined) {
+				return text(button.conf.text);
+			}
+
+			button.conf.text = label;
+			textNode.html(text(label));
+
+			return this;
+		},
+
+		/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+		 * Constructor
+		 */
+
+		/**
+		 * Buttons constructor
+		 * @private
+		 */
+		_constructor: function () {
+			var that = this;
+			var dt = this.s.dt;
+			var dtSettings = dt.settings()[0];
+			var buttons = this.c.buttons;
+
+			if (!dtSettings._buttons) {
+				dtSettings._buttons = [];
+			}
+
+			dtSettings._buttons.push({
+				inst: this,
+				name: this.c.name
+			});
+
+			for (var i = 0, ien = buttons.length; i < ien; i++) {
+				this.add(buttons[i]);
+			}
+
+			dt.on('destroy', function (e, settings) {
+				if (settings === dtSettings) {
+					that.destroy();
+				}
+			});
+
+			// Global key event binding to listen for button keys
+			$$3('body').on('keyup.' + this.s.namespace, function (e) {
+				if (
+					!document.activeElement ||
+					document.activeElement === document.body
+				) {
+					// SUse a string of characters for fast lookup of if we need to
+					// handle this
+					var character = String.fromCharCode(e.keyCode).toLowerCase();
+
+					if (that.s.listenKeys.toLowerCase().indexOf(character) !== -1) {
+						that._keypress(character, e);
+					}
+				}
+			});
+		},
+
+		/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+		 * Private methods
+		 */
+
+		/**
+		 * Add a new button to the key press listener
+		 * @param {object} conf Resolved button configuration object
+		 * @private
+		 */
+		_addKey: function (conf) {
+			if (conf.key) {
+				this.s.listenKeys += $$3.isPlainObject(conf.key)
+					? conf.key.key
+					: conf.key;
+			}
+		},
+
+		/**
+		 * Insert the buttons into the container. Call without parameters!
+		 * @param  {node} [container] Recursive only - Insert point
+		 * @param  {array} [buttons] Recursive only - Buttons array
+		 * @private
+		 */
+		_draw: function (container, buttons) {
+			if (!container) {
+				container = this.dom.container;
+				buttons = this.s.buttons;
+			}
+
+			container.children().detach();
+
+			for (var i = 0, ien = buttons.length; i < ien; i++) {
+				container.append(buttons[i].inserter);
+				container.append(' ');
+
+				if (buttons[i].buttons && buttons[i].buttons.length) {
+					this._draw(buttons[i].collection, buttons[i].buttons);
+				}
+			}
+		},
+
+		/**
+		 * Create buttons from an array of buttons
+		 * @param  {array} attachTo Buttons array to attach to
+		 * @param  {object} button Button definition
+		 * @param  {boolean} inCollection true if the button is in a collection
+		 * @private
+		 */
+		_expandButton: function (
+			attachTo,
+			button,
+			split,
+			inCollection,
+			inSplit,
+			attachPoint,
+			parentConf
+		) {
+			var dt = this.s.dt;
+			var isSplit = false;
+			var domCollection = this.c.dom.collection;
+			var buttons = !Array.isArray(button) ? [button] : button;
+			var lastButton;
+
+			if (button === undefined) {
+				buttons = !Array.isArray(split) ? [split] : split;
+			}
+
+			for (var i = 0, ien = buttons.length; i < ien; i++) {
+				var conf = this._resolveExtends(buttons[i]);
+
+				if (!conf) {
+					continue;
+				}
+
+				isSplit = conf.config && conf.config.split ? true : false;
+
+				// If the configuration is an array, then expand the buttons at this
+				// point
+				if (Array.isArray(conf)) {
+					this._expandButton(
+						attachTo,
+						conf,
+						built !== undefined && built.conf !== undefined
+							? built.conf.split
+							: undefined,
+						inCollection,
+						parentConf !== undefined && parentConf.split !== undefined,
+						attachPoint,
+						parentConf
+					);
+					continue;
+				}
+
+				var built = this._buildButton(
+					conf,
+					inCollection,
+					conf.split !== undefined ||
+						(conf.config !== undefined &&
+							conf.config.split !== undefined),
+					inSplit
+				);
+				if (!built) {
+					continue;
+				}
+
+				if (attachPoint !== undefined && attachPoint !== null) {
+					attachTo.splice(attachPoint, 0, built);
+					attachPoint++;
+				}
+				else {
+					attachTo.push(built);
+				}
+
+				// Any button type can have a drop icon set
+				if (built.conf.dropIcon && ! built.conf.split) {
+					$$3(built.node)
+						.addClass(this.c.dom.button.dropClass)
+						.append(this.c.dom.button.dropHtml);
+				}
+
+				// Create the dropdown for a collection
+				if (built.conf.buttons) {
+					built.collection = $$3(
+						'<' + domCollection.container.content.tag + '/>'
+					);
+					built.conf._collection = built.collection;
+
+					this._expandButton(
+						built.buttons,
+						built.conf.buttons,
+						built.conf.split,
+						!isSplit,
+						isSplit,
+						attachPoint,
+						built.conf
+					);
+				}
+
+				// And the split collection
+				if (built.conf.split) {
+					built.collection = $$3('<' + domCollection.container.tag + '/>');
+					built.conf._collection = built.collection;
+
+					for (var j = 0; j < built.conf.split.length; j++) {
+						var item = built.conf.split[j];
+
+						if (typeof item === 'object') {
+							item.parent = parentConf;
+
+							if (item.collectionLayout === undefined) {
+								item.collectionLayout = built.conf.collectionLayout;
+							}
+
+							if (item.dropup === undefined) {
+								item.dropup = built.conf.dropup;
+							}
+
+							if (item.fade === undefined) {
+								item.fade = built.conf.fade;
+							}
+						}
+					}
+
+					this._expandButton(
+						built.buttons,
+						built.conf.buttons,
+						built.conf.split,
+						!isSplit,
+						isSplit,
+						attachPoint,
+						built.conf
+					);
+				}
+
+				built.conf.parent = parentConf;
+
+				// init call is made here, rather than buildButton as it needs to
+				// be selectable, and for that it needs to be in the buttons array
+				if (conf.init) {
+					conf.init.call(dt.button(built.node), dt, $$3(built.node), conf);
+				}
+
+				lastButton = built.node;
+			}
+
+			return lastButton;
+		},
+
+		/**
+		 * Create an individual button
+		 * @param  {object} config            Resolved button configuration
+		 * @param  {boolean} inCollection `true` if a collection button
+		 * @return {object} Completed button description object
+		 * @private
+		 */
+		_buildButton: function (config, inCollection, isSplit, inSplit) {
+			var that = this;
+			var configDom = this.c.dom;
+			var textNode;
+			var dt = this.s.dt;
+			var setLinerTab = false;
+			var text = function (opt) {
+				return typeof opt === 'function' ? opt(dt, button, config) : opt;
+			};
+
+			// Create an object that describes the button which can be in `dom.button`, or
+			// `dom.collection.button` or `dom.split.button` or `dom.collection.split.button`!
+			// Each should extend from `dom.button`.
+			var dom = $$3.extend(true, {}, configDom.button);
+
+			if (inCollection && isSplit && configDom.collection.split) {
+				$$3.extend(true, dom, configDom.collection.split.action);
+			}
+			else if (inSplit || inCollection) {
+				$$3.extend(true, dom, configDom.collection.button);
+			}
+			else if (isSplit) {
+				$$3.extend(true, dom, configDom.split.button);
+			}
+
+			// Spacers don't do much other than insert an element into the DOM
+			if (config.spacer) {
+				var spacer = $$3('<' + dom.spacer.tag + '/>')
+					.addClass(
+						'dt-button-spacer ' +
+							config.style +
+							' ' +
+							dom.spacer.className
+					)
+					.html(text(config.text));
+
+				return {
+					conf: config,
+					node: spacer,
+					nodeChild: null,
+					inserter: spacer,
+					buttons: [],
+					inCollection: inCollection,
+					isSplit: isSplit,
+					collection: null,
+					textNode: spacer
+				};
+			}
+
+			// Make sure that the button is available based on whatever requirements
+			// it has. For example, PDF button require pdfmake
+			if (
+				config.available &&
+				!config.available(dt, config) &&
+				!config.html
+			) {
+				return false;
+			}
+
+			var button;
+
+			if (!config.html) {
+				var run = function (e, dt, button, config, done) {
+					config.action.call(dt.button(button), e, dt, button, config, done);
+
+					$$3(dt.table().node()).triggerHandler('buttons-action.dt', [
+						dt.button(button),
+						dt,
+						button,
+						config
+					]);
+				};
+
+				var action = function(e, dt, button, config) {
+					if (config.async) {
+						that.processing(button[0], true);
+
+						setTimeout(function () {
+							run(e, dt, button, config, function () {
+								that.processing(button[0], false);
+							});
+						}, config.async);
+					}
+					else {
+						run(e, dt, button, config, function () {});
+					}
+				};
+
+				var tag = config.tag || dom.tag;
+				var clickBlurs =
+					config.clickBlurs === undefined ? true : config.clickBlurs;
+
+				button = $$3('<' + tag + '/>')
+					.addClass(dom.className)
+					.attr('aria-controls', this.s.dt.table().node().id)
+					.on('click.dtb', function (e) {
+						e.preventDefault();
+
+						if (!button.hasClass(dom.disabled) && config.action) {
+							action(e, dt, button, config);
+						}
+
+						if (clickBlurs) {
+							button.trigger('blur');
+						}
+					})
+					.on('keypress.dtb', function (e) {
+						if (e.keyCode === 13) {
+							e.preventDefault();
+
+							if (!button.hasClass(dom.disabled) && config.action) {
+								action(e, dt, button, config);
+							}
+						}
+					});
+
+				// Make `a` tags act like a link
+				if (tag.toLowerCase() === 'a') {
+					button.attr('href', '#');
+				}
+
+				// Button tags should have `type=button` so they don't have any default behaviour
+				if (tag.toLowerCase() === 'button') {
+					button.attr('type', 'button');
+				}
+
+				if (dom.liner.tag) {
+					var lc = dom.liner.tag.toLowerCase();
+					var liner = $$3('<' + lc + '/>')
+						.html(text(config.text))
+						.addClass(dom.liner.className);
+
+					if (lc === 'a') {
+						liner.attr('href', '#');
+					}
+
+					if (lc === 'a' || lc === 'button') {
+						liner.attr('tabindex', this.s.dt.settings()[0].iTabIndex);
+						setLinerTab = true;
+					}
+
+					button.append(liner);
+					textNode = liner;
+				}
+				else {
+					button.html(text(config.text));
+					textNode = button;
+				}
+
+				if (! setLinerTab) {
+					button.attr('tabindex', this.s.dt.settings()[0].iTabIndex);
+				}
+
+				if (config.enabled === false) {
+					button.addClass(dom.disabled);
+				}
+
+				if (config.className) {
+					button.addClass(config.className);
+				}
+
+				if (config.titleAttr) {
+					button.attr('title', text(config.titleAttr));
+				}
+
+				if (config.attr) {
+					button.attr(config.attr);
+				}
+
+				if (!config.namespace) {
+					config.namespace = '.dt-button-' + _buttonCounter++;
+				}
+
+				if (config.config !== undefined && config.config.split) {
+					config.split = config.config.split;
+				}
+			}
+			else {
+				button = $$3(config.html);
+			}
+
+			var buttonContainer = this.c.dom.buttonContainer;
+			var inserter;
+			if (buttonContainer && buttonContainer.tag) {
+				inserter = $$3('<' + buttonContainer.tag + '/>')
+					.addClass(buttonContainer.className)
+					.append(button);
+			}
+			else {
+				inserter = button;
+			}
+
+			this._addKey(config);
+
+			// Style integration callback for DOM manipulation
+			// Note that this is _not_ documented. It is currently
+			// for style integration only
+			if (this.c.buttonCreated) {
+				inserter = this.c.buttonCreated(config, inserter);
+			}
+
+			var splitDiv;
+
+			if (isSplit) {
+				var dropdownConf = inCollection
+					? $$3.extend(true, this.c.dom.split, this.c.dom.collection.split)
+					: this.c.dom.split;
+				var wrapperConf = dropdownConf.wrapper;
+
+				splitDiv = $$3('<' + wrapperConf.tag + '/>')
+					.addClass(wrapperConf.className)
+					.append(button);
+
+				var dropButtonConfig = $$3.extend(config, {
+					autoClose: true,
+					align: dropdownConf.dropdown.align,
+					attr: {
+						'aria-haspopup': 'dialog',
+						'aria-expanded': false
+					},
+					className: dropdownConf.dropdown.className,
+					closeButton: false,
+					splitAlignClass: dropdownConf.dropdown.splitAlignClass,
+					text: dropdownConf.dropdown.text
+				});
+
+				this._addKey(dropButtonConfig);
+
+				var splitAction = function (e, dt, button, config) {
+					_dtButtons.split.action.call(
+						dt.button(splitDiv),
+						e,
+						dt,
+						button,
+						config
+					);
+
+					$$3(dt.table().node()).triggerHandler('buttons-action.dt', [
+						dt.button(button),
+						dt,
+						button,
+						config
+					]);
+					button.attr('aria-expanded', true);
+				};
+
+				var dropButton = $$3(
+					'<button class="' +
+						dropdownConf.dropdown.className +
+						' dt-button"></button>'
+				)
+					.html(this.c.dom.button.dropHtml)
+					.addClass(this.c.dom.button.dropClass)
+					.on('click.dtb', function (e) {
+						e.preventDefault();
+						e.stopPropagation();
+
+						if (!dropButton.hasClass(dom.disabled)) {
+							splitAction(e, dt, dropButton, dropButtonConfig);
+						}
+						if (clickBlurs) {
+							dropButton.trigger('blur');
+						}
+					})
+					.on('keypress.dtb', function (e) {
+						if (e.keyCode === 13) {
+							e.preventDefault();
+
+							if (!dropButton.hasClass(dom.disabled)) {
+								splitAction(e, dt, dropButton, dropButtonConfig);
+							}
+						}
+					});
+
+				if (config.split.length === 0) {
+					dropButton.addClass('dtb-hide-drop');
+				}
+
+				splitDiv.append(dropButton).attr(dropButtonConfig.attr);
+			}
+
+			var node = isSplit ? splitDiv.get(0) : button.get(0);
+
+			return {
+				conf: config,
+				node: node,
+				nodeChild: node && node.children && node.children.length ? node.children[0] : null,
+				inserter: isSplit ? splitDiv : inserter,
+				buttons: [],
+				inCollection: inCollection,
+				isSplit: isSplit,
+				inSplit: inSplit,
+				collection: null,
+				textNode: textNode
+			};
+		},
+
+		/**
+		 * Spin over buttons checking if splits should be enabled or not.
+		 * @param {*} buttons Array of buttons to check
+		 */
+		_checkSplitEnable: function (buttons) {
+			if (! buttons) {
+				buttons = this.s.buttons;
+			}
+
+			for (var i=0 ; i<buttons.length ; i++) {
+				var button = buttons[i];
+
+				// Check if the button is a split one and if so, determine
+				// its state
+				if (button.isSplit) {
+					var splitBtn = button.node.childNodes[1];
+
+					if (this._checkAnyEnabled(button.buttons)) {
+						// Enable the split
+						$$3(splitBtn)
+							.removeClass(this.c.dom.button.disabled)
+							.prop('disabled', false);
+					}
+					else {
+						$$3(splitBtn)
+							.addClass(this.c.dom.button.disabled)
+							.prop('disabled', false);
+					}
+				}
+				else if (button.isCollection) {
+					// Nest down into collections
+					this._checkSplitEnable(button.buttons);
+				}
+			}
+		},
+
+		/**
+		 * Check an array of buttons and see if any are enabled in it
+		 * @param {*} buttons Button array
+		 * @returns true if a button is enabled, false otherwise
+		 */
+		_checkAnyEnabled: function (buttons) {
+			for (var i=0 ; i<buttons.length ; i++) {
+				if (! buttons[i].disabled) {
+					return true;
+				}
+			}
+
+			return false;
+		},
+
+		/**
+		 * Get the button object from a node (recursive)
+		 * @param  {node} node Button node
+		 * @param  {array} [buttons] Button array, uses base if not defined
+		 * @return {object} Button object
+		 * @private
+		 */
+		_nodeToButton: function (node, buttons) {
+			if (!buttons) {
+				buttons = this.s.buttons;
+			}
+
+			for (var i = 0, ien = buttons.length; i < ien; i++) {
+				if (buttons[i].node === node || buttons[i].nodeChild === node) {
+					return buttons[i];
+				}
+
+				if (buttons[i].buttons.length) {
+					var ret = this._nodeToButton(node, buttons[i].buttons);
+
+					if (ret) {
+						return ret;
+					}
+				}
+			}
+		},
+
+		/**
+		 * Get container array for a button from a button node (recursive)
+		 * @param  {node} node Button node
+		 * @param  {array} [buttons] Button array, uses base if not defined
+		 * @return {array} Button's host array
+		 * @private
+		 */
+		_nodeToHost: function (node, buttons) {
+			if (!buttons) {
+				buttons = this.s.buttons;
+			}
+
+			for (var i = 0, ien = buttons.length; i < ien; i++) {
+				if (buttons[i].node === node) {
+					return buttons;
+				}
+
+				if (buttons[i].buttons.length) {
+					var ret = this._nodeToHost(node, buttons[i].buttons);
+
+					if (ret) {
+						return ret;
+					}
+				}
+			}
+		},
+
+		/**
+		 * Handle a key press - determine if any button's key configured matches
+		 * what was typed and trigger the action if so.
+		 * @param  {string} character The character pressed
+		 * @param  {object} e Key event that triggered this call
+		 * @private
+		 */
+		_keypress: function (character, e) {
+			// Check if this button press already activated on another instance of Buttons
+			if (e._buttonsHandled) {
+				return;
+			}
+
+			var run = function (conf, node) {
+				if (!conf.key) {
+					return;
+				}
+
+				if (conf.key === character) {
+					e._buttonsHandled = true;
+					$$3(node).click();
+				}
+				else if ($$3.isPlainObject(conf.key)) {
+					if (conf.key.key !== character) {
+						return;
+					}
+
+					if (conf.key.shiftKey && !e.shiftKey) {
+						return;
+					}
+
+					if (conf.key.altKey && !e.altKey) {
+						return;
+					}
+
+					if (conf.key.ctrlKey && !e.ctrlKey) {
+						return;
+					}
+
+					if (conf.key.metaKey && !e.metaKey) {
+						return;
+					}
+
+					// Made it this far - it is good
+					e._buttonsHandled = true;
+					$$3(node).click();
+				}
+			};
+
+			var recurse = function (a) {
+				for (var i = 0, ien = a.length; i < ien; i++) {
+					run(a[i].conf, a[i].node);
+
+					if (a[i].buttons.length) {
+						recurse(a[i].buttons);
+					}
+				}
+			};
+
+			recurse(this.s.buttons);
+		},
+
+		/**
+		 * Remove a key from the key listener for this instance (to be used when a
+		 * button is removed)
+		 * @param  {object} conf Button configuration
+		 * @private
+		 */
+		_removeKey: function (conf) {
+			if (conf.key) {
+				var character = $$3.isPlainObject(conf.key) ? conf.key.key : conf.key;
+
+				// Remove only one character, as multiple buttons could have the
+				// same listening key
+				var a = this.s.listenKeys.split('');
+				var idx = $$3.inArray(character, a);
+				a.splice(idx, 1);
+				this.s.listenKeys = a.join('');
+			}
+		},
+
+		/**
+		 * Resolve a button configuration
+		 * @param  {string|function|object} conf Button config to resolve
+		 * @return {object} Button configuration
+		 * @private
+		 */
+		_resolveExtends: function (conf) {
+			var that = this;
+			var dt = this.s.dt;
+			var i, ien;
+			var toConfObject = function (base) {
+				var loop = 0;
+
+				// Loop until we have resolved to a button configuration, or an
+				// array of button configurations (which will be iterated
+				// separately)
+				while (!$$3.isPlainObject(base) && !Array.isArray(base)) {
+					if (base === undefined) {
+						return;
+					}
+
+					if (typeof base === 'function') {
+						base = base.call(that, dt, conf);
+
+						if (!base) {
+							return false;
+						}
+					}
+					else if (typeof base === 'string') {
+						if (!_dtButtons[base]) {
+							return { html: base };
+						}
+
+						base = _dtButtons[base];
+					}
+
+					loop++;
+					if (loop > 30) {
+						// Protect against misconfiguration killing the browser
+						throw 'Buttons: Too many iterations';
+					}
+				}
+
+				return Array.isArray(base) ? base : $$3.extend({}, base);
+			};
+
+			conf = toConfObject(conf);
+
+			while (conf && conf.extend) {
+				// Use `toConfObject` in case the button definition being extended
+				// is itself a string or a function
+				if (!_dtButtons[conf.extend]) {
+					throw 'Cannot extend unknown button type: ' + conf.extend;
+				}
+
+				var objArray = toConfObject(_dtButtons[conf.extend]);
+				if (Array.isArray(objArray)) {
+					return objArray;
+				}
+				else if (!objArray) {
+					// This is a little brutal as it might be possible to have a
+					// valid button without the extend, but if there is no extend
+					// then the host button would be acting in an undefined state
+					return false;
+				}
+
+				// Stash the current class name
+				var originalClassName = objArray.className;
+
+				if (conf.config !== undefined && objArray.config !== undefined) {
+					conf.config = $$3.extend({}, objArray.config, conf.config);
+				}
+
+				conf = $$3.extend({}, objArray, conf);
+
+				// The extend will have overwritten the original class name if the
+				// `conf` object also assigned a class, but we want to concatenate
+				// them so they are list that is combined from all extended buttons
+				if (originalClassName && conf.className !== originalClassName) {
+					conf.className = originalClassName + ' ' + conf.className;
+				}
+
+				// Although we want the `conf` object to overwrite almost all of
+				// the properties of the object being extended, the `extend`
+				// property should come from the object being extended
+				conf.extend = objArray.extend;
+			}
+
+			// Buttons to be added to a collection  -gives the ability to define
+			// if buttons should be added to the start or end of a collection
+			var postfixButtons = conf.postfixButtons;
+			if (postfixButtons) {
+				if (!conf.buttons) {
+					conf.buttons = [];
+				}
+
+				for (i = 0, ien = postfixButtons.length; i < ien; i++) {
+					conf.buttons.push(postfixButtons[i]);
+				}
+			}
+
+			var prefixButtons = conf.prefixButtons;
+			if (prefixButtons) {
+				if (!conf.buttons) {
+					conf.buttons = [];
+				}
+
+				for (i = 0, ien = prefixButtons.length; i < ien; i++) {
+					conf.buttons.splice(i, 0, prefixButtons[i]);
+				}
+			}
+
+			return conf;
+		},
+
+		/**
+		 * Display (and replace if there is an existing one) a popover attached to a button
+		 * @param {string|node} content Content to show
+		 * @param {DataTable.Api} hostButton DT API instance of the button
+		 * @param {object} inOpts Options (see object below for all options)
+		 */
+		_popover: function (content, hostButton, inOpts) {
+			var dt = hostButton;
+			var c = this.c;
+			var closed = false;
+			var options = $$3.extend(
+				{
+					align: 'button-left', // button-right, dt-container, split-left, split-right
+					autoClose: false,
+					background: true,
+					backgroundClassName: 'dt-button-background',
+					closeButton: true,
+					containerClassName: c.dom.collection.container.className,
+					contentClassName: c.dom.collection.container.content.className,
+					collectionLayout: '',
+					collectionTitle: '',
+					dropup: false,
+					fade: 400,
+					popoverTitle: '',
+					rightAlignClassName: 'dt-button-right',
+					tag: c.dom.collection.container.tag
+				},
+				inOpts
+			);
+
+			var containerSelector =
+				options.tag + '.' + options.containerClassName.replace(/ /g, '.');
+			var hostButtonNode = hostButton.node();
+			var hostNode = options.collectionLayout.includes('fixed') ? $$3('body') : hostButton.node();
+
+			var close = function () {
+				closed = true;
+
+				_fadeOut($$3(containerSelector), options.fade, function () {
+					$$3(this).detach();
+				});
+
+				$$3(
+					dt
+						.buttons('[aria-haspopup="dialog"][aria-expanded="true"]')
+						.nodes()
+				).attr('aria-expanded', 'false');
+
+				$$3('div.dt-button-background').off('click.dtb-collection');
+				Buttons.background(
+					false,
+					options.backgroundClassName,
+					options.fade,
+					hostNode
+				);
+
+				$$3(window).off('resize.resize.dtb-collection');
+				$$3('body').off('.dtb-collection');
+				dt.off('buttons-action.b-internal');
+				dt.off('destroy.dtb-popover');
+
+				$$3('body').trigger('buttons-popover-hide.dt');
+			};
+
+			if (content === false) {
+				close();
+				return;
+			}
+
+			var existingExpanded = $$3(
+				dt.buttons('[aria-haspopup="dialog"][aria-expanded="true"]').nodes()
+			);
+			if (existingExpanded.length) {
+				// Reuse the current position if the button that was triggered is inside an existing collection
+				if (hostNode.closest(containerSelector).length) {
+					hostNode = existingExpanded.eq(0);
+				}
+
+				close();
+			}
+
+			// Sort buttons if defined
+			if (options.sort) {
+				var elements = $$3('button', content)
+					.map(function (idx, el) {
+						return {
+							text: $$3(el).text(),
+							el: el
+						};
+					})
+					.toArray();
+
+				elements.sort(function (a, b) {
+					return a.text.localeCompare(b.text);
+				});
+
+				$$3(content).append(elements.map(function (v) {
+					return v.el;
+				}));
+			}
+
+			// Try to be smart about the layout
+			var cnt = $$3('.dt-button', content).length;
+			var mod = '';
+
+			if (cnt === 3) {
+				mod = 'dtb-b3';
+			}
+			else if (cnt === 2) {
+				mod = 'dtb-b2';
+			}
+			else if (cnt === 1) {
+				mod = 'dtb-b1';
+			}
+
+			var display = $$3('<' + options.tag + '/>')
+				.addClass(options.containerClassName)
+				.addClass(options.collectionLayout)
+				.addClass(options.splitAlignClass)
+				.addClass(mod)
+				.css('display', 'none')
+				.attr({
+					'aria-modal': true,
+					role: 'dialog'
+				});
+
+			content = $$3(content)
+				.addClass(options.contentClassName)
+				.attr('role', 'menu')
+				.appendTo(display);
+
+			hostButtonNode.attr('aria-expanded', 'true');
+
+			if (hostNode.parents('body')[0] !== document.body) {
+				hostNode = $$3(document.body).children('div, section, p').last();
+			}
+
+			if (options.popoverTitle) {
+				display.prepend(
+					'<div class="dt-button-collection-title">' +
+						options.popoverTitle +
+						'</div>'
+				);
+			}
+			else if (options.collectionTitle) {
+				display.prepend(
+					'<div class="dt-button-collection-title">' +
+						options.collectionTitle +
+						'</div>'
+				);
+			}
+
+			if (options.closeButton) {
+				display
+					.prepend('<div class="dtb-popover-close">&times;</div>')
+					.addClass('dtb-collection-closeable');
+			}
+
+			_fadeIn(display.insertAfter(hostNode), options.fade);
+
+			var tableContainer = $$3(hostButton.table().container());
+			var position = display.css('position');
+
+			if (options.span === 'container' || options.align === 'dt-container') {
+				hostNode = hostNode.parent();
+				display.css('width', tableContainer.width());
+			}
+
+			// Align the popover relative to the DataTables container
+			// Useful for wide popovers such as SearchPanes
+			if (position === 'absolute') {
+				// Align relative to the host button
+				var offsetParent = $$3(hostNode[0].offsetParent);
+				var buttonPosition = hostNode.position();
+				var buttonOffset = hostNode.offset();
+				var tableSizes = offsetParent.offset();
+				var containerPosition = offsetParent.position();
+				var computed = window.getComputedStyle(offsetParent[0]);
+
+				tableSizes.height = offsetParent.outerHeight();
+				tableSizes.width =
+					offsetParent.width() + parseFloat(computed.paddingLeft);
+				tableSizes.right = tableSizes.left + tableSizes.width;
+				tableSizes.bottom = tableSizes.top + tableSizes.height;
+
+				// Set the initial position so we can read height / width
+				var top = buttonPosition.top + hostNode.outerHeight();
+				var left = buttonPosition.left;
+
+				display.css({
+					top: top,
+					left: left
+				});
+
+				// Get the popover position
+				computed = window.getComputedStyle(display[0]);
+				var popoverSizes = display.offset();
+
+				popoverSizes.height = display.outerHeight();
+				popoverSizes.width = display.outerWidth();
+				popoverSizes.right = popoverSizes.left + popoverSizes.width;
+				popoverSizes.bottom = popoverSizes.top + popoverSizes.height;
+				popoverSizes.marginTop = parseFloat(computed.marginTop);
+				popoverSizes.marginBottom = parseFloat(computed.marginBottom);
+
+				// First position per the class requirements - pop up and right align
+				if (options.dropup) {
+					top =
+						buttonPosition.top -
+						popoverSizes.height -
+						popoverSizes.marginTop -
+						popoverSizes.marginBottom;
+				}
+
+				if (
+					options.align === 'button-right' ||
+					display.hasClass(options.rightAlignClassName)
+				) {
+					left =
+						buttonPosition.left -
+						popoverSizes.width +
+						hostNode.outerWidth();
+				}
+
+				// Container alignment - make sure it doesn't overflow the table container
+				if (
+					options.align === 'dt-container' ||
+					options.align === 'container'
+				) {
+					if (left < buttonPosition.left) {
+						left = -buttonPosition.left;
+					}
+				}
+
+				// Window adjustment
+				if (
+					containerPosition.left + left + popoverSizes.width >
+					$$3(window).width()
+				) {
+					// Overflowing the document to the right
+					left =
+						$$3(window).width() -
+						popoverSizes.width -
+						containerPosition.left;
+				}
+
+				if (buttonOffset.left + left < 0) {
+					// Off to the left of the document
+					left = -buttonOffset.left;
+				}
+
+				if (
+					containerPosition.top + top + popoverSizes.height >
+					$$3(window).height() + $$3(window).scrollTop()
+				) {
+					// Pop up if otherwise we'd need the user to scroll down
+					top =
+						buttonPosition.top -
+						popoverSizes.height -
+						popoverSizes.marginTop -
+						popoverSizes.marginBottom;
+				}
+
+				if (offsetParent.offset().top + top < $$3(window).scrollTop()) {
+					// Correction for when the top is beyond the top of the page
+					top = buttonPosition.top + hostNode.outerHeight();
+				}
+
+				// Calculations all done - now set it
+				display.css({
+					top: top,
+					left: left
+				});
+			}
+			else {
+				// Fix position - centre on screen
+				var place = function () {
+					var half = $$3(window).height() / 2;
+
+					var top = display.height() / 2;
+					if (top > half) {
+						top = half;
+					}
+
+					display.css('marginTop', top * -1);
+				};
+
+				place();
+
+				$$3(window).on('resize.dtb-collection', function () {
+					place();
+				});
+			}
+
+			if (options.background) {
+				Buttons.background(
+					true,
+					options.backgroundClassName,
+					options.fade,
+					options.backgroundHost || hostNode
+				);
+			}
+
+			// This is bonkers, but if we don't have a click listener on the
+			// background element, iOS Safari will ignore the body click
+			// listener below. An empty function here is all that is
+			// required to make it work...
+			$$3('div.dt-button-background').on(
+				'click.dtb-collection',
+				function () {}
+			);
+
+			if (options.autoClose) {
+				setTimeout(function () {
+					dt.on('buttons-action.b-internal', function (e, btn, dt, node) {
+						if (node[0] === hostNode[0]) {
+							return;
+						}
+						close();
+					});
+				}, 0);
+			}
+
+			$$3(display).trigger('buttons-popover.dt');
+
+			dt.on('destroy.dtb-popover', close);
+
+			setTimeout(function () {
+				closed = false;
+				$$3('body')
+					.on('click.dtb-collection', function (e) {
+						if (closed) {
+							return;
+						}
+
+						// andSelf is deprecated in jQ1.8, but we want 1.7 compat
+						var back = $$3.fn.addBack ? 'addBack' : 'andSelf';
+						var parent = $$3(e.target).parent()[0];
+
+						if (
+							(!$$3(e.target).parents()[back]().filter(content)
+								.length &&
+								!$$3(parent).hasClass('dt-buttons')) ||
+							$$3(e.target).hasClass('dt-button-background')
+						) {
+							close();
+						}
+					})
+					.on('keyup.dtb-collection', function (e) {
+						if (e.keyCode === 27) {
+							close();
+						}
+					})
+					.on('keydown.dtb-collection', function (e) {
+						// Focus trap for tab key
+						var elements = $$3('a, button', content);
+						var active = document.activeElement;
+
+						if (e.keyCode !== 9) {
+							// tab
+							return;
+						}
+
+						if (elements.index(active) === -1) {
+							// If current focus is not inside the popover
+							elements.first().focus();
+							e.preventDefault();
+						}
+						else if (e.shiftKey) {
+							// Reverse tabbing order when shift key is pressed
+							if (active === elements[0]) {
+								elements.last().focus();
+								e.preventDefault();
+							}
+						}
+						else {
+							if (active === elements.last()[0]) {
+								elements.first().focus();
+								e.preventDefault();
+							}
+						}
+					});
+			}, 0);
+		}
+	});
+
+	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	 * Statics
+	 */
+
+	/**
+	 * Show / hide a background layer behind a collection
+	 * @param  {boolean} Flag to indicate if the background should be shown or
+	 *   hidden
+	 * @param  {string} Class to assign to the background
+	 * @static
+	 */
+	Buttons.background = function (show, className, fade, insertPoint) {
+		if (fade === undefined) {
+			fade = 400;
+		}
+		if (!insertPoint) {
+			insertPoint = document.body;
+		}
+
+		if (show) {
+			_fadeIn(
+				$$3('<div/>')
+					.addClass(className)
+					.css('display', 'none')
+					.insertAfter(insertPoint),
+				fade
+			);
+		}
+		else {
+			_fadeOut($$3('div.' + className), fade, function () {
+				$$3(this).removeClass(className).remove();
+			});
+		}
+	};
+
+	/**
+	 * Instance selector - select Buttons instances based on an instance selector
+	 * value from the buttons assigned to a DataTable. This is only useful if
+	 * multiple instances are attached to a DataTable.
+	 * @param  {string|int|array} Instance selector - see `instance-selector`
+	 *   documentation on the DataTables site
+	 * @param  {array} Button instance array that was attached to the DataTables
+	 *   settings object
+	 * @return {array} Buttons instances
+	 * @static
+	 */
+	Buttons.instanceSelector = function (group, buttons) {
+		if (group === undefined || group === null) {
+			return $$3.map(buttons, function (v) {
+				return v.inst;
+			});
+		}
+
+		var ret = [];
+		var names = $$3.map(buttons, function (v) {
+			return v.name;
+		});
+
+		// Flatten the group selector into an array of single options
+		var process = function (input) {
+			if (Array.isArray(input)) {
+				for (var i = 0, ien = input.length; i < ien; i++) {
+					process(input[i]);
+				}
+				return;
+			}
+
+			if (typeof input === 'string') {
+				if (input.indexOf(',') !== -1) {
+					// String selector, list of names
+					process(input.split(','));
+				}
+				else {
+					// String selector individual name
+					var idx = $$3.inArray(input.trim(), names);
+
+					if (idx !== -1) {
+						ret.push(buttons[idx].inst);
+					}
+				}
+			}
+			else if (typeof input === 'number') {
+				// Index selector
+				ret.push(buttons[input].inst);
+			}
+			else if (typeof input === 'object' && input.nodeName) {
+				// Element selector
+				for (var j = 0; j < buttons.length; j++) {
+					if (buttons[j].inst.dom.container[0] === input) {
+						ret.push(buttons[j].inst);
+					}
+				}
+			}
+			else if (typeof input === 'object') {
+				// Actual instance selector
+				ret.push(input);
+			}
+		};
+
+		process(group);
+
+		return ret;
+	};
+
+	/**
+	 * Button selector - select one or more buttons from a selector input so some
+	 * operation can be performed on them.
+	 * @param  {array} Button instances array that the selector should operate on
+	 * @param  {string|int|node|jQuery|array} Button selector - see
+	 *   `button-selector` documentation on the DataTables site
+	 * @return {array} Array of objects containing `inst` and `idx` properties of
+	 *   the selected buttons so you know which instance each button belongs to.
+	 * @static
+	 */
+	Buttons.buttonSelector = function (insts, selector) {
+		var ret = [];
+		var nodeBuilder = function (a, buttons, baseIdx) {
+			var button;
+			var idx;
+
+			for (var i = 0, ien = buttons.length; i < ien; i++) {
+				button = buttons[i];
+
+				if (button) {
+					idx = baseIdx !== undefined ? baseIdx + i : i + '';
+
+					a.push({
+						node: button.node,
+						name: button.conf.name,
+						idx: idx
+					});
+
+					if (button.buttons) {
+						nodeBuilder(a, button.buttons, idx + '-');
+					}
+				}
+			}
+		};
+
+		var run = function (selector, inst) {
+			var i, ien;
+			var buttons = [];
+			nodeBuilder(buttons, inst.s.buttons);
+
+			var nodes = $$3.map(buttons, function (v) {
+				return v.node;
+			});
+
+			if (Array.isArray(selector) || selector instanceof $$3) {
+				for (i = 0, ien = selector.length; i < ien; i++) {
+					run(selector[i], inst);
+				}
+				return;
+			}
+
+			if (selector === null || selector === undefined || selector === '*') {
+				// Select all
+				for (i = 0, ien = buttons.length; i < ien; i++) {
+					ret.push({
+						inst: inst,
+						node: buttons[i].node
+					});
+				}
+			}
+			else if (typeof selector === 'number') {
+				// Main button index selector
+				if (inst.s.buttons[selector]) {
+					ret.push({
+						inst: inst,
+						node: inst.s.buttons[selector].node
+					});
+				}
+			}
+			else if (typeof selector === 'string') {
+				if (selector.indexOf(',') !== -1) {
+					// Split
+					var a = selector.split(',');
+
+					for (i = 0, ien = a.length; i < ien; i++) {
+						run(a[i].trim(), inst);
+					}
+				}
+				else if (selector.match(/^\d+(\-\d+)*$/)) {
+					// Sub-button index selector
+					var indexes = $$3.map(buttons, function (v) {
+						return v.idx;
+					});
+
+					ret.push({
+						inst: inst,
+						node: buttons[$$3.inArray(selector, indexes)].node
+					});
+				}
+				else if (selector.indexOf(':name') !== -1) {
+					// Button name selector
+					var name = selector.replace(':name', '');
+
+					for (i = 0, ien = buttons.length; i < ien; i++) {
+						if (buttons[i].name === name) {
+							ret.push({
+								inst: inst,
+								node: buttons[i].node
+							});
+						}
+					}
+				}
+				else {
+					// jQuery selector on the nodes
+					$$3(nodes)
+						.filter(selector)
+						.each(function () {
+							ret.push({
+								inst: inst,
+								node: this
+							});
+						});
+				}
+			}
+			else if (typeof selector === 'object' && selector.nodeName) {
+				// Node selector
+				var idx = $$3.inArray(selector, nodes);
+
+				if (idx !== -1) {
+					ret.push({
+						inst: inst,
+						node: nodes[idx]
+					});
+				}
+			}
+		};
+
+		for (var i = 0, ien = insts.length; i < ien; i++) {
+			var inst = insts[i];
+
+			run(selector, inst);
+		}
+
+		return ret;
+	};
+
+	/**
+	 * Default function used for formatting output data.
+	 * @param {*} str Data to strip
+	 */
+	Buttons.stripData = function (str, config) {
+		// If the input is an HTML element, we can use the HTML from it (HTML might be stripped below).
+		if (str !== null && typeof str === 'object' && str.nodeName && str.nodeType) {
+			str = str.innerHTML;
+		}
+
+		if (typeof str !== 'string') {
+			return str;
+		}
+
+		// Always remove script tags
+		str = Buttons.stripHtmlScript(str);
+
+		// Always remove comments
+		str = Buttons.stripHtmlComments(str);
+
+		if (!config || config.stripHtml) {
+			str = DataTable.util.stripHtml(str);
+		}
+
+		if (!config || config.trim) {
+			str = str.trim();
+		}
+
+		if (!config || config.stripNewlines) {
+			str = str.replace(/\n/g, ' ');
+		}
+
+		if (!config || config.decodeEntities) {
+			if (_entityDecoder) {
+				str = _entityDecoder(str);
+			}
+			else {
+				_exportTextarea.innerHTML = str;
+				str = _exportTextarea.value;
+			}
+		}
+
+		// Prevent Excel from running a formula
+		if (!config || config.escapeExcelFormula) {
+			if (str.match(/^[=@\t\r]/)) {
+				str = "'" + str;
+			}
+		}
+
+		return str;
+	};
+
+	/**
+	 * Provide a custom entity decoding function - e.g. a regex one, which can be
+	 * much faster than the built in DOM option, but also larger code size.
+	 * @param {function} fn
+	 */
+	Buttons.entityDecoder = function (fn) {
+		_entityDecoder = fn;
+	};
+
+	/**
+	 * Common function for stripping HTML comments
+	 *
+	 * @param {*} input 
+	 * @returns 
+	 */
+	Buttons.stripHtmlComments = function (input) {
+		var previous;  
+		
+		do {  
+			previous = input;
+			input = input.replace(/(<!--.*?--!?>)|(<!--[\S\s]+?--!?>)|(<!--[\S\s]*?$)/g, '');
+		} while (input !== previous);  
+
+		return input;  
+	};
+
+	/**
+	 * Common function for stripping HTML script tags
+	 *
+	 * @param {*} input 
+	 * @returns 
+	 */
+	Buttons.stripHtmlScript = function (input) {
+		var previous;  
+		
+		do {  
+			previous = input;
+			input = input.replace(/<script\b[^<]*(?:(?!<\/script[^>]*>)<[^<]*)*<\/script[^>]*>/gi, '');
+		} while (input !== previous);  
+
+		return input;  
+	};
+
+	/**
+	 * Buttons defaults. For full documentation, please refer to the docs/option
+	 * directory or the DataTables site.
+	 * @type {Object}
+	 * @static
+	 */
+	Buttons.defaults = {
+		buttons: ['copy', 'excel', 'csv', 'pdf', 'print'],
+		name: 'main',
+		tabIndex: 0,
+		dom: {
+			container: {
+				tag: 'div',
+				className: 'dt-buttons'
+			},
+			collection: {
+				container: {
+					// The element used for the dropdown
+					className: 'dt-button-collection',
+					content: {
+						className: '',
+						tag: 'div'
+					},
+					tag: 'div'
+				}
+				// optionally
+				// , button: IButton - buttons inside the collection container
+				// , split: ISplit - splits inside the collection container
+			},
+			button: {
+				tag: 'button',
+				className: 'dt-button',
+				active: 'dt-button-active', // class name
+				disabled: 'disabled', // class name
+				spacer: {
+					className: 'dt-button-spacer',
+					tag: 'span'
+				},
+				liner: {
+					tag: 'span',
+					className: ''
+				},
+				dropClass: '',
+				dropHtml: '<span class="dt-button-down-arrow">&#x25BC;</span>'
+			},
+			split: {
+				action: {
+					// action button
+					className: 'dt-button-split-drop-button dt-button',
+					tag: 'button'
+				},
+				dropdown: {
+					// button to trigger the dropdown
+					align: 'split-right',
+					className: 'dt-button-split-drop',
+					splitAlignClass: 'dt-button-split-left',
+					tag: 'button'
+				},
+				wrapper: {
+					// wrap around both
+					className: 'dt-button-split',
+					tag: 'div'
+				}
+			}
+		}
+	};
+
+	/**
+	 * Version information
+	 * @type {string}
+	 * @static
+	 */
+	Buttons.version = '3.2.6';
+
+	$$3.extend(_dtButtons, {
+		collection: {
+			text: function (dt) {
+				return dt.i18n('buttons.collection', 'Collection');
+			},
+			className: 'buttons-collection',
+			closeButton: false,
+			dropIcon: true,
+			init: function (dt, button) {
+				button.attr('aria-expanded', false);
+			},
+			action: function (e, dt, button, config) {
+				if (config._collection.parents('body').length) {
+					this.popover(false, config);
+				}
+				else {
+					this.popover(config._collection, config);
+				}
+
+				// When activated using a key - auto focus on the
+				// first item in the popover
+				if (e.type === 'keypress') {
+					$$3('a, button', config._collection).eq(0).focus();
+				}
+			},
+			attr: {
+				'aria-haspopup': 'dialog'
+			}
+			// Also the popover options, defined in Buttons.popover
+		},
+		split: {
+			text: function (dt) {
+				return dt.i18n('buttons.split', 'Split');
+			},
+			className: 'buttons-split',
+			closeButton: false,
+			init: function (dt, button) {
+				return button.attr('aria-expanded', false);
+			},
+			action: function (e, dt, button, config) {
+				this.popover(config._collection, config);
+			},
+			attr: {
+				'aria-haspopup': 'dialog'
+			}
+			// Also the popover options, defined in Buttons.popover
+		},
+		copy: function () {
+			if (_dtButtons.copyHtml5) {
+				return 'copyHtml5';
+			}
+		},
+		csv: function (dt, conf) {
+			if (_dtButtons.csvHtml5 && _dtButtons.csvHtml5.available(dt, conf)) {
+				return 'csvHtml5';
+			}
+		},
+		excel: function (dt, conf) {
+			if (
+				_dtButtons.excelHtml5 &&
+				_dtButtons.excelHtml5.available(dt, conf)
+			) {
+				return 'excelHtml5';
+			}
+		},
+		pdf: function (dt, conf) {
+			if (_dtButtons.pdfHtml5 && _dtButtons.pdfHtml5.available(dt, conf)) {
+				return 'pdfHtml5';
+			}
+		},
+		pageLength: function (dt) {
+			var lengthMenu = dt.settings()[0].aLengthMenu;
+			var vals = [];
+			var lang = [];
+			var text = function (dt) {
+				return dt.i18n(
+					'buttons.pageLength',
+					{
+						'-1': 'Show all rows',
+						_: 'Show %d rows'
+					},
+					dt.page.len()
+				);
+			};
+
+			// Support for DataTables 1.x 2D array
+			if (Array.isArray(lengthMenu[0])) {
+				vals = lengthMenu[0];
+				lang = lengthMenu[1];
+			}
+			else {
+				for (var i = 0; i < lengthMenu.length; i++) {
+					var option = lengthMenu[i];
+
+					// Support for DataTables 2 object in the array
+					if ($$3.isPlainObject(option)) {
+						vals.push(option.value);
+						lang.push(option.label);
+					}
+					else {
+						vals.push(option);
+						lang.push(option);
+					}
+				}
+			}
+
+			return {
+				extend: 'collection',
+				text: text,
+				className: 'buttons-page-length',
+				autoClose: true,
+				buttons: $$3.map(vals, function (val, i) {
+					return {
+						text: lang[i],
+						className: 'button-page-length',
+						action: function (e, dt) {
+							dt.page.len(val).draw();
+						},
+						init: function (dt, node, conf) {
+							var that = this;
+							var fn = function () {
+								that.active(dt.page.len() === val);
+							};
+
+							dt.on('length.dt' + conf.namespace, fn);
+							fn();
+						},
+						destroy: function (dt, node, conf) {
+							dt.off('length.dt' + conf.namespace);
+						}
+					};
+				}),
+				init: function (dt, node, conf) {
+					var that = this;
+					dt.on('length.dt' + conf.namespace, function () {
+						that.text(conf.text);
+					});
+				},
+				destroy: function (dt, node, conf) {
+					dt.off('length.dt' + conf.namespace);
+				}
+			};
+		},
+		spacer: {
+			style: 'empty',
+			spacer: true,
+			text: function (dt) {
+				return dt.i18n('buttons.spacer', '');
+			}
+		}
+	});
+
+	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	 * DataTables API
+	 *
+	 * For complete documentation, please refer to the docs/api directory or the
+	 * DataTables site
+	 */
+
+	// Buttons group and individual button selector
+	DataTable.Api.register('buttons()', function (group, selector) {
+		// Argument shifting
+		if (selector === undefined) {
+			selector = group;
+			group = undefined;
+		}
+
+		this.selector.buttonGroup = group;
+
+		var res = this.iterator(
+			true,
+			'table',
+			function (ctx) {
+				if (ctx._buttons) {
+					return Buttons.buttonSelector(
+						Buttons.instanceSelector(group, ctx._buttons),
+						selector
+					);
+				}
+			},
+			true
+		);
+
+		res._groupSelector = group;
+		return res;
+	});
+
+	// Individual button selector
+	DataTable.Api.register('button()', function (group, selector) {
+		// just run buttons() and truncate
+		var buttons = this.buttons(group, selector);
+
+		if (buttons.length > 1) {
+			buttons.splice(1, buttons.length);
+		}
+
+		return buttons;
+	});
+
+	// Active buttons
+	DataTable.Api.registerPlural(
+		'buttons().active()',
+		'button().active()',
+		function (flag) {
+			if (flag === undefined) {
+				return this.map(function (set) {
+					return set.inst.active(set.node);
+				});
+			}
+
+			return this.each(function (set) {
+				set.inst.active(set.node, flag);
+			});
+		}
+	);
+
+	// Get / set button action
+	DataTable.Api.registerPlural(
+		'buttons().action()',
+		'button().action()',
+		function (action) {
+			if (action === undefined) {
+				return this.map(function (set) {
+					return set.inst.action(set.node);
+				});
+			}
+
+			return this.each(function (set) {
+				set.inst.action(set.node, action);
+			});
+		}
+	);
+
+	// Collection control
+	DataTable.Api.registerPlural(
+		'buttons().collectionRebuild()',
+		'button().collectionRebuild()',
+		function (buttons) {
+			return this.each(function (set) {
+				for (var i = 0; i < buttons.length; i++) {
+					if (typeof buttons[i] === 'object') {
+						buttons[i].parentConf = set;
+					}
+				}
+				set.inst.collectionRebuild(set.node, buttons);
+			});
+		}
+	);
+
+	// Enable / disable buttons
+	DataTable.Api.register(
+		['buttons().enable()', 'button().enable()'],
+		function (flag) {
+			return this.each(function (set) {
+				set.inst.enable(set.node, flag);
+			});
+		}
+	);
+
+	// Disable buttons
+	DataTable.Api.register(
+		['buttons().disable()', 'button().disable()'],
+		function () {
+			return this.each(function (set) {
+				set.inst.disable(set.node);
+			});
+		}
+	);
+
+	// Button index
+	DataTable.Api.register('button().index()', function () {
+		var idx = null;
+
+		this.each(function (set) {
+			var res = set.inst.index(set.node);
+
+			if (res !== null) {
+				idx = res;
+			}
+		});
+
+		return idx;
+	});
+
+	// Get button nodes
+	DataTable.Api.registerPlural(
+		'buttons().nodes()',
+		'button().node()',
+		function () {
+			var jq = $$3();
+
+			// jQuery will automatically reduce duplicates to a single entry
+			$$3(
+				this.each(function (set) {
+					jq = jq.add(set.inst.node(set.node));
+				})
+			);
+
+			return jq;
+		}
+	);
+
+	// Get / set button processing state
+	DataTable.Api.registerPlural(
+		'buttons().processing()',
+		'button().processing()',
+		function (flag) {
+			if (flag === undefined) {
+				return this.map(function (set) {
+					return set.inst.processing(set.node);
+				});
+			}
+
+			return this.each(function (set) {
+				set.inst.processing(set.node, flag);
+			});
+		}
+	);
+
+	// Get / set button text (i.e. the button labels)
+	DataTable.Api.registerPlural(
+		'buttons().text()',
+		'button().text()',
+		function (label) {
+			if (label === undefined) {
+				return this.map(function (set) {
+					return set.inst.text(set.node);
+				});
+			}
+
+			return this.each(function (set) {
+				set.inst.text(set.node, label);
+			});
+		}
+	);
+
+	// Trigger a button's action
+	DataTable.Api.registerPlural(
+		'buttons().trigger()',
+		'button().trigger()',
+		function () {
+			return this.each(function (set) {
+				set.inst.node(set.node).trigger('click');
+			});
+		}
+	);
+
+	// Button resolver to the popover
+	DataTable.Api.register('button().popover()', function (content, options) {
+		return this.map(function (set) {
+			return set.inst._popover(content, this.button(this[0].node), options);
+		});
+	});
+
+	// Get the container elements
+	DataTable.Api.register('buttons().containers()', function () {
+		var jq = $$3();
+		var groupSelector = this._groupSelector;
+
+		// We need to use the group selector directly, since if there are no buttons
+		// the result set will be empty
+		this.iterator(true, 'table', function (ctx) {
+			if (ctx._buttons) {
+				var insts = Buttons.instanceSelector(groupSelector, ctx._buttons);
+
+				for (var i = 0, ien = insts.length; i < ien; i++) {
+					jq = jq.add(insts[i].container());
+				}
+			}
+		});
+
+		return jq;
+	});
+
+	DataTable.Api.register('buttons().container()', function () {
+		// API level of nesting is `buttons()` so we can zip into the containers method
+		return this.containers().eq(0);
+	});
+
+	// Add a new button
+	DataTable.Api.register('button().add()', function (idx, conf, draw) {
+		var ctx = this.context;
+		var node;
+
+		// Don't use `this` as it could be empty - select the instances directly
+		if (ctx.length) {
+			var inst = Buttons.instanceSelector(
+				this._groupSelector,
+				ctx[0]._buttons
+			);
+
+			if (inst.length) {
+				node = inst[0].add(conf, idx, draw);
+			}
+		}
+
+		return node
+			? this.button(this._groupSelector, node)
+			: this;
+	});
+
+	// Destroy the button sets selected
+	DataTable.Api.register('buttons().destroy()', function () {
+		this.pluck('inst')
+			.unique()
+			.each(function (inst) {
+				inst.destroy();
+			});
+
+		return this;
+	});
+
+	// Remove a button
+	DataTable.Api.registerPlural(
+		'buttons().remove()',
+		'buttons().remove()',
+		function () {
+			this.each(function (set) {
+				set.inst.remove(set.node);
+			});
+
+			return this;
+		}
+	);
+
+	// Information box that can be used by buttons
+	var _infoTimer;
+	DataTable.Api.register('buttons.info()', function (title, message, time) {
+		var that = this;
+
+		if (title === false) {
+			this.off('destroy.btn-info');
+			_fadeOut($$3('#datatables_buttons_info'), 400, function () {
+				$$3(this).remove();
+			});
+			clearTimeout(_infoTimer);
+			_infoTimer = null;
+
+			return this;
+		}
+
+		if (_infoTimer) {
+			clearTimeout(_infoTimer);
+		}
+
+		if ($$3('#datatables_buttons_info').length) {
+			$$3('#datatables_buttons_info').remove();
+		}
+
+		title = title ? '<h2>' + title + '</h2>' : '';
+
+		_fadeIn(
+			$$3('<div id="datatables_buttons_info" class="dt-button-info"/>')
+				.html(title)
+				.append(
+					$$3('<div/>')[typeof message === 'string' ? 'html' : 'append'](
+						message
+					)
+				)
+				.css('display', 'none')
+				.appendTo('body')
+		);
+
+		if (time !== undefined && time !== 0) {
+			_infoTimer = setTimeout(function () {
+				that.buttons.info(false);
+			}, time);
+		}
+
+		this.on('destroy.btn-info', function () {
+			that.buttons.info(false);
+		});
+
+		return this;
+	});
+
+	// Get data from the table for export - this is common to a number of plug-in
+	// buttons so it is included in the Buttons core library
+	DataTable.Api.register('buttons.exportData()', function (options) {
+		if (this.context.length) {
+			return _exportData$1(new DataTable.Api(this.context[0]), options);
+		}
+	});
+
+	// Get information about the export that is common to many of the export data
+	// types (DRY)
+	DataTable.Api.register('buttons.exportInfo()', function (conf) {
+		if (!conf) {
+			conf = {};
+		}
+
+		return {
+			filename: _filename(conf, this),
+			title: _title(conf, this),
+			messageTop: _message(this, conf, conf.message || conf.messageTop, 'top'),
+			messageBottom: _message(this, conf, conf.messageBottom, 'bottom')
+		};
+	});
+
+	/**
+	 * Get the file name for an exported file.
+	 *
+	 * @param {object} config Button configuration
+	 * @param {object} dt DataTable instance
+	 */
+	var _filename = function (config, dt) {
+		// Backwards compatibility
+		var filename =
+			config.filename === '*' &&
+			config.title !== '*' &&
+			config.title !== undefined &&
+			config.title !== null &&
+			config.title !== ''
+				? config.title
+				: config.filename;
+
+		if (typeof filename === 'function') {
+			filename = filename(config, dt);
+		}
+
+		if (filename === undefined || filename === null) {
+			return null;
+		}
+
+		if (filename.indexOf('*') !== -1) {
+			filename = filename.replace(/\*/g, $$3('head > title').text()).trim();
+		}
+
+		// Strip characters which the OS will object to
+		filename = filename.replace(/[^a-zA-Z0-9_\u00A1-\uFFFF\.,\-_ !\(\)]/g, '');
+
+		var extension = _stringOrFunction(config.extension, config, dt);
+		if (!extension) {
+			extension = '';
+		}
+
+		return filename + extension;
+	};
+
+	/**
+	 * Simply utility method to allow parameters to be given as a function
+	 *
+	 * @param {undefined|string|function} option Option
+	 * @return {null|string} Resolved value
+	 */
+	var _stringOrFunction = function (option, config, dt) {
+		if (option === null || option === undefined) {
+			return null;
+		}
+		else if (typeof option === 'function') {
+			return option(config, dt);
+		}
+		return option;
+	};
+
+	/**
+	 * Get the title for an exported file.
+	 *
+	 * @param {object} config	Button configuration
+	 */
+	var _title = function (config, dt) {
+		var title = _stringOrFunction(config.title, config, dt);
+
+		return title === null
+			? null
+			: title.indexOf('*') !== -1
+			? title.replace(/\*/g, $$3('head > title').text() || 'Exported data')
+			: title;
+	};
+
+	var _message = function (dt, config, option, position) {
+		var message = _stringOrFunction(option, config, dt);
+		if (message === null) {
+			return null;
+		}
+
+		var caption = $$3('caption', dt.table().container()).eq(0);
+		if (message === '*') {
+			var side = caption.css('caption-side');
+			if (side !== position) {
+				return null;
+			}
+
+			return caption.length ? caption.text() : '';
+		}
+
+		return message;
+	};
+
+	var _exportTextarea = $$3('<textarea/>')[0];
+	var _exportData$1 = function (dt, inOpts) {
+		var config = $$3.extend(
+			true,
+			{},
+			{
+				rows: null,
+				columns: '',
+				modifier: {
+					search: 'applied',
+					order: 'applied'
+				},
+				orthogonal: 'display',
+				stripHtml: true,
+				stripNewlines: true,
+				decodeEntities: true,
+				escapeExcelFormula: false,
+				trim: true,
+				format: {
+					header: function (d) {
+						return Buttons.stripData(d, config);
+					},
+					footer: function (d) {
+						return Buttons.stripData(d, config);
+					},
+					body: function (d) {
+						return Buttons.stripData(d, config);
+					}
+				},
+				customizeData: null,
+				customizeZip: null
+			},
+			inOpts
+		);
+
+		var header = dt
+			.columns(config.columns)
+			.indexes()
+			.map(function (idx) {
+				var col = dt.column(idx);
+				return config.format.header(col.title(), idx, col.header());
+			})
+			.toArray();
+
+		var footer = dt.table().footer()
+			? dt
+					.columns(config.columns)
+					.indexes()
+					.map(function (idx) {
+						var el = dt.column(idx).footer();
+						var val = '';
+
+						if (el) {
+							var inner = $$3('.dt-column-title', el);
+
+							val = inner.length
+								? inner.html()
+								: $$3(el).html();
+						}
+
+						return config.format.footer(val, idx, el);
+					})
+					.toArray()
+			: null;
+
+		// If Select is available on this table, and any rows are selected, limit the export
+		// to the selected rows. If no rows are selected, all rows will be exported. Specify
+		// a `selected` modifier to control directly.
+		var modifier = $$3.extend({}, config.modifier);
+		if (
+			dt.select &&
+			typeof dt.select.info === 'function' &&
+			modifier.selected === undefined
+		) {
+			if (
+				dt.rows(config.rows, $$3.extend({ selected: true }, modifier)).any()
+			) {
+				$$3.extend(modifier, { selected: true });
+			}
+		}
+
+		var rowIndexes = dt.rows(config.rows, modifier).indexes().toArray();
+		var selectedCells = dt.cells(rowIndexes, config.columns, {
+			order: modifier.order
+		});
+		var cells = selectedCells.render(config.orthogonal).toArray();
+		var cellNodes = selectedCells.nodes().toArray();
+		var cellIndexes = selectedCells.indexes().toArray();
+
+		var columns = dt.columns(config.columns).count();
+		var rows = columns > 0 ? cells.length / columns : 0;
+		var body = [];
+		var cellCounter = 0;
+
+		for (var i = 0, ien = rows; i < ien; i++) {
+			var row = [columns];
+
+			for (var j = 0; j < columns; j++) {
+				row[j] = config.format.body(
+					cells[cellCounter],
+					cellIndexes[cellCounter].row,
+					cellIndexes[cellCounter].column,
+					cellNodes[cellCounter]
+				);
+				cellCounter++;
+			}
+
+			body[i] = row;
+		}
+
+		var data = {
+			header: header,
+			headerStructure: _headerFormatter(
+				config.format.header,
+				dt.table().header.structure(config.columns)
+			),
+			footer: footer,
+			footerStructure: _headerFormatter(
+				config.format.footer,
+				dt.table().footer.structure(config.columns)
+			),
+			body: body
+		};
+
+		if (config.customizeData) {
+			config.customizeData(data);
+		}
+
+		return data;
+	};
+
+	function _headerFormatter(formatter, struct) {
+		for (var i=0 ; i<struct.length ; i++) {
+			for (var j=0 ; j<struct[i].length ; j++) {
+				var item = struct[i][j];
+
+				if (item) {
+					item.title = formatter(
+						item.title,
+						j,
+						item.cell
+					);
+				}
+			}
+		}
+
+		return struct;
+	}
+
+	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	 * DataTables interface
+	 */
+
+	// Attach to DataTables objects for global access
+	$$3.fn.dataTable.Buttons = Buttons;
+	$$3.fn.DataTable.Buttons = Buttons;
+
+	// DataTables creation - check if the buttons have been defined for this table,
+	// they will have been if the `B` option was used in `dom`, otherwise we should
+	// create the buttons instance here so they can be inserted into the document
+	// using the API. Listen for `init` for compatibility with pre 1.10.10, but to
+	// be removed in future.
+	$$3(document).on('init.dt plugin-init.dt', function (e, settings) {
+		if (e.namespace !== 'dt') {
+			return;
+		}
+
+		var opts = settings.oInit.buttons || DataTable.defaults.buttons;
+
+		if (opts && !settings._buttons) {
+			new Buttons(settings, opts).container();
+		}
+	});
+
+	function _init(settings, options) {
+		var api = new DataTable.Api(settings);
+		var opts = options
+			? options
+			: api.init().buttons || DataTable.defaults.buttons;
+
+		return new Buttons(api, opts).container();
+	}
+
+	// DataTables 1 `dom` feature option
+	DataTable.ext.feature.push({
+		fnInit: _init,
+		cFeature: 'B'
+	});
+
+	// DataTables 2 layout feature
+	if (DataTable.feature) {
+		DataTable.feature.register('buttons', _init);
+	}
+
+	/*! Bootstrap integration for DataTables' Buttons
+	 * © SpryMedia Ltd - datatables.net/license
+	 */
+
+
+	// Allow reassignment of the $ variable
+	let $$2 = jQuery;
+
+
+	$$2.extend(true, DataTable.Buttons.defaults, {
+		dom: {
+			container: {
+				className: 'dt-buttons btn-group flex-wrap'
+			},
+			button: {
+				className: 'btn btn-secondary',
+				active: 'active',
+				dropHtml: '',
+				dropClass: 'dropdown-toggle'
+			},
+			collection: {
+				container: {
+					tag: 'div',
+					className: 'dt-button-collection',
+					content: {
+						tag: 'ul',
+						className: 'dropdown-menu show'
+					}
+				},
+				closeButton: false,
+				button: {
+					tag: 'li',
+					className: 'dt-button',
+					active: 'dt-button-active-a',
+					disabled: 'disabled',
+					liner: {
+						tag: 'a',
+						className: 'dropdown-item'
+					},
+					spacer: {
+						className: 'divider',
+						tag: 'li'
+					}
+				}
+			},
+			split: {
+				action: {
+					tag: 'a',
+					className: 'btn btn-secondary dt-button-split-drop-button',
+					closeButton: false
+				},
+				dropdown: {
+					tag: 'button',
+					className:
+						'btn btn-secondary dt-button-split-drop dropdown-toggle-split',
+					closeButton: false,
+					align: 'split-left',
+					splitAlignClass: 'dt-button-split-left'
+				},
+				wrapper: {
+					tag: 'div',
+					className: 'dt-button-split btn-group',
+					closeButton: false
+				}
+			}
+		},
+		buttonCreated: function (config, button) {
+			return config.buttons ? $$2('<div class="btn-group"/>').append(button) : button;
+		}
+	});
+
+	DataTable.ext.buttons.collection.rightAlignClassName = 'dropdown-menu-right';
+
+	/*!
+	 * HTML5 export buttons for Buttons and DataTables.
+	 * © SpryMedia Ltd - datatables.net/license
+	 *
+	 * FileSaver.js (1.3.3) - MIT license
+	 * Copyright © 2016 Eli Grey - http://eligrey.com
+	 */
+
+
+	// Allow reassignment of the $ variable
+	let $$1 = jQuery;
+
+
+	// Allow the constructor to pass in JSZip and PDFMake from external requires.
+	// Otherwise, use globally defined variables, if they are available.
+	var useJszip;
+	var usePdfmake;
+
+	function _jsZip() {
+		return useJszip || window.JSZip;
+	}
+	function _pdfMake() {
+		return usePdfmake || window.pdfMake;
+	}
+
+	DataTable.Buttons.pdfMake = function (_) {
+		if (!_) {
+			return _pdfMake();
+		}
+		usePdfmake = _;
+	};
+
+	DataTable.Buttons.jszip = function (_) {
+		if (!_) {
+			return _jsZip();
+		}
+		useJszip = _;
+	};
+
+	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	 * FileSaver.js dependency
+	 */
+
+	/*jslint bitwise: true, indent: 4, laxbreak: true, laxcomma: true, smarttabs: true, plusplus: true */
+
+	var _saveAs = (function (view) {
+		// IE <10 is explicitly unsupported
+		if (
+			typeof view === 'undefined' ||
+			(typeof navigator !== 'undefined' &&
+				/MSIE [1-9]\./.test(navigator.userAgent))
+		) {
+			return;
+		}
+		var doc = view.document,
+			// only get URL when necessary in case Blob.js hasn't overridden it yet
+			get_URL = function () {
+				return view.URL || view.webkitURL || view;
+			},
+			save_link = doc.createElementNS('http://www.w3.org/1999/xhtml', 'a'),
+			can_use_save_link = 'download' in save_link,
+			click = function (node) {
+				var event = new MouseEvent('click');
+				node.dispatchEvent(event);
+			},
+			is_safari = /constructor/i.test(view.HTMLElement) || view.safari,
+			is_chrome_ios = /CriOS\/[\d]+/.test(navigator.userAgent),
+			throw_outside = function (ex) {
+				(view.setImmediate || view.setTimeout)(function () {
+					throw ex;
+				}, 0);
+			},
+			force_saveable_type = 'application/octet-stream',
+			// the Blob API is fundamentally broken as there is no "downloadfinished" event to subscribe to
+			arbitrary_revoke_timeout = 1000 * 40, // in ms
+			revoke = function (file) {
+				var revoker = function () {
+					if (typeof file === 'string') {
+						// file is an object URL
+						get_URL().revokeObjectURL(file);
+					}
+					else {
+						// file is a File
+						file.remove();
+					}
+				};
+				setTimeout(revoker, arbitrary_revoke_timeout);
+			},
+			dispatch = function (filesaver, event_types, event) {
+				event_types = [].concat(event_types);
+				var i = event_types.length;
+				while (i--) {
+					var listener = filesaver['on' + event_types[i]];
+					if (typeof listener === 'function') {
+						try {
+							listener.call(filesaver, event || filesaver);
+						} catch (ex) {
+							throw_outside(ex);
+						}
+					}
+				}
+			},
+			auto_bom = function (blob) {
+				// prepend BOM for UTF-8 XML and text/* types (including HTML)
+				// note: your browser will automatically convert UTF-16 U+FEFF to EF BB BF
+				if (
+					/^\s*(?:text\/\S*|application\/xml|\S*\/\S*\+xml)\s*;.*charset\s*=\s*utf-8/i.test(
+						blob.type
+					)
+				) {
+					return new Blob([String.fromCharCode(0xfeff), blob], {
+						type: blob.type
+					});
+				}
+				return blob;
+			},
+			FileSaver = function (blob, name, no_auto_bom) {
+				if (!no_auto_bom) {
+					blob = auto_bom(blob);
+				}
+				// First try a.download, then web filesystem, then object URLs
+				var filesaver = this,
+					type = blob.type,
+					force = type === force_saveable_type,
+					object_url,
+					dispatch_all = function () {
+						dispatch(
+							filesaver,
+							'writestart progress write writeend'.split(' ')
+						);
+					},
+					// on any filesys errors revert to saving with object URLs
+					fs_error = function () {
+						if (
+							(is_chrome_ios || (force && is_safari)) &&
+							view.FileReader
+						) {
+							// Safari doesn't allow downloading of blob urls
+							var reader = new FileReader();
+							reader.onloadend = function () {
+								var url = is_chrome_ios
+									? reader.result
+									: reader.result.replace(
+											/^data:[^;]*;/,
+											'data:attachment/file;'
+									);
+								var popup = view.open(url, '_blank');
+								if (!popup) view.location.href = url;
+								url = undefined; // release reference before dispatching
+								filesaver.readyState = filesaver.DONE;
+								dispatch_all();
+							};
+							reader.readAsDataURL(blob);
+							filesaver.readyState = filesaver.INIT;
+							return;
+						}
+						// don't create more object URLs than needed
+						if (!object_url) {
+							object_url = get_URL().createObjectURL(blob);
+						}
+						if (force) {
+							view.location.href = object_url;
+						}
+						else {
+							var opened = view.open(object_url, '_blank');
+							if (!opened) {
+								// Apple does not allow window.open, see https://developer.apple.com/library/safari/documentation/Tools/Conceptual/SafariExtensionGuide/WorkingwithWindowsandTabs/WorkingwithWindowsandTabs.html
+								view.location.href = object_url;
+							}
+						}
+						filesaver.readyState = filesaver.DONE;
+						dispatch_all();
+						revoke(object_url);
+					};
+				filesaver.readyState = filesaver.INIT;
+
+				if (can_use_save_link) {
+					object_url = get_URL().createObjectURL(blob);
+					setTimeout(function () {
+						save_link.href = object_url;
+						save_link.download = name;
+						click(save_link);
+						dispatch_all();
+						revoke(object_url);
+						filesaver.readyState = filesaver.DONE;
+					});
+					return;
+				}
+
+				fs_error();
+			},
+			FS_proto = FileSaver.prototype,
+			saveAs = function (blob, name, no_auto_bom) {
+				return new FileSaver(
+					blob,
+					name || blob.name || 'download',
+					no_auto_bom
+				);
+			};
+		// IE 10+ (native saveAs)
+		if (typeof navigator !== 'undefined' && navigator.msSaveOrOpenBlob) {
+			return function (blob, name, no_auto_bom) {
+				name = name || blob.name || 'download';
+
+				if (!no_auto_bom) {
+					blob = auto_bom(blob);
+				}
+				return navigator.msSaveOrOpenBlob(blob, name);
+			};
+		}
+
+		FS_proto.abort = function () {};
+		FS_proto.readyState = FS_proto.INIT = 0;
+		FS_proto.WRITING = 1;
+		FS_proto.DONE = 2;
+
+		FS_proto.error =
+			FS_proto.onwritestart =
+			FS_proto.onprogress =
+			FS_proto.onwrite =
+			FS_proto.onabort =
+			FS_proto.onerror =
+			FS_proto.onwriteend =
+				null;
+
+		return saveAs;
+	})(
+		(typeof self !== 'undefined' && self) ||
+			(typeof window !== 'undefined' && window) ||
+			window.content
+	);
+
+	// Expose file saver on the DataTables API. Can't attach to `DataTables.Buttons`
+	// since this file can be loaded before Button's core!
+	DataTable.fileSave = _saveAs;
+
+	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	 * Local (private) functions
+	 */
+
+	/**
+	 * Get the sheet name for Excel exports.
+	 *
+	 * @param {object}	config Button configuration
+	 */
+	var _sheetname = function (config) {
+		var sheetName = 'Sheet1';
+
+		if (config.sheetName) {
+			sheetName = config.sheetName.replace(/[\[\]\*\/\\\?\:]/g, '');
+		}
+
+		return sheetName;
+	};
+
+	/**
+	 * Get the newline character(s)
+	 *
+	 * @param {object}	config Button configuration
+	 * @return {string}				Newline character
+	 */
+	var _newLine = function (config) {
+		return config.newline
+			? config.newline
+			: navigator.userAgent.match(/Windows/)
+			? '\r\n'
+			: '\n';
+	};
+
+	/**
+	 * Combine the data from the `buttons.exportData` method into a string that
+	 * will be used in the export file.
+	 *
+	 * @param	{DataTable.Api} dt		 DataTables API instance
+	 * @param	{object}				config Button configuration
+	 * @return {object}							 The data to export
+	 */
+	var _exportData = function (dt, config) {
+		var newLine = _newLine(config);
+		var data = dt.buttons.exportData(config.exportOptions);
+		var boundary = config.fieldBoundary;
+		var separator = config.fieldSeparator;
+		var reBoundary = new RegExp(boundary, 'g');
+		var escapeChar = config.escapeChar !== undefined ? config.escapeChar : '\\';
+		var join = function (a) {
+			var s = '';
+
+			// If there is a field boundary, then we might need to escape it in
+			// the source data
+			for (var i = 0, ien = a.length; i < ien; i++) {
+				if (i > 0) {
+					s += separator;
+				}
+
+				s += boundary
+					? boundary +
+					('' + a[i]).replace(reBoundary, escapeChar + boundary) +
+					boundary
+					: a[i];
+			}
+
+			return s;
+		};
+
+		var header = '';
+		var footer = '';
+		var body = [];
+
+		if (config.header) {
+			header =
+				data.headerStructure
+					.map(function (row) {
+						return join(
+							row.map(function (cell) {
+								return cell ? cell.title : '';
+							})
+						);
+					})
+					.join(newLine) + newLine;
+		}
+
+		if (config.footer && data.footer) {
+			footer =
+				data.footerStructure
+					.map(function (row) {
+						return join(
+							row.map(function (cell) {
+								return cell ? cell.title : '';
+							})
+						);
+					})
+					.join(newLine) + newLine;
+		}
+
+		for (var i = 0, ien = data.body.length; i < ien; i++) {
+			body.push(join(data.body[i]));
+		}
+
+		return {
+			str: header + body.join(newLine) + newLine + footer,
+			rows: body.length
+		};
+	};
+
+	/**
+	 * Older versions of Safari (prior to tech preview 18) don't support the
+	 * download option required.
+	 *
+	 * @return {Boolean} `true` if old Safari
+	 */
+	var _isDuffSafari = function () {
+		var safari =
+			navigator.userAgent.indexOf('Safari') !== -1 &&
+			navigator.userAgent.indexOf('Chrome') === -1 &&
+			navigator.userAgent.indexOf('Opera') === -1;
+
+		if (!safari) {
+			return false;
+		}
+
+		var version = navigator.userAgent.match(/AppleWebKit\/(\d+\.\d+)/);
+		if (version && version.length > 1 && version[1] * 1 < 603.1) {
+			return true;
+		}
+
+		return false;
+	};
+
+	/**
+	 * Convert from numeric position to letter for column names in Excel
+	 * @param  {int} n Column number
+	 * @return {string} Column letter(s) name
+	 */
+	function createCellPos(n) {
+		var ordA = 'A'.charCodeAt(0);
+		var ordZ = 'Z'.charCodeAt(0);
+		var len = ordZ - ordA + 1;
+		var s = '';
+
+		while (n >= 0) {
+			s = String.fromCharCode((n % len) + ordA) + s;
+			n = Math.floor(n / len) - 1;
+		}
+
+		return s;
+	}
+
+	try {
+		var _serialiser = new XMLSerializer();
+		var _ieExcel;
+	} catch (t) {
+		// noop
+	}
+
+	/**
+	 * Recursively add XML files from an object's structure to a ZIP file. This
+	 * allows the XSLX file to be easily defined with an object's structure matching
+	 * the files structure.
+	 *
+	 * @param {JSZip} zip ZIP package
+	 * @param {object} obj Object to add (recursive)
+	 */
+	function _addToZip(zip, obj) {
+		if (_ieExcel === undefined) {
+			// Detect if we are dealing with IE's _awful_ serialiser by seeing if it
+			// drop attributes
+			_ieExcel =
+				_serialiser
+					.serializeToString(
+						new window.DOMParser().parseFromString(
+							excelStrings['xl/worksheets/sheet1.xml'],
+							'text/xml'
+						)
+					)
+					.indexOf('xmlns:r') === -1;
+		}
+
+		$$1.each(obj, function (name, val) {
+			if ($$1.isPlainObject(val)) {
+				var newDir = zip.folder(name);
+				_addToZip(newDir, val);
+			}
+			else {
+				if (_ieExcel) {
+					// IE's XML serialiser will drop some name space attributes from
+					// from the root node, so we need to save them. Do this by
+					// replacing the namespace nodes with a regular attribute that
+					// we convert back when serialised. Edge does not have this
+					// issue
+					var worksheet = val.childNodes[0];
+					var i, ien;
+					var attrs = [];
+
+					for (i = worksheet.attributes.length - 1; i >= 0; i--) {
+						var attrName = worksheet.attributes[i].nodeName;
+						var attrValue = worksheet.attributes[i].nodeValue;
+
+						if (attrName.indexOf(':') !== -1) {
+							attrs.push({ name: attrName, value: attrValue });
+
+							worksheet.removeAttribute(attrName);
+						}
+					}
+
+					for (i = 0, ien = attrs.length; i < ien; i++) {
+						var attr = val.createAttribute(
+							attrs[i].name.replace(':', '_dt_b_namespace_token_')
+						);
+						attr.value = attrs[i].value;
+						worksheet.setAttributeNode(attr);
+					}
+				}
+
+				var str = _serialiser.serializeToString(val);
+
+				// Fix IE's XML
+				if (_ieExcel) {
+					// IE doesn't include the XML declaration
+					if (str.indexOf('<?xml') === -1) {
+						str =
+							'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+							str;
+					}
+
+					// Return namespace attributes to being as such
+					str = str.replace(/_dt_b_namespace_token_/g, ':');
+
+					// Remove testing name space that IE puts into the space preserve attr
+					str = str.replace(/xmlns:NS[\d]+="" NS[\d]+:/g, '');
+				}
+
+				// Safari, IE and Edge will put empty name space attributes onto
+				// various elements making them useless. This strips them out
+				str = str.replace(/<([^<>]*?) xmlns=""([^<>]*?)>/g, '<$1 $2>');
+
+				zip.file(name, str);
+			}
+		});
+	}
+
+	/**
+	 * Create an XML node and add any children, attributes, etc without needing to
+	 * be verbose in the DOM.
+	 *
+	 * @param  {object} doc      XML document
+	 * @param  {string} nodeName Node name
+	 * @param  {object} opts     Options - can be `attr` (attributes), `children`
+	 *   (child nodes) and `text` (text content)
+	 * @return {node}            Created node
+	 */
+	function _createNode(doc, nodeName, opts) {
+		var tempNode = doc.createElement(nodeName);
+
+		if (opts) {
+			if (opts.attr) {
+				$$1(tempNode).attr(opts.attr);
+			}
+
+			if (opts.children) {
+				$$1.each(opts.children, function (key, value) {
+					tempNode.appendChild(value);
+				});
+			}
+
+			if (opts.text !== null && opts.text !== undefined) {
+				tempNode.appendChild(doc.createTextNode(opts.text));
+			}
+		}
+
+		return tempNode;
+	}
+
+	/**
+	 * Get the width for an Excel column based on the contents of that column
+	 * @param  {object} data Data for export
+	 * @param  {int}    col  Column index
+	 * @return {int}         Column width
+	 */
+	function _excelColWidth(data, col) {
+		var max = data.header[col].length;
+		var len, lineSplit, str;
+
+		if (data.footer && data.footer[col] && data.footer[col].length > max) {
+			max = data.footer[col].length;
+		}
+
+		for (var i = 0, ien = data.body.length; i < ien; i++) {
+			var point = data.body[i][col];
+			str = point !== null && point !== undefined ? point.toString() : '';
+
+			// If there is a newline character, workout the width of the column
+			// based on the longest line in the string
+			if (str.indexOf('\n') !== -1) {
+				lineSplit = str.split('\n');
+				lineSplit.sort(function (a, b) {
+					return b.length - a.length;
+				});
+
+				len = lineSplit[0].length;
+			}
+			else {
+				len = str.length;
+			}
+
+			if (len > max) {
+				max = len;
+			}
+
+			// Max width rather than having potentially massive column widths
+			if (max > 40) {
+				return 54; // 40 * 1.35
+			}
+		}
+
+		max *= 1.35;
+
+		// And a min width
+		return max > 6 ? max : 6;
+	}
+
+	// Excel - Pre-defined strings to build a basic XLSX file
+	var excelStrings = {
+		'_rels/.rels':
+			'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+			'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+			'<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>' +
+			'</Relationships>',
+
+		'xl/_rels/workbook.xml.rels':
+			'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+			'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+			'<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>' +
+			'<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>' +
+			'</Relationships>',
+
+		'[Content_Types].xml':
+			'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+			'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
+			'<Default Extension="xml" ContentType="application/xml" />' +
+			'<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml" />' +
+			'<Default Extension="jpeg" ContentType="image/jpeg" />' +
+			'<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml" />' +
+			'<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml" />' +
+			'<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml" />' +
+			'</Types>',
+
+		'xl/workbook.xml':
+			'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+			'<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">' +
+			'<fileVersion appName="xl" lastEdited="5" lowestEdited="5" rupBuild="24816"/>' +
+			'<workbookPr showInkAnnotation="0" autoCompressPictures="0"/>' +
+			'<bookViews>' +
+			'<workbookView xWindow="0" yWindow="0" windowWidth="25600" windowHeight="19020" tabRatio="500"/>' +
+			'</bookViews>' +
+			'<sheets>' +
+			'<sheet name="Sheet1" sheetId="1" r:id="rId1"/>' +
+			'</sheets>' +
+			'<definedNames/>' +
+			'</workbook>',
+
+		'xl/worksheets/sheet1.xml':
+			'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+			'<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac">' +
+			'<sheetData/>' +
+			'<mergeCells count="0"/>' +
+			'</worksheet>',
+
+		'xl/styles.xml':
+			'<?xml version="1.0" encoding="UTF-8"?>' +
+			'<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac">' +
+			'<numFmts count="6">' +
+			'<numFmt numFmtId="164" formatCode="[$$-409]#,##0.00;-[$$-409]#,##0.00"/>' +
+			'<numFmt numFmtId="165" formatCode="&quot;£&quot;#,##0.00"/>' +
+			'<numFmt numFmtId="166" formatCode="[$€-2] #,##0.00"/>' +
+			'<numFmt numFmtId="167" formatCode="0.0%"/>' +
+			'<numFmt numFmtId="168" formatCode="#,##0;(#,##0)"/>' +
+			'<numFmt numFmtId="169" formatCode="#,##0.00;(#,##0.00)"/>' +
+			'</numFmts>' +
+			'<fonts count="5" x14ac:knownFonts="1">' +
+			'<font>' +
+			'<sz val="11" />' +
+			'<name val="Calibri" />' +
+			'</font>' +
+			'<font>' +
+			'<sz val="11" />' +
+			'<name val="Calibri" />' +
+			'<color rgb="FFFFFFFF" />' +
+			'</font>' +
+			'<font>' +
+			'<sz val="11" />' +
+			'<name val="Calibri" />' +
+			'<b />' +
+			'</font>' +
+			'<font>' +
+			'<sz val="11" />' +
+			'<name val="Calibri" />' +
+			'<i />' +
+			'</font>' +
+			'<font>' +
+			'<sz val="11" />' +
+			'<name val="Calibri" />' +
+			'<u />' +
+			'</font>' +
+			'</fonts>' +
+			'<fills count="6">' +
+			'<fill>' +
+			'<patternFill patternType="none" />' +
+			'</fill>' +
+			'<fill>' + // Excel appears to use this as a dotted background regardless of values but
+			'<patternFill patternType="none" />' + // to be valid to the schema, use a patternFill
+			'</fill>' +
+			'<fill>' +
+			'<patternFill patternType="solid">' +
+			'<fgColor rgb="FFD9D9D9" />' +
+			'<bgColor indexed="64" />' +
+			'</patternFill>' +
+			'</fill>' +
+			'<fill>' +
+			'<patternFill patternType="solid">' +
+			'<fgColor rgb="FFD99795" />' +
+			'<bgColor indexed="64" />' +
+			'</patternFill>' +
+			'</fill>' +
+			'<fill>' +
+			'<patternFill patternType="solid">' +
+			'<fgColor rgb="ffc6efce" />' +
+			'<bgColor indexed="64" />' +
+			'</patternFill>' +
+			'</fill>' +
+			'<fill>' +
+			'<patternFill patternType="solid">' +
+			'<fgColor rgb="ffc6cfef" />' +
+			'<bgColor indexed="64" />' +
+			'</patternFill>' +
+			'</fill>' +
+			'</fills>' +
+			'<borders count="2">' +
+			'<border>' +
+			'<left />' +
+			'<right />' +
+			'<top />' +
+			'<bottom />' +
+			'<diagonal />' +
+			'</border>' +
+			'<border diagonalUp="false" diagonalDown="false">' +
+			'<left style="thin">' +
+			'<color auto="1" />' +
+			'</left>' +
+			'<right style="thin">' +
+			'<color auto="1" />' +
+			'</right>' +
+			'<top style="thin">' +
+			'<color auto="1" />' +
+			'</top>' +
+			'<bottom style="thin">' +
+			'<color auto="1" />' +
+			'</bottom>' +
+			'<diagonal />' +
+			'</border>' +
+			'</borders>' +
+			'<cellStyleXfs count="1">' +
+			'<xf numFmtId="0" fontId="0" fillId="0" borderId="0" />' +
+			'</cellStyleXfs>' +
+			'<cellXfs count="68">' +
+			'<xf numFmtId="0" fontId="0" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="1" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="2" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="3" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="4" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="0" fillId="2" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="1" fillId="2" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="2" fillId="2" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="3" fillId="2" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="4" fillId="2" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="0" fillId="3" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="1" fillId="3" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="2" fillId="3" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="3" fillId="3" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="4" fillId="3" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="0" fillId="4" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="1" fillId="4" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="2" fillId="4" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="3" fillId="4" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="4" fillId="4" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="0" fillId="5" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="1" fillId="5" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="2" fillId="5" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="3" fillId="5" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="4" fillId="5" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="0" fillId="0" borderId="1" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="1" fillId="0" borderId="1" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="2" fillId="0" borderId="1" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="3" fillId="0" borderId="1" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="4" fillId="0" borderId="1" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="0" fillId="2" borderId="1" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="1" fillId="2" borderId="1" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="2" fillId="2" borderId="1" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="3" fillId="2" borderId="1" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="4" fillId="2" borderId="1" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="0" fillId="3" borderId="1" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="1" fillId="3" borderId="1" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="2" fillId="3" borderId="1" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="3" fillId="3" borderId="1" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="4" fillId="3" borderId="1" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="0" fillId="4" borderId="1" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="1" fillId="4" borderId="1" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="2" fillId="4" borderId="1" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="3" fillId="4" borderId="1" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="4" fillId="4" borderId="1" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="0" fillId="5" borderId="1" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="1" fillId="5" borderId="1" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="2" fillId="5" borderId="1" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="3" fillId="5" borderId="1" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="4" fillId="5" borderId="1" applyFont="1" applyFill="1" applyBorder="1"/>' +
+			'<xf numFmtId="0" fontId="0" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1" xfId="0" applyAlignment="1">' +
+			'<alignment horizontal="left"/>' +
+			'</xf>' +
+			'<xf numFmtId="0" fontId="0" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1" xfId="0" applyAlignment="1">' +
+			'<alignment horizontal="center"/>' +
+			'</xf>' +
+			'<xf numFmtId="0" fontId="0" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1" xfId="0" applyAlignment="1">' +
+			'<alignment horizontal="right"/>' +
+			'</xf>' +
+			'<xf numFmtId="0" fontId="0" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1" xfId="0" applyAlignment="1">' +
+			'<alignment horizontal="fill"/>' +
+			'</xf>' +
+			'<xf numFmtId="0" fontId="0" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1" xfId="0" applyAlignment="1">' +
+			'<alignment textRotation="90"/>' +
+			'</xf>' +
+			'<xf numFmtId="0" fontId="0" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1" xfId="0" applyAlignment="1">' +
+			'<alignment wrapText="1"/>' +
+			'</xf>' +
+			'<xf numFmtId="9"   fontId="0" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1" xfId="0" applyNumberFormat="1"/>' +
+			'<xf numFmtId="164" fontId="0" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1" xfId="0" applyNumberFormat="1"/>' +
+			'<xf numFmtId="165" fontId="0" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1" xfId="0" applyNumberFormat="1"/>' +
+			'<xf numFmtId="166" fontId="0" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1" xfId="0" applyNumberFormat="1"/>' +
+			'<xf numFmtId="167" fontId="0" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1" xfId="0" applyNumberFormat="1"/>' +
+			'<xf numFmtId="168" fontId="0" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1" xfId="0" applyNumberFormat="1"/>' +
+			'<xf numFmtId="169" fontId="0" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1" xfId="0" applyNumberFormat="1"/>' +
+			'<xf numFmtId="3" fontId="0" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1" xfId="0" applyNumberFormat="1"/>' +
+			'<xf numFmtId="4" fontId="0" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1" xfId="0" applyNumberFormat="1"/>' +
+			'<xf numFmtId="1" fontId="0" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1" xfId="0" applyNumberFormat="1"/>' +
+			'<xf numFmtId="2" fontId="0" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1" xfId="0" applyNumberFormat="1"/>' +
+			'<xf numFmtId="14" fontId="0" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1" xfId="0" applyNumberFormat="1"/>' +
+			'</cellXfs>' +
+			'<cellStyles count="1">' +
+			'<cellStyle name="Normal" xfId="0" builtinId="0" />' +
+			'</cellStyles>' +
+			'<dxfs count="0" />' +
+			'<tableStyles count="0" defaultTableStyle="TableStyleMedium9" defaultPivotStyle="PivotStyleMedium4" />' +
+			'</styleSheet>'
+	};
+	// Note we could use 3 `for` loops for the styles, but when gzipped there is
+	// virtually no difference in size, since the above can be easily compressed
+
+	// Pattern matching for special number formats. Perhaps this should be exposed
+	// via an API in future?
+	// Ref: section 3.8.30 - built in formatters in open spreadsheet
+	//   https://www.ecma-international.org/news/TC45_current_work/Office%20Open%20XML%20Part%204%20-%20Markup%20Language%20Reference.pdf
+	var _excelSpecials = [
+		{
+			match: /^\-?\d+\.\d%$/,
+			style: 60,
+			fmt: function (d) {
+				return d / 100;
+			}
+		}, // Percent with d.p.
+		{
+			match: /^\-?\d+\.?\d*%$/,
+			style: 56,
+			fmt: function (d) {
+				return d / 100;
+			}
+		}, // Percent
+		{ match: /^\-?\$[\d,]+.?\d*$/, style: 57 }, // Dollars
+		{ match: /^\-?£[\d,]+.?\d*$/, style: 58 }, // Pounds
+		{ match: /^\-?€[\d,]+.?\d*$/, style: 59 }, // Euros
+		{ match: /^\-?\d+$/, style: 65 }, // Numbers without thousand separators
+		{ match: /^\-?\d+\.\d{2}$/, style: 66 }, // Numbers 2 d.p. without thousands separators
+		{
+			match: /^\([\d,]+\)$/,
+			style: 61,
+			fmt: function (d) {
+				return -1 * d.replace(/[\(\)]/g, '');
+			}
+		}, // Negative numbers indicated by brackets
+		{
+			match: /^\([\d,]+\.\d{2}\)$/,
+			style: 62,
+			fmt: function (d) {
+				return -1 * d.replace(/[\(\)]/g, '');
+			}
+		}, // Negative numbers indicated by brackets - 2d.p.
+		{ match: /^\-?[\d,]+$/, style: 63 }, // Numbers with thousand separators
+		{ match: /^\-?[\d,]+\.\d{2}$/, style: 64 },
+		{
+			match: /^(19\d\d|[2-9]\d\d\d)\-(0\d|1[012])\-[0123][\d]$/,
+			style: 67,
+			fmt: function (d) {
+				return Math.round(25569 + Date.parse(d) / (86400 * 1000));
+			}
+		} //Date yyyy-mm-dd
+	];
+
+	var _excelMergeCells = function (rels, row, column, rowspan, colspan) {
+		var mergeCells = $$1('mergeCells', rels);
+
+		mergeCells[0].appendChild(
+			_createNode(rels, 'mergeCell', {
+				attr: {
+					ref:
+						createCellPos(column) +
+						row +
+						':' +
+						createCellPos(column + colspan - 1) +
+						(row + rowspan - 1)
+				}
+			})
+		);
+
+		mergeCells.attr('count', parseFloat(mergeCells.attr('count')) + 1);
+	};
+
+	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	 * Buttons
+	 */
+
+	//
+	// Copy to clipboard
+	//
+	DataTable.ext.buttons.copyHtml5 = {
+		className: 'buttons-copy buttons-html5',
+
+		text: function (dt) {
+			return dt.i18n('buttons.copy', 'Copy');
+		},
+
+		action: function (e, dt, button, config, cb) {
+			var exportData = _exportData(dt, config);
+			var info = dt.buttons.exportInfo(config);
+			var newline = _newLine(config);
+			var output = exportData.str;
+			var hiddenDiv = $$1('<div/>').css({
+				height: 1,
+				width: 1,
+				overflow: 'hidden',
+				position: 'fixed',
+				top: 0,
+				left: 0
+			});
+
+			if (info.title) {
+				output = info.title + newline + newline + output;
+			}
+
+			if (info.messageTop) {
+				output = info.messageTop + newline + newline + output;
+			}
+
+			if (info.messageBottom) {
+				output = output + newline + newline + info.messageBottom;
+			}
+
+			if (config.customize) {
+				output = config.customize(output, config, dt);
+			}
+
+			var textarea = $$1('<textarea readonly/>')
+				.val(output)
+				.appendTo(hiddenDiv);
+
+			// For browsers that support the copy execCommand, try to use it
+			if (document.queryCommandSupported('copy')) {
+				hiddenDiv.appendTo(dt.table().container());
+				textarea[0].focus();
+				textarea[0].select();
+
+				try {
+					var successful = document.execCommand('copy');
+					hiddenDiv.remove();
+
+					if (successful) {
+						if (config.copySuccess) {
+							dt.buttons.info(
+								dt.i18n('buttons.copyTitle', 'Copy to clipboard'),
+								dt.i18n(
+									'buttons.copySuccess',
+									{
+										1: 'Copied one row to clipboard',
+										_: 'Copied %d rows to clipboard'
+									},
+									exportData.rows
+								),
+								2000
+							);
+						}
+
+						cb();
+						return;
+					}
+				} catch (t) {
+					// noop
+				}
+			}
+
+			// Otherwise we show the text box and instruct the user to use it
+			var message = $$1(
+				'<span>' +
+					dt.i18n(
+						'buttons.copyKeys',
+						'Press <i>ctrl</i> or <i>\u2318</i> + <i>C</i> to copy the table data<br>to your system clipboard.<br><br>' +
+							'To cancel, click this message or press escape.'
+					) +
+					'</span>'
+			).append(hiddenDiv);
+
+			dt.buttons.info(
+				dt.i18n('buttons.copyTitle', 'Copy to clipboard'),
+				message,
+				0
+			);
+
+			// Select the text so when the user activates their system clipboard
+			// it will copy that text
+			textarea[0].focus();
+			textarea[0].select();
+
+			// Event to hide the message when the user is done
+			var container = $$1(message).closest('.dt-button-info');
+			var close = function () {
+				container.off('click.buttons-copy');
+				$$1(document).off('.buttons-copy');
+				dt.buttons.info(false);
+			};
+
+			container.on('click.buttons-copy', function () {
+				close();
+				cb();
+			});
+			$$1(document)
+				.on('keydown.buttons-copy', function (e) {
+					if (e.keyCode === 27) {
+						// esc
+						close();
+						cb();
+					}
+				})
+				.on('copy.buttons-copy cut.buttons-copy', function () {
+					close();
+					cb();
+				});
+		},
+
+		async: 100,
+
+		copySuccess: true,
+
+		exportOptions: {},
+
+		fieldSeparator: '\t',
+
+		fieldBoundary: '',
+
+		header: true,
+
+		footer: true,
+
+		title: '*',
+
+		messageTop: '*',
+
+		messageBottom: '*'
+	};
+
+	//
+	// CSV export
+	//
+	DataTable.ext.buttons.csvHtml5 = {
+		bom: false,
+
+		className: 'buttons-csv buttons-html5',
+
+		available: function () {
+			return window.FileReader !== undefined && window.Blob;
+		},
+
+		text: function (dt) {
+			return dt.i18n('buttons.csv', 'CSV');
+		},
+
+		action: function (e, dt, button, config, cb) {
+			// Set the text
+			var output = _exportData(dt, config).str;
+			var info = dt.buttons.exportInfo(config);
+			var charset = config.charset;
+
+			if (config.customize) {
+				output = config.customize(output, config, dt);
+			}
+
+			if (charset !== false) {
+				if (!charset) {
+					charset = document.characterSet || document.charset;
+				}
+
+				if (charset) {
+					charset = ';charset=' + charset;
+				}
+			}
+			else {
+				charset = '';
+			}
+
+			if (config.bom) {
+				output = String.fromCharCode(0xfeff) + output;
+			}
+
+			_saveAs(
+				new Blob([output], { type: 'text/csv' + charset }),
+				info.filename,
+				true
+			);
+
+			cb();
+		},
+
+		async: 100,
+
+		filename: '*',
+
+		extension: '.csv',
+
+		exportOptions: {
+			escapeExcelFormula: true
+		},
+
+		fieldSeparator: ',',
+
+		fieldBoundary: '"',
+
+		escapeChar: '"',
+
+		charset: null,
+
+		header: true,
+
+		footer: true
+	};
+
+	//
+	// Excel (xlsx) export
+	//
+	DataTable.ext.buttons.excelHtml5 = {
+		className: 'buttons-excel buttons-html5',
+
+		available: function () {
+			return (
+				window.FileReader !== undefined &&
+				_jsZip() !== undefined &&
+				!_isDuffSafari() &&
+				_serialiser
+			);
+		},
+
+		text: function (dt) {
+			return dt.i18n('buttons.excel', 'Excel');
+		},
+
+		action: function (e, dt, button, config, cb) {
+			var rowPos = 0;
+			var dataStartRow, dataEndRow;
+			var getXml = function (type) {
+				var str = excelStrings[type];
+
+				//str = str.replace( /xmlns:/g, 'xmlns_' ).replace( /mc:/g, 'mc_' );
+
+				return $$1.parseXML(str);
+			};
+			var rels = getXml('xl/worksheets/sheet1.xml');
+			var relsGet = rels.getElementsByTagName('sheetData')[0];
+
+			var xlsx = {
+				_rels: {
+					'.rels': getXml('_rels/.rels')
+				},
+				xl: {
+					_rels: {
+						'workbook.xml.rels': getXml('xl/_rels/workbook.xml.rels')
+					},
+					'workbook.xml': getXml('xl/workbook.xml'),
+					'styles.xml': getXml('xl/styles.xml'),
+					worksheets: {
+						'sheet1.xml': rels
+					}
+				},
+				'[Content_Types].xml': getXml('[Content_Types].xml')
+			};
+
+			var data = dt.buttons.exportData(config.exportOptions);
+			var currentRow, rowNode;
+			var addRow = function (row) {
+				currentRow = rowPos + 1;
+				rowNode = _createNode(rels, 'row', { attr: { r: currentRow } });
+
+				for (var i = 0, ien = row.length; i < ien; i++) {
+					// Concat both the Cell Columns as a letter and the Row of the cell.
+					var cellId = createCellPos(i) + '' + currentRow;
+					var cell = null;
+
+					// For null, undefined of blank cell, continue so it doesn't create the _createNode
+					if (row[i] === null || row[i] === undefined || row[i] === '') {
+						if (config.createEmptyCells === true) {
+							row[i] = '';
+						}
+						else {
+							continue;
+						}
+					}
+
+					var originalContent = row[i];
+					row[i] =
+						typeof row[i].trim === 'function' ? row[i].trim() : row[i];
+
+					// Special number formatting options
+					for (var j = 0, jen = _excelSpecials.length; j < jen; j++) {
+						var special = _excelSpecials[j];
+
+						// TODO Need to provide the ability for the specials to say
+						// if they are returning a string, since at the moment it is
+						// assumed to be a number
+						if (
+							row[i].match &&
+							!row[i].match(/^0\d+/) &&
+							row[i].match(special.match)
+						) {
+							var val = row[i].replace(/[^\d\.\-]/g, '');
+
+							if (special.fmt) {
+								val = special.fmt(val);
+							}
+
+							cell = _createNode(rels, 'c', {
+								attr: {
+									r: cellId,
+									s: special.style
+								},
+								children: [_createNode(rels, 'v', { text: val })]
+							});
+
+							break;
+						}
+					}
+
+					if (!cell) {
+						if (
+							typeof row[i] === 'number' ||
+							(row[i].match &&
+								row[i].match(/^-?\d+(\.\d+)?([eE]\-?\d+)?$/) && // Includes exponential format
+								!row[i].match(/^0\d+/))
+						) {
+							// Detect numbers - don't match numbers with leading zeros
+							// or a negative anywhere but the start
+							cell = _createNode(rels, 'c', {
+								attr: {
+									t: 'n',
+									r: cellId
+								},
+								children: [_createNode(rels, 'v', { text: row[i] })]
+							});
+						}
+						else {
+							// String output - replace non standard characters for text output
+							/*eslint no-control-regex: "off"*/
+							var text = !originalContent.replace
+								? originalContent
+								: originalContent.replace(
+										/[\x00-\x09\x0B\x0C\x0E-\x1F\x7F-\x9F]/g,
+										''
+								);
+
+							cell = _createNode(rels, 'c', {
+								attr: {
+									t: 'inlineStr',
+									r: cellId
+								},
+								children: {
+									row: _createNode(rels, 'is', {
+										children: {
+											row: _createNode(rels, 't', {
+												text: text,
+												attr: {
+													'xml:space': 'preserve'
+												}
+											})
+										}
+									})
+								}
+							});
+						}
+					}
+
+					rowNode.appendChild(cell);
+				}
+
+				relsGet.appendChild(rowNode);
+				rowPos++;
+			};
+
+			var addHeader = function (structure) {
+				structure.forEach(function (row) {
+					addRow(
+						row.map(function (cell) {
+							return cell ? cell.title : '';
+						}));
+					$$1('row:last c', rels).attr('s', '2'); // bold
+
+					// Add any merge cells
+					row.forEach(function (cell, columnCounter) {
+						if (cell && (cell.colSpan > 1 || cell.rowSpan > 1)) {
+							_excelMergeCells(
+								rels,
+								rowPos,
+								columnCounter,
+								cell.rowSpan,
+								cell.colSpan
+							);
+						}
+					});
+				});
+			};
+
+			// Title and top messages
+			var exportInfo = dt.buttons.exportInfo(config);
+			if (exportInfo.title) {
+				addRow([exportInfo.title]);
+				_excelMergeCells(rels, rowPos, 0, 1, data.header.length);
+				$$1('row:last c', rels).attr('s', '51'); // centre
+			}
+
+			if (exportInfo.messageTop) {
+				addRow([exportInfo.messageTop]);
+				_excelMergeCells(rels, rowPos, 0, 1, data.header.length);
+			}
+
+			// Table header
+			if (config.header) {
+				addHeader(data.headerStructure);
+			}
+
+			dataStartRow = rowPos;
+
+			// Table body
+			for (var n = 0, ie = data.body.length; n < ie; n++) {
+				addRow(data.body[n]);
+			}
+
+			dataEndRow = rowPos;
+
+			// Table footer
+			if (config.footer && data.footer) {
+				addHeader(data.footerStructure);
+			}
+
+			// Below the table
+			if (exportInfo.messageBottom) {
+				addRow([exportInfo.messageBottom]);
+				_excelMergeCells(rels, rowPos, 0, 1, data.header.length);
+			}
+
+			// Set column widths
+			var cols = _createNode(rels, 'cols');
+			$$1('worksheet', rels).prepend(cols);
+
+			for (var i = 0, ien = data.header.length; i < ien; i++) {
+				cols.appendChild(
+					_createNode(rels, 'col', {
+						attr: {
+							min: i + 1,
+							max: i + 1,
+							width: _excelColWidth(data, i),
+							customWidth: 1
+						}
+					})
+				);
+			}
+
+			// Workbook modifications
+			var workbook = xlsx.xl['workbook.xml'];
+
+			$$1('sheets sheet', workbook).attr('name', _sheetname(config));
+
+			// Auto filter for columns
+			if (config.autoFilter) {
+				$$1('mergeCells', rels).before(
+					_createNode(rels, 'autoFilter', {
+						attr: {
+							ref:
+								'A' +
+								dataStartRow +
+								':' +
+								createCellPos(data.header.length - 1) +
+								dataEndRow
+						}
+					})
+				);
+
+				$$1('definedNames', workbook).append(
+					_createNode(workbook, 'definedName', {
+						attr: {
+							name: '_xlnm._FilterDatabase',
+							localSheetId: '0',
+							hidden: 1
+						},
+						text:
+							'\'' +
+							_sheetname(config).replace(/'/g, '\'\'') +
+							'\'!$A$' +
+							dataStartRow +
+							':$' +
+							createCellPos(data.header.length - 1) +
+							'$' +
+							dataEndRow
+					})
+				);
+			}
+
+			// Let the developer customise the document if they want to
+			if (config.customize) {
+				config.customize(xlsx, config, dt);
+			}
+
+			// Excel doesn't like an empty mergeCells tag
+			if ($$1('mergeCells', rels).children().length === 0) {
+				$$1('mergeCells', rels).remove();
+			}
+
+			var jszip = _jsZip();
+			var zip = new jszip();
+			var zipConfig = {
+				compression: 'DEFLATE',
+				type: 'blob',
+				mimeType:
+					'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+			};
+
+			_addToZip(zip, xlsx);
+
+			// Modern Excel has a 218 character limit on the file name + path of the file (why!?)
+			// https://support.microsoft.com/en-us/office/excel-specifications-and-limits-1672b34d-7043-467e-8e27-269d656771c3
+			// So we truncate to allow for this.
+			var filename = exportInfo.filename;
+
+			if (filename > 175) {
+				filename = filename.substr(0, 175);
+			}
+
+			// Let the developer customize the final zip file if they want to before it is generated and sent to the browser
+			if (config.customizeZip) {
+				config.customizeZip(zip, data, filename);
+			}
+
+
+			if (zip.generateAsync) {
+				// JSZip 3+
+				zip.generateAsync(zipConfig).then(function (blob) {
+					_saveAs(blob, filename);
+					cb();
+				});
+			}
+			else {
+				// JSZip 2.5
+				_saveAs(zip.generate(zipConfig), filename);
+				cb();
+			}
+		},
+
+		async: 100,
+
+		filename: '*',
+
+		extension: '.xlsx',
+
+		exportOptions: {},
+
+		header: true,
+
+		footer: true,
+
+		title: '*',
+
+		messageTop: '*',
+
+		messageBottom: '*',
+
+		createEmptyCells: false,
+
+		autoFilter: false,
+
+		sheetName: ''
+	};
+
+	//
+	// PDF export - using pdfMake - http://pdfmake.org
+	//
+	DataTable.ext.buttons.pdfHtml5 = {
+		className: 'buttons-pdf buttons-html5',
+
+		available: function () {
+			return window.FileReader !== undefined && _pdfMake();
+		},
+
+		text: function (dt) {
+			return dt.i18n('buttons.pdf', 'PDF');
+		},
+
+		action: function (e, dt, button, config, cb) {
+			var data = dt.buttons.exportData(config.exportOptions);
+			var info = dt.buttons.exportInfo(config);
+			var rows = [];
+
+			if (config.header) {
+				data.headerStructure.forEach(function (row) {
+					rows.push(
+						row.map(function (cell) {
+							return cell
+								? {
+										text: cell.title,
+										colSpan: cell.colspan,
+										rowSpan: cell.rowspan,
+										style: 'tableHeader'
+								}
+								: {};
+						})
+					);
+				});
+			}
+
+			for (var i = 0, ien = data.body.length; i < ien; i++) {
+				rows.push(
+					data.body[i].map(function (d) {
+						return {
+							text:
+								d === null || d === undefined
+									? ''
+									: typeof d === 'string'
+									? d
+									: d.toString()
+						};
+					})
+				);
+			}
+
+			if (config.footer) {
+				data.footerStructure.forEach(function (row) {
+					rows.push(
+						row.map(function (cell) {
+							return cell
+								? {
+										text: cell.title,
+										colSpan: cell.colspan,
+										rowSpan: cell.rowspan,
+										style: 'tableFooter'
+								}
+								: {};
+						})
+					);
+				});
+			}
+
+			var doc = {
+				pageSize: config.pageSize,
+				pageOrientation: config.orientation,
+				content: [
+					{
+						style: 'table',
+						table: {
+							headerRows: config.header
+								? data.headerStructure.length
+								: 0,
+							footerRows: config.footer // Used for styling, doesn't do anything in pdfmake
+								? data.footerStructure.length
+								: 0,
+							body: rows
+						},
+						layout: {
+							hLineWidth: function (i, node) {
+								if (i === 0 || i === node.table.body.length) {
+									return 0;
+								}
+								return 0.5;
+							},
+							vLineWidth: function () {
+								return 0;
+							},
+							hLineColor: function (i, node) {
+								return i === node.table.headerRows ||
+									i ===
+										node.table.body.length -
+											node.table.footerRows
+									? '#333'
+									: '#ddd';
+							},
+							fillColor: function (rowIndex) {
+								if (rowIndex < data.headerStructure.length) {
+									return '#fff';
+								}
+								return rowIndex % 2 === 0 ? '#f3f3f3' : null;
+							},
+							paddingTop: function () {
+								return 5;
+							},
+							paddingBottom: function () {
+								return 5;
+							}
+						}
+					}
+				],
+				styles: {
+					tableHeader: {
+						bold: true,
+						fontSize: 11,
+						alignment: 'center'
+					},
+					tableFooter: {
+						bold: true,
+						fontSize: 11,
+						alignment: 'center'
+					},
+					table: {
+						margin: [0, 5, 0, 5]
+					},
+					title: {
+						alignment: 'center',
+						fontSize: 13
+					},
+					message: {}
+				},
+				defaultStyle: {
+					fontSize: 10
+				}
+			};
+
+			if (info.messageTop) {
+				doc.content.unshift({
+					text: info.messageTop,
+					style: 'message',
+					margin: [0, 0, 0, 12]
+				});
+			}
+
+			if (info.messageBottom) {
+				doc.content.push({
+					text: info.messageBottom,
+					style: 'message',
+					margin: [0, 0, 0, 12]
+				});
+			}
+
+			if (info.title) {
+				doc.content.unshift({
+					text: info.title,
+					style: 'title',
+					margin: [0, 0, 0, 12]
+				});
+			}
+
+			if (config.customize) {
+				config.customize(doc, config, dt);
+			}
+
+			var pdf = _pdfMake().createPdf(doc);
+
+			if (config.download === 'open' && !_isDuffSafari()) {
+				pdf.open();
+			}
+			else {
+				pdf.download(info.filename);
+			}
+
+			cb();
+		},
+
+		async: 100,
+
+		title: '*',
+
+		filename: '*',
+
+		extension: '.pdf',
+
+		exportOptions: {},
+
+		orientation: 'portrait',
+
+		// This isn't perfect, but it is close
+		pageSize:
+			navigator.language === 'en-US' || navigator.language === 'en-CA'
+				? 'LETTER'
+				: 'A4',
+
+		header: true,
+
+		footer: true,
+
+		messageTop: '*',
+
+		messageBottom: '*',
+
+		customize: null,
+
+		download: 'download'
 	};
 
 	/*! ColumnControl 1.2.1
@@ -27066,10 +31704,18 @@ var datatables = (function (exports) {
 	            },
 	            layout: {
 	                topStart: null,
-	                topEnd: null,
+	                topEnd: options.exportFilename ? 'buttons' : null,
 	                bottomStart: ['pageLength', 'info'],
 	                bottomEnd: 'paging',
 	            },
+	            buttons: options.exportFilename ? [{
+	                extend: 'csv',
+	                filename: options.exportFilename,
+	                extension: '.csv',
+	                text: '<i class="bi-download" aria-hidden="true"></i> Export CSV',
+	                className: 'btn btn-sm btn-outline-secondary',
+	                exportOptions: { modifier: { search: 'none' } },
+	            }] : [],
 	            columnControl: ['order', ['search', 'spacer', 'orderAsc', 'orderDesc', 'orderClear']],
 	            columnDefs: options.columnTypes ? options.columnTypes.map((type, index) => {
 	                const colDef = {
