@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - web: client-side CSV export to avoid double query execution
+- web: set predefined query CSV export filename with query name
 
 ## [0.9.2] - 2026-04-30
 Patch version fixing predefined query totals row when dynamically applying table
