@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.3] - 2026-04-30
+Patch version fixing client-side CSV export of query results to avoid double
+query execution when JavaScript is available.
+
 ### Fixed
 - web: client-side CSV export to avoid double query execution
 - web: set predefined query CSV export filename with query name
@@ -297,8 +301,9 @@ Initial release of `laketower`.
     - View a given table with simple query builder
     - Query all registered tables with DuckDB SQL dialect
 
-[Unreleased]: https://github.com/datalpia/laketower/compare/0.9.2...HEAD
-[0.9.1]: https://github.com/datalpia/laketower/compare/0.9.1...0.9.2
+[Unreleased]: https://github.com/datalpia/laketower/compare/0.9.3...HEAD
+[0.9.3]: https://github.com/datalpia/laketower/compare/0.9.2...0.9.3
+[0.9.2]: https://github.com/datalpia/laketower/compare/0.9.1...0.9.2
 [0.9.1]: https://github.com/datalpia/laketower/compare/0.9.0...0.9.1
 [0.9.0]: https://github.com/datalpia/laketower/compare/0.8.0...0.9.0
 [0.8.0]: https://github.com/datalpia/laketower/compare/0.7.0...0.8.0
