@@ -44,13 +44,14 @@
       const columnNames = {{ query_results.column_names | tojson }}
       const columnUniques = {{ query_results.column_uniques | tojson }}
       const tableData = datatables.columnarToArrays({{ query_results.columns | tojson }}, columnNames)
+      let dt = null
       function initDataTable() {
         const columnTypes = datatables.arrowTypesToDataTables(arrowTypes)
         const columns = [
           { data: null, title: '#', render: (d, t, r, meta) => meta.row + 1, orderable: false, searchable: false },
           ...columnNames.map((name, i) => ({ data: i, title: name }))
         ]
-        datatables.createDataTable('#resultsTable', {
+        dt = datatables.createDataTable('#resultsTable', {
           data: tableData,
           columns: columns,
           columnTypes: columnTypes,
@@ -59,8 +60,20 @@
           columnIndexOffset: 1,
           exportFilename: {{ query.name | tojson }},
         })
-
       }
+      // Destroy DataTables before HTMX snapshots the page for back/forward history.
+      // HTMX re-executes inline scripts on restore, so without this the restored
+      // snapshot (which has DataTables-wrapped DOM) gets wrapped again, doubling controls.
+      document.body.addEventListener(
+        'htmx:beforeHistorySave',
+        () => {
+          if (dt) {
+            dt.destroy()
+            dt = null
+          }
+        },
+        { once: true }
+      )
       if (typeof datatables !== 'undefined') {
         initDataTable()
       } else {
