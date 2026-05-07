@@ -5,7 +5,7 @@ import 'datatables.net-columncontrol-bs5'
 
 export { DataTable }
 
-const SEARCHLIST_MAX_CARDINALITY = 25
+const SEARCHLIST_MAX_CARDINALITY = 100
 
 export function columnarToArrays(columnar, columnNames) {
     const cols = columnNames.map(k => columnar[k])
