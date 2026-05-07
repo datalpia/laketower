@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.4] - 2026-05-07
+Patch version fixing client-side back/forward navigation with query results table, and increases the maximum column cardinality to display categorical values in results table.
+
 ### Fixed
 - web: increase maximum column cardinality to 100 when displaying categorical values in query results table
 - web: prevent query results table duplicated controls on back/forward navigation
@@ -305,7 +308,8 @@ Initial release of `laketower`.
     - View a given table with simple query builder
     - Query all registered tables with DuckDB SQL dialect
 
-[Unreleased]: https://github.com/datalpia/laketower/compare/0.9.3...HEAD
+[Unreleased]: https://github.com/datalpia/laketower/compare/0.9.4...HEAD
+[0.9.4]: https://github.com/datalpia/laketower/compare/0.9.3...0.9.4
 [0.9.3]: https://github.com/datalpia/laketower/compare/0.9.2...0.9.3
 [0.9.2]: https://github.com/datalpia/laketower/compare/0.9.1...0.9.2
 [0.9.1]: https://github.com/datalpia/laketower/compare/0.9.0...0.9.1
