@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- web: increase maximum column cardinality to 100 when displaying categorical values in query results table
+
 ## [0.9.3] - 2026-04-30
 Patch version fixing client-side CSV export of query results to avoid double
 query execution when JavaScript is available.

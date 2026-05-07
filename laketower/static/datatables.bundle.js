@@ -31652,7 +31652,7 @@ var datatables = (function (exports) {
 	DataTable.ColumnControl.SearchInput.classes.input = ['form-control', 'form-control-sm'];
 	DataTable.ColumnControl.SearchInput.classes.select = ['form-select', 'form-select-sm'];
 
-	const SEARCHLIST_MAX_CARDINALITY = 25;
+	const SEARCHLIST_MAX_CARDINALITY = 100;
 
 	function columnarToArrays(columnar, columnNames) {
 	    const cols = columnNames.map(k => columnar[k]);
