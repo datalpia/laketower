@@ -585,7 +585,7 @@ name = "exceptiongroup"
 version = "1.3.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "typing-extensions", marker = "python_full_version < '3.11'" },
+    { name = "typing-extensions" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/50/79/66800aadf48771f6b62f7eb014e352e5d06856655206165d775e675a02c9/exceptiongroup-1.3.1.tar.gz", hash = "sha256:8b412432c6055b0b7d14c310000ae93352ed6754f70fa8f7c34141f91c4e3219", size = 30371, upload-time = "2025-11-21T23:01:54.787Z" }
 wheels = [
@@ -809,7 +809,7 @@ dev = [
     { name = "pytest", specifier = "==9.0.3" },
     { name = "pytest-cov", specifier = "==7.1.0" },
     { name = "ruff", specifier = "==0.15.16" },
-    { name = "types-bleach", specifier = "==6.3.0.20260508" },
+    { name = "types-bleach", specifier = "==6.4.0.20260728" },
     { name = "types-markdown", specifier = "==3.10.2.20260518" },
     { name = "types-openpyxl", specifier = "==3.1.5.20260518" },
     { name = "types-pyyaml", specifier = "==6.0.12.20260518" },
@@ -2162,14 +2162,14 @@ wheels = [
 
 [[package]]
 name = "types-bleach"
-version = "6.3.0.20260508"
+version = "6.4.0.20260728"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "types-html5lib" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/fa/23/dc5aae645229625676071911fedaeb9bec8c945a1c8be5c01bc4c61052de/types_bleach-6.3.0.20260508.tar.gz", hash = "sha256:2d1b6b5baf99fe330af28040e9f688d12fea0ac65657669f850bb687c65b1509", size = 11678, upload-time = "2026-05-08T04:52:52.218Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/c0/58/b9f2678dd538de3aa8613825986dab68608447a25bd32aa336e65a6e2cdc/types_bleach-6.4.0.20260728.tar.gz", hash = "sha256:526a4fec997514bf3fe989ef59b86ec694bbb2ed70db22c59b622eb5a9b80fae", size = 11785, upload-time = "2026-07-28T04:52:17.359Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/2a/54/c736f77d60b25913bb2711ce5a364186c50e12f8c652b52f6893e5d5bee0/types_bleach-6.3.0.20260508-py3-none-any.whl", hash = "sha256:103627b46343017cf3f05e791f96810bf0ed8b4f32c736a72a055a60c00729f4", size = 11988, upload-time = "2026-05-08T04:52:51.134Z" },
+    { url = "https://files.pythonhosted.org/packages/3c/3d/ac2809b7afe8ac7c907faacdd60bd3d194de0802d809b82327e969bc05da/types_bleach-6.4.0.20260728-py3-none-any.whl", hash = "sha256:ea9feed53196b24a6d9f0cb471c1cfbb0788b3194e8335dc8da1b951b4965d7f", size = 12012, upload-time = "2026-07-28T04:52:16.344Z" },
 ]
 
 [[package]]
