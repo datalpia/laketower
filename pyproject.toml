@@ -86,7 +86,7 @@ dev = [
     "types-pyyaml==6.0.12.20260518",
     "fastexcel[pyarrow]==0.20.2",
     "openpyxl==3.1.5",
-    "types-openpyxl==3.1.5.20260518",
+    "types-openpyxl==3.1.5.20260827",
     "watchdog==6.0.0",
 ]
 
